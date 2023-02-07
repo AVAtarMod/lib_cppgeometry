@@ -1,71 +1,69 @@
 #ifndef CPPLIB_FUNCTIONS_HPP
 #define CPPLIB_FUNCTIONS_HPP
 
-#include <chrono>
-#include <cstring>
-#include <random>
+#include <cmath>
+#include <iostream>
+#include <limits>
 
-#include "functions.hpp"
+using uint = unsigned int; 
 
-using uint = unsigned int;
+int getRandomNumber(int from, int to);
 
-int getRandomNumber(int from, int to)
+/**
+ * @brief Round double to specified digits after decimal separator
+ *
+ * @param number source number
+ * @param dds amount digits after decimal separator. Should be positive
+ * @return double - Rounded number
+ */
+double round(double number, int8_t dds = 0);
+/**
+ * @brief Compare 2 numbers with specified precision
+ *
+ * @param a first number
+ * @param b second number
+ * @param dds Compare precision - digits after decimal separator. Should be
+ * positive
+ * @return true if the numbers are equal, false otherwise
+ */
+bool areEqual(double a, double b, int8_t dds = 0);
+/**
+ * @brief Compare 2 numbers with specified precision
+ *
+ * @param a first number
+ * @param b second number
+ * @param precision Compare precision. Should be positive
+ * @return true if the numbers are differs lesser than specified precision
+ * value, false otherwise
+ */
+bool areEqual(double a, double b, double precision = 0.01);
+
+template< class T >
+T power(T a, uint power)
 {
-   try {
-      if (from > to)
-         throw std::runtime_error(
-           "Incorrect couple 'from - to' for generating random numbers");
-   } catch (const std::runtime_error& err) {
-      std::cerr << err.what() << '\n';
-      exit(1);
+   if (power == 0)
+      return 1;
+   T result = a;
+   while (power != 1) {
+      result *= a;
+      --power;
    }
-
-   unsigned int now = static_cast< unsigned >(
-     std::chrono::high_resolution_clock::now().time_since_epoch().count() %
-     10000);
-   std::mt19937 engine(now);
-   std::uniform_int_distribution< int > random(from, to);
-
-   return random(engine);
+   return result;
 }
 
-double round(double number, int8_t dds)
+template< class T >
+typename std::enable_if< !std::numeric_limits< T >::is_integer, bool >::type almost_equal(
+  T x, T y, int ulp = 2)
 {
-   if (dds < 0)
-      throw std::invalid_argument("round: dds should be positive.");
-
-   uint mult = 1;
-   while (dds != 0) {
-      mult *= 10;
-      --dds;
-   }
-
-   return std::round(number * mult) / static_cast< double >(mult);
+   // the machine epsilon has to be scaled to the magnitude of the values
+   // used and multiplied by the desired precision in ULPs (units in the
+   // last place)
+   return std::fabs(x - y) <=
+            std::numeric_limits< T >::epsilon() * std::fabs(x + y) * ulp
+          // unless the result is subnormal
+          || std::fabs(x - y) < std::numeric_limits< T >::min();
 }
 
-bool areEqual(double a, double b, int8_t dds)
-{
-   if (dds < 0)
-      throw std::invalid_argument("areEqual: dds should be positive.");
-
-   return round(a, dds) == round(b, dds);
-}
-
-bool areEqual(double a, double b, double precision)
-{
-   if (precision < 0.0)
-      throw std::invalid_argument("areEqual: precision should be positive.");
-   return std::fabs(a - b) <= precision;
-}
-
-int getNumberDigits(int number)
-{
-   int numberDigits = 0;
-   while (number != 0) {
-      ++numberDigits;
-      number /= 10;
-   }
-   return numberDigits;
-}
+int getNumberDigits(int number);
 
 #endif // CPPLIB_FUNCTIONS_HPP

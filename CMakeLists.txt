@@ -11,7 +11,7 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # create the shared library
-add_library(shared SHARED shared.cpp)
+add_library(shared STATIC Point.cpp ComplexNumber.cpp)
 
 # generate export header automatically
 include (GenerateExportHeader)

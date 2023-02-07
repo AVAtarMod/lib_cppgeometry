@@ -7,7 +7,7 @@
 
 #include "functions.hpp"
 
-unsigned uint = unsigned int;
+using uint = unsigned int;
 
 int getRandomNumber(int from, int to)
 {

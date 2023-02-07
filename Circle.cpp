@@ -2,7 +2,10 @@
 
 #include "Line.hpp"
 #include "functions.hpp"
+
+#define _USE_MATH_DEFINES
 #include <cmath>
+
 #include <exception>
 
 Circle::Circle(const Point& center, double radius)

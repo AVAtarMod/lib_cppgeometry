@@ -60,7 +60,7 @@ class Line
    bool isPerpendicular(const Line& other, double precision = 0.01) const;
 
    /**
-    * @brief Swap Line @b this with @b other
+    * @brief Swap @b this Line with @b other
     */
    void swap(Line& other) { Line::swap(*this, other); };
 

@@ -1,5 +1,5 @@
-#ifndef COURSEWORK_4_1_ANGLE_HPP
-#define COURSEWORK_4_1_ANGLE_HPP
+#ifndef GEOMETRY_LIB_ANGLE_HPP
+#define GEOMETRY_LIB_ANGLE_HPP
 
 class Angle
 {
@@ -41,4 +41,4 @@ class Angle
    static Angle fullAngle();
 };
 
-#endif // COURSEWORK_4_1_ANGLE _HPP
+#endif // GEOMETRY_LIB_ANGLE _HPP

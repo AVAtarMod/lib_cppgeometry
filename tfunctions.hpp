@@ -8,8 +8,8 @@
  * @copyright Copyright © 2022 Grigory Stupnikov. All rights reserved. Licensed
  * under GNU GPLv3. See https://opensource.org/licenses/GPL-3.0.
  */
-#ifndef COURSEWORK_4_1_TFUNCTIONS_HPP
-#define COURSEWORK_4_1_TFUNCTIONS_HPP
+#ifndef GEOMETRY_LIB_TFUNCTIONS_HPP
+#define GEOMETRY_LIB_TFUNCTIONS_HPP
 
 #include "ComplexNumber.hpp"
 
@@ -77,4 +77,4 @@ namespace task6 {
                             const ProgramOptions& options, int& returnCode);
    void solve(int& returnCode, const ProgramOptions& options);
 }
-#endif // COURSEWORK_4_1_TFUNCTIONS_HPP
+#endif // GEOMETRY_LIB_TFUNCTIONS_HPP

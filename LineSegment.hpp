@@ -1,5 +1,5 @@
-#ifndef COURSEWORK_4_1_LINESEGMENT_HPP
-#define COURSEWORK_4_1_LINESEGMENT_HPP
+#ifndef GEOMETRY_LIB_LINESEGMENT_HPP
+#define GEOMETRY_LIB_LINESEGMENT_HPP
 
 #include "Line.hpp"
 
@@ -27,4 +27,4 @@ class LineSegment
    ~LineSegment();
 };
 
-#endif // COURSEWORK_4_1_LINESEGMENT_HPP
+#endif // GEOMETRY_LIB_LINESEGMENT_HPP

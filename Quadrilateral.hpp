@@ -1,5 +1,5 @@
-#ifndef COURSEWORK_4_1_QUADRILATERAL_HPP
-#define COURSEWORK_4_1_QUADRILATERAL_HPP
+#ifndef GEOMETRY_LIB_QUADRILATERAL_HPP
+#define GEOMETRY_LIB_QUADRILATERAL_HPP
 
 #include "Point.hpp"
 
@@ -14,4 +14,4 @@ class Quadrilateral
    ~Quadrilateral();
 };
 
-#endif // COURSEWORK_4_1_QUADRILATERAL_HPP
+#endif // GEOMETRY_LIB_QUADRILATERAL_HPP

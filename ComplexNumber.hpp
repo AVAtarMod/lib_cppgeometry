@@ -1,5 +1,5 @@
-#ifndef COURSEWORK_4_1_COMPLEXNUMBER_HPP
-#define COURSEWORK_4_1_COMPLEXNUMBER_HPP
+#ifndef GEOMETRY_LIB_COMPLEXNUMBER_HPP
+#define GEOMETRY_LIB_COMPLEXNUMBER_HPP
 
 #include "Point.hpp"
 #include <iostream>
@@ -49,4 +49,4 @@ class ComplexNumber
    static ComplexNumber zero() { return ComplexNumber(0, 0); }
 };
 
-#endif // COURSEWORK_4_1_COMPLEXNUMBER_HPP
+#endif // GEOMETRY_LIB_COMPLEXNUMBER_HPP

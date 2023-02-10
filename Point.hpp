@@ -1,5 +1,5 @@
-#ifndef COURSEWORK_4_1_POINT_HPP
-#define COURSEWORK_4_1_POINT_HPP
+#ifndef GEOMETRY_LIB_POINT_HPP
+#define GEOMETRY_LIB_POINT_HPP
 
 class Point
 {
@@ -42,4 +42,4 @@ class Point
    static bool isAtInfinity(const Point& point);
 };
 
-#endif // COURSEWORK_4_1_POINT_HPP
+#endif // GEOMETRY_LIB_POINT_HPP

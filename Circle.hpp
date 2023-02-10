@@ -1,5 +1,5 @@
-#ifndef COURSEWORK_4_1_CIRCLE_HPP
-#define COURSEWORK_4_1_CIRCLE_HPP
+#ifndef GEOMETRY_LIB_CIRCLE_HPP
+#define GEOMETRY_LIB_CIRCLE_HPP
 
 #include "Angle.hpp"
 #include "Point.hpp"
@@ -64,4 +64,4 @@ class Circle
    ~Circle();
 };
 
-#endif // COURSEWORK_4_1_CIRCLE_HPP
+#endif // GEOMETRY_LIB_CIRCLE_HPP

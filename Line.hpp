@@ -1,5 +1,5 @@
-#ifndef COURSEWORK_4_1_LINE_HPP
-#define COURSEWORK_4_1_LINE_HPP
+#ifndef GEOMETRY_LIB_LINE_HPP
+#define GEOMETRY_LIB_LINE_HPP
 
 #include "ComplexNumber.hpp"
 #include "Point.hpp"
@@ -80,4 +80,4 @@ class Line
    static void swap(Line& left, Line& right);
 };
 
-#endif // COURSEWORK_4_1_LINE_HPP
+#endif // GEOMETRY_LIB_LINE_HPP

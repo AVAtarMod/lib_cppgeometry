@@ -1,5 +1,5 @@
-#ifndef COURSEWORK_4_1_CIRCLEARC_HPP
-#define COURSEWORK_4_1_CIRCLEARC_HPP
+#ifndef GEOMETRY_LIB_CIRCLEARC_HPP
+#define GEOMETRY_LIB_CIRCLEARC_HPP
 
 #include "Angle.hpp"
 #include "Circle.hpp"
@@ -53,4 +53,4 @@ class CircleArc
    ~CircleArc();
 };
 
-#endif // COURSEWORK_4_1_CIRCLEARC_HPP
+#endif // GEOMETRY_LIB_CIRCLEARC_HPP

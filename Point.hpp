@@ -278,6 +278,11 @@ public:
         Point ans(arr, Size());
         return ans;
     }
+
+    static double cos(const Point& a, const Point& b)
+    {
+        return a * b / (a.Length() * b.Length());
+    }
     
     /**
      * @brief Does check is point has one or both coordinates at infinity

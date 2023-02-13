@@ -4,5 +4,7 @@
 
 bool Point::isAtInfinity(const Point& point)
 {
-   return std::isinf(point._x) || std::isinf(point._y);
+	for (int i = 0; i < point.Size(); i++)
+		if (std::isinf(point[i])) return true;
+	return false;
 }

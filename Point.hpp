@@ -68,6 +68,11 @@ public:
         dimension_normalization();
     }
 
+    ~Point()
+    {
+        delete[] _coord;
+    }
+
     bool operator==(const Point& a) const
     {
         int min = Size();
@@ -145,6 +150,28 @@ public:
         */
 
         ans.dimension_normalization();
+        return ans;
+    }
+
+    double operator*(const Point& a) const
+    {
+        double ans = 0;
+        int min = min(a.Size(), Size());
+        for (int i = 0; i < min; i++)
+            ans += a[i] * (*this)[i];
+        return ans;
+    }
+
+    Point operator^(const Point& a) const
+    {
+        Point ans(3);
+        Point a1 = copy();
+        Point a2 = a.copy();
+        a1.resize(3);
+        a2.resize(3);
+        ans[0] = a1[1] * a2[2] - a1[2] * a2[1];
+        ans[1] = a1[2] * a2[0] - a1[0] * a2[2];
+        ans[2] = a1[0] * a2[1] - a1[1] * a2[0];
         return ans;
     }
     
@@ -241,6 +268,14 @@ public:
         for (; i >= 0; i--)
             ans[i] = (a[i] + b[i]) / 2;
         ans.dimension_normalization();
+        return ans;
+    }
+
+    Point copy() const
+    {
+        double* arr = new double[Size()];
+        std::copy_n(_coord, Size(), arr);
+        Point ans(arr, Size());
         return ans;
     }
     

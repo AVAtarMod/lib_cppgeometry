@@ -10,7 +10,7 @@ class LineSegment
    Point _endpoints[2];
 
   public:
-   LineSegment(const Point& a = Point(0, 0), const Point& b = Point(1, 0));
+   LineSegment(const Point& a, const Point& b);
    LineSegment(const Line& l, const Point endpoints[2]);
 
    std::pair< Point, Point > getEndpoints() const;

@@ -59,11 +59,6 @@ Point::Point(const Point& a)
     _size = a.Size();
 }
 
-Point::Point(const Point& a, int size) : Point(a)
-{
-    resize(size);
-}
-
 bool Point::operator==(const Point& a) const
 {
     int min = Size();

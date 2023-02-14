@@ -20,7 +20,6 @@ public:
     Point(int size);
     Point(double* coord, int size);
     Point(const Point& a);
-    Point(const Point& a, int size);
     Point(double x, double y);
     ~Point()
     {

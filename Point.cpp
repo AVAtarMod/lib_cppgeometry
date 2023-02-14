@@ -53,11 +53,7 @@ Point::Point(double* coord, int size)
     std::copy_n(coord, size, _coord);
 }
 
-Point::Point(const Point& a)
-{
-    std::copy_n(a._coord, a.Size(), _coord);
-    _size = a.Size();
-}
+Point::Point(const Point& a) { *this = a; }
 
 bool Point::operator==(const Point& a) const
 {
@@ -74,25 +70,25 @@ bool Point::operator==(const Point& a) const
     return equal(a, min);
 }
 
-Point& Point::operator += (const Point& a)
+void Point::operator = (const Point& a)
 {
-    int i = a.Size();
-    if (Size() < a.Size())
-    {
-        int min = Size();
-        resize(a.Size());
-        for (i = Size() - 1; i >= min; i--)
-            (*this)[i] = a[i];
-    }
-    for (; i >= 0; i--)
-        (*this)[i] += a[i];
-    return *this;
+    this->~Point();
+    _coord = new double[a.Size()]{};
+    std::copy_n(a._coord, a.Size(), _coord);
+    _size = a.Size();
 }
 
-Point& Point::operator -= (const Point& a)
+void Point::operator += (const Point& a)
+{
+    if (Size() < a.Size())
+        resize(a.Size());
+    for (int i = 0; i < Size(); i++)
+        (*this)[i] += a[i];
+}
+
+void Point::operator -= (const Point& a)
 {
     *this += -a;
-    return *this;
 }
 
 Point Point::operator-() const
@@ -183,7 +179,7 @@ void Point::resize(int size)
 
 void Point::zeroing()
 {
-    delete[]_coord;
+    this->~Point();
     _coord = new double[1]{};
     _size = 1;
 }

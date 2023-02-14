@@ -28,8 +28,9 @@ public:
 
     bool operator==(const Point& a) const;    
     bool operator!=(const Point& a) const { return !(*this == a); }
-    Point& operator += (const Point& a);
-    Point& operator -= (const Point& a);    
+    void operator = (const Point& a);
+    void operator += (const Point& a);
+    void operator -= (const Point& a);    
     Point operator-(const Point& a) const { return (*this) + (-a); }
     Point operator-() const;
     Point operator+(const Point& a) const;

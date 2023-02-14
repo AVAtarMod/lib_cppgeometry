@@ -135,7 +135,7 @@ Point Point::operator^(const Point& a) const
    return ans;
 }
 
-double Point::operator[](char* ch) const
+double Point::operator[](const char* ch) const
 {
    switch (tolower(ch[0])) {
       case 'x':
@@ -149,7 +149,7 @@ double Point::operator[](char* ch) const
    }
 }
 
-double& Point::operator[](char* ch)
+double& Point::operator[](const char* ch)
 {
    switch (tolower(ch[0])) {
       case 'x':

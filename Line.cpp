@@ -143,11 +143,11 @@ bool Line::isBelongs(Point point) const
 {
    switch (_type) {
       case LineType::CONST_X:
-         return _x == point['x'];
+         return _x == point["x"];
       case LineType::CONST_Y:
-         return _y == point['y'];
+         return _y == point["y"];
       case LineType::NORMAL:
-         return almost_equal(y(point['x']), point['y'], 2);
+         return almost_equal(y(point["x"]), point["y"], 2);
       default:
          return false;
    }
@@ -171,17 +171,17 @@ Line Line::makePerpendicular(const Line& to, const Point& from)
    switch (to.getType()) {
       case LineType::CONST_X:
          // Perpendicular is CONST_Y, y = from.Y
-         return Line { 0, from['y'] };
+         return Line { 0, from["y"] };
       case LineType::CONST_Y:
          // Perpendicular is CONST_X, x = from.X
          // We should use constructor by 2 points because y = kx + b not
          // represent equation x = const
-         return Line { from, Point { from['x'], from['y'] + yDiff } };
+         return Line { from, Point { from["x"], from["y"] + yDiff } };
       case LineType::NORMAL:
          // Perpendicular is NORMAL, k = -1/to.k and 'to' on perpendicular
          {
             const double k = -1 / to.K();
-            const double b = from['y'] + from['x'] / to.K();
+            const double b = from["y"] + from["x"] / to.K();
             return Line(k, b);
          }
       default:
@@ -250,18 +250,18 @@ void Line::LineEquation::initByLineType()
          // Y may be any, x = const
          _k = 0;
          _b = std::numeric_limits< double >::infinity();
-         _x = _pointB['x'];
+         _x = _pointB["x"];
          break;
       case LineType::CONST_Y:
          // X may be any, y = const
          _k = 0;
          _b = 0;
-         _y = _pointB['y'];
+         _y = _pointB["y"];
          break;
       case LineType::NORMAL:
          // Normal line, y = kx + b
          _k = yDiff / xDiff;
-         _b = (-_pointA['x'] * yDiff + _pointA['y'] * xDiff) / xDiff;
+         _b = (-_pointA["x"] * yDiff + _pointA["y"] * xDiff) / xDiff;
          break;
       default:
          break;
@@ -276,15 +276,15 @@ Line::LineEquation::LineEquation(const ComplexNumber& a,
 
 Line::LineEquation::LineEquation(const Point& a, const Point& b)
 {
-   if (a == b || std::isinf(a['x']) || std::isinf(b['x']) || std::isinf(a['y']) ||
-       std::isinf(b['y']))
+   if (a == b || std::isinf(a["x"]) || std::isinf(b["x"]) || std::isinf(a["y"]) ||
+       std::isinf(b["y"]))
       throw std::runtime_error(
         "Cannot create line from 2 equal points, or coordinates incorrect (a.e. Inf)");
 
    _pointA = a, _pointB = b;
 
-   yDiff = _pointB['y'] - _pointA['y'];
-   xDiff = _pointB['x'] - _pointA['x'];
+   yDiff = _pointB["y"] - _pointA["y"];
+   xDiff = _pointB["x"] - _pointA["x"];
    type = (xDiff == 0) ? LineType::CONST_X
                        : ((yDiff == 0) ? LineType::CONST_Y : LineType::NORMAL);
 

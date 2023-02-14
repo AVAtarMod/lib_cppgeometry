@@ -38,8 +38,8 @@ class Point
    Point operator^(const Point& a) const;
    double operator[](int ind) const { return _coord[ind]; }
    double& operator[](int ind) { return _coord[ind]; }
-   double operator[](char* ch) const;
-   double& operator[](char* ch);
+   double operator[](const char* ch) const;
+   double& operator[](const char* ch);
 
    const int Size() const { return _size; }
    const int Dimension() const;

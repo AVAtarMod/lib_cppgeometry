@@ -42,7 +42,7 @@ public:
 
     const int Size() const { return _size; }
     const int Dimension() const;
-    const int Length() const { return distance(Point(), *this); }
+    const double Length() const { return distance(Point(), *this); }
 
     void resize(int size);
     void zeroing();

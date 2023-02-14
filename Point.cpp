@@ -10,13 +10,6 @@ bool Point::is_zeros(int ind) const
     return true;
 }
 
-void Point::dimension_normalization()
-{
-    _dimension = 0;
-    for (int i = 0; i < _size; i++)
-        if ((*this)[i] != 0) _dimension++;
-}
-
 void Point::zero_normalization()
 {
     int s = Size(), i;
@@ -37,14 +30,12 @@ Point::Point()
 {
     _coord = new double[1]{};
     _size = 1;
-    _dimension = 0;
 }
 
 Point::Point(int size)
 {
     _coord = new double[size] {};
     _size = size;
-    _dimension = 0;
 }
 
 Point::Point(double* coord, int size)
@@ -52,14 +43,12 @@ Point::Point(double* coord, int size)
     _coord = new double[size] {};
     _size = size;
     std::copy_n(coord, size, _coord);
-    dimension_normalization();
 }
 
 Point::Point(const Point& a)
 {
     std::copy_n(a._coord, a.Size(), _coord);
     _size = a.Size();
-    _dimension = a.Dimension();
 }
 
 Point::Point(const Point& a, int size) : Point(a)
@@ -94,7 +83,6 @@ Point& Point::operator += (const Point& a)
     }
     for (; i >= 0; i--)
         (*this)[i] += a[i];
-    dimension_normalization();
     return *this;
 }
 
@@ -118,7 +106,6 @@ Point Point::operator+(const Point& a) const
     Point ans = Point();
     ans += *this;
     ans += a;
-    ans.dimension_normalization();
     return ans;
 }
 
@@ -174,6 +161,14 @@ double& Point::operator[](char* ch)
     }
 }
 
+const int Point::Dimension() const
+{
+    int _dimension = 0;
+    for (int i = 0; i < _size; i++)
+        if ((*this)[i] != 0) _dimension++;
+    return _dimension;
+}
+
 void Point::resize(int size)
 {
     double* buf = _coord;
@@ -181,7 +176,6 @@ void Point::resize(int size)
     _size = size;
     std::copy_n(buf, std::min(size, _size), _coord);
     delete[] buf;
-    dimension_normalization();
 }
 
 void Point::zeroing()
@@ -189,7 +183,6 @@ void Point::zeroing()
     delete[]_coord;
     _coord = new double[1]{};
     _size = 1;
-    _dimension = 0;
 }
 
 double Point::distance(const Point& a, const Point& b)

@@ -8,11 +8,9 @@ class Point
 {
 private:
     double* _coord = nullptr;
-    int _dimension;
     int _size;
 
     bool is_zeros(int ind) const;
-    void dimension_normalization();
     void zero_normalization();
     bool equal(const Point& a, int size) const;
 
@@ -42,7 +40,7 @@ public:
     double& operator[](char* ch);
 
     const int Size() const { return _size; }
-    const int Dimension() const { return _dimension; }
+    const int Dimension() const;
     const int Length() const { return distance(Point(), *this); }
 
     void resize(int size);

@@ -1,7 +1,6 @@
 #include "LineSegment.hpp"
 
 #include "functions.hpp"
-#include "tfunctions.hpp"
 #include <cmath>
 
 LineSegment::LineSegment(const Point& a, const Point& b) :

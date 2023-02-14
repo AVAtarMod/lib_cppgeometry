@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <ctype.h>
+#include <iostream>
 
 class Point
 {
@@ -15,6 +16,8 @@ class Point
    void zero_normalization();
    bool equal(const Point& a, int size) const;
 
+   friend std::ostream& operator<<(std::ostream& out, const Point& number);
+
   public:
    Point();
    Point(int size);
@@ -23,20 +26,20 @@ class Point
    Point(double x, double y);
    ~Point() { delete[] _coord; }
 
-    bool operator==(const Point& a) const;    
-    bool operator!=(const Point& a) const { return !(*this == a); }
-    void operator = (const Point& a);
-    void operator += (const Point& a);
-    void operator -= (const Point& a);    
-    Point operator-(const Point& a) const { return (*this) + (-a); }
-    Point operator-() const;
-    Point operator+(const Point& a) const;
-    double operator*(const Point& a) const;
-    Point operator^(const Point& a) const;    
-    double operator[](int ind) const { return _coord[ind]; }
-    double& operator[](int ind) { return _coord[ind]; }    
-    double operator[](char* ch) const;    
-    double& operator[](char* ch);
+   bool operator==(const Point& a) const;
+   bool operator!=(const Point& a) const { return !(*this == a); }
+   void operator=(const Point& a);
+   void operator+=(const Point& a);
+   void operator-=(const Point& a);
+   Point operator-(const Point& a) const { return (*this) + (-a); }
+   Point operator-() const;
+   Point operator+(const Point& a) const;
+   double operator*(const Point& a) const;
+   Point operator^(const Point& a) const;
+   double operator[](int ind) const { return _coord[ind]; }
+   double& operator[](int ind) { return _coord[ind]; }
+   double operator[](char* ch) const;
+   double& operator[](char* ch);
 
    const int Size() const { return _size; }
    const int Dimension() const;

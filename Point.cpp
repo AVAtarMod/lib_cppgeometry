@@ -56,7 +56,10 @@ Point::Point(double* coord, int size)
    std::copy_n(coord, size, _coord);
 }
 
-Point::Point(const Point& a) { *this = a; }
+Point::Point(const Point& a)
+{
+   *this = a;
+}
 
 bool Point::operator==(const Point& a) const
 {
@@ -72,25 +75,25 @@ bool Point::operator==(const Point& a) const
    return equal(a, min);
 }
 
-void Point::operator = (const Point& a)
+void Point::operator=(const Point& a)
 {
-    this->~Point();
-    _coord = new double[a.Size()]{};
-    std::copy_n(a._coord, a.Size(), _coord);
-    _size = a.Size();
+   this->~Point();
+   _coord = new double[a.Size()] {};
+   std::copy_n(a._coord, a.Size(), _coord);
+   _size = a.Size();
 }
 
-void Point::operator += (const Point& a)
+void Point::operator+=(const Point& a)
 {
-    if (Size() < a.Size())
-        resize(a.Size());
-    for (int i = 0; i < Size(); i++)
-        (*this)[i] += a[i];
+   if (Size() < a.Size())
+      resize(a.Size());
+   for (int i = 0; i < Size(); i++)
+      (*this)[i] += a[i];
 }
 
-void Point::operator -= (const Point& a)
+void Point::operator-=(const Point& a)
 {
-    *this += -a;
+   *this += -a;
 }
 
 Point Point::operator-() const
@@ -180,9 +183,9 @@ void Point::resize(int size)
 
 void Point::zeroing()
 {
-    this->~Point();
-    _coord = new double[1]{};
-    _size = 1;
+   this->~Point();
+   _coord = new double[1] {};
+   _size = 1;
 }
 
 double Point::distance(const Point& a, const Point& b)
@@ -276,4 +279,14 @@ bool Point::isAtInfinity(const Point& point)
       if (std::isinf(point[i]))
          return true;
    return false;
+}
+
+std::ostream& operator<<(std::ostream& out, const Point& number)
+{
+   size_t size = number.Size();
+   for (size_t i = 0; i < size - 1; ++i) {
+      out << number[i] << " ";
+   }
+   out << number[size - 1];
+   return out;
 }

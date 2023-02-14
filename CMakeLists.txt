@@ -8,4 +8,4 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 add_library(shared STATIC
 Angle.cpp          CircleArc.cpp  Circle.cpp
 ComplexNumber.cpp  Line.cpp
-LineSegment.cpp    Point.cpp      Quadrilateral.cpp)
+LineSegment.cpp    Point.cpp      Quadrilateral.cpp functions.cpp)

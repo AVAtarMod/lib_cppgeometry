@@ -281,12 +281,12 @@ bool Point::isAtInfinity(const Point& point)
    return false;
 }
 
-std::ostream& operator<<(std::ostream& out, const Point& number)
+std::ostream& operator<<(std::ostream& out, const Point& p)
 {
-   size_t size = number.Size();
+   size_t size = p.Size();
    for (size_t i = 0; i < size - 1; ++i) {
-      out << number[i] << " ";
+      out << p[i] << " ";
    }
-   out << number[size - 1];
+   out << p[size - 1];
    return out;
 }

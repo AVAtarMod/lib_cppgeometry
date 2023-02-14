@@ -1,7 +1,6 @@
 #ifndef GEOMETRY_LIB_POINT_HPP
 #define GEOMETRY_LIB_POINT_HPP
 
-#include <vector>
 #include <ctype.h>
 #include <algorithm>
 
@@ -64,6 +63,18 @@ public:
         _size = size;
         std::copy_n(coord, size, _coord);
         dimension_normalization();
+    }
+
+    Point(const Point& a)
+    {
+        std::copy_n(a._coord, a.Size(), _coord);
+        _size = a.Size();
+        _dimension = a.Dimension();
+    }
+
+    Point(const Point& a, int size) : Point(a)
+    {
+        resize(size);
     }
 
     ~Point()
@@ -163,8 +174,8 @@ public:
     Point operator^(const Point& a) const
     {
         Point ans(3);
-        Point a1 = copy();
-        Point a2 = a.copy();
+        Point a1(*this);
+        Point a2(a);
         a1.resize(3);
         a2.resize(3);
         ans[0] = a1[1] * a2[2] - a1[2] * a2[1];
@@ -269,17 +280,9 @@ public:
         return ans;
     }
 
-    Point copy() const
+    static double angle(const Point& a, const Point& b)
     {
-        double* arr = new double[Size()];
-        std::copy_n(_coord, Size(), arr);
-        Point ans(arr, Size());
-        return ans;
-    }
-
-    static double cos(const Point& a, const Point& b)
-    {
-        return a * b / (a.Length() * b.Length());
+        return acos(a * b / (a.Length() * b.Length()));
     }
     
     /**

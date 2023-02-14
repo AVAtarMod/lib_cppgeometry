@@ -20,9 +20,18 @@ class LineSegment
     * @brief Move this line segment along the specified segment
     *
     * @param other The line segment along which the segment will move. One of it
-    * endpoints must be enpoint of this segment
+    * endpoints must be endpoint of this segment
     */
    LineSegment move(const LineSegment& other) const;
+   
+   /**
+    * @brief Does check is point belongs to this line
+    *
+    * @param point source point
+    * @return true if belongs
+    * @return false if not
+    */
+   // bool isBelongs(Point point) const;
 
    ~LineSegment();
 };

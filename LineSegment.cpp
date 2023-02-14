@@ -50,7 +50,7 @@ LineSegment LineSegment::move(const LineSegment& other) const
    double dx, dy;
    dx = otherPoints[otherIdx]['x'] - _endpoints[thisIdx]['x'];
    dy = otherPoints[otherIdx]['y'] - _endpoints[thisIdx]['y'];
-   
+
    Point movePoint(dx, dy);
    return LineSegment(_endpoints[0] + movePoint, _endpoints[1] + movePoint);
 }

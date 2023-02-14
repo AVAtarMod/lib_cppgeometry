@@ -55,6 +55,13 @@ class Line
 
    bool isInX(double x) const;
    bool isInY(double y) const;
+   /**
+    * @brief Does check is point belongs to this line
+    * 
+    * @param point source point
+    * @return true if belongs
+    * @return false if not
+    */
    bool isBelongs(Point point) const;
    // bool isCollinear(const Line& other) const;
    bool isPerpendicular(const Line& other, double precision = 0.01) const;

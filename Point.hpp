@@ -2,10 +2,8 @@
 #define GEOMETRY_LIB_POINT_HPP
 
 #include <vector>
-#include <windows.h>
 #include <ctype.h>
-//#include <iterator>
-//#include <algorithm>
+#include <algorithm>
 
 class Point
 {
@@ -156,7 +154,7 @@ public:
     double operator*(const Point& a) const
     {
         double ans = 0;
-        int min = min(a.Size(), Size());
+        int min = std::min(a.Size(), Size());
         for (int i = 0; i < min; i++)
             ans += a[i] * (*this)[i];
         return ans;
@@ -220,7 +218,7 @@ public:
         double* buf = _coord;
         _coord = new double[size] {};
         _size = size;
-        std::copy_n(buf, min(size, _size), _coord);
+        std::copy_n(buf, std::min(size, _size), _coord);
         delete[] buf;
         dimension_normalization();
     }
@@ -292,8 +290,4 @@ public:
     static bool isAtInfinity(const Point& point);
 };
 
-<<<<<<< HEAD
-#endif // COURSEWORK_4_1_POINT_HPP
-=======
 #endif // GEOMETRY_LIB_POINT_HPP
->>>>>>> 028401adddedcd9ca01225138272db1ee4a8515d

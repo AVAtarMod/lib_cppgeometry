@@ -1,7 +1,6 @@
 #include "LineSegment.hpp"
 
 #include "functions.hpp"
-#include "tfunctions.hpp"
 #include <cmath>
 
 LineSegment::LineSegment(const Point& a, const Point& b) :
@@ -26,8 +25,8 @@ std::pair< Point, Point > LineSegment::getEndpoints() const
 double LineSegment::length() const
 {
    // ((a_x-b_x)^2+(a_y-b_y)^2)^(1/2)
-   return sqrt(power(_endpoints[1].X() - _endpoints[0].X(), 2) +
-               power(_endpoints[1].Y() - _endpoints[0].Y(), 2));
+   return sqrt(power(_endpoints[1]['x'] - _endpoints[0]['x'], 2) +
+               power(_endpoints[1]['y'] - _endpoints[0]['y'], 2));
 }
 
 LineSegment LineSegment::move(const LineSegment& other) const
@@ -49,8 +48,8 @@ LineSegment LineSegment::move(const LineSegment& other) const
         "LineSegment::move: one of argument endpoints must be enpoint of this segment");
 
    double dx, dy;
-   dx = otherPoints[otherIdx].X() - _endpoints[thisIdx].X();
-   dy = otherPoints[otherIdx].Y() - _endpoints[thisIdx].Y();
+   dx = otherPoints[otherIdx]['x'] - _endpoints[thisIdx]['x'];
+   dy = otherPoints[otherIdx]['y'] - _endpoints[thisIdx]['y'];
    
    Point movePoint(dx, dy);
    return LineSegment(_endpoints[0] + movePoint, _endpoints[1] + movePoint);

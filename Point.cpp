@@ -2,6 +2,14 @@
 
 #include <cmath>
 
+Point::Point(double x, double y)
+{
+   _coord = new double[2];
+   _coord[0] = x;
+   _coord[1] = y;
+   _size = 2;
+}
+
 bool Point::is_zeros(int ind) const
 {
     if (ind >= _size) return false;

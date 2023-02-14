@@ -3,6 +3,7 @@
 
 #include <ctype.h>
 #include <algorithm>
+#include <cmath>
 
 class Point
 {
@@ -20,6 +21,7 @@ public:
     Point(double* coord, int size);
     Point(const Point& a);
     Point(const Point& a, int size);
+    Point(double x, double y);
     ~Point()
     {
         delete[] _coord;

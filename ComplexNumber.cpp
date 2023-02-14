@@ -7,8 +7,8 @@ static const ComplexNumber zero = ComplexNumber(0, 0);
 
 ComplexNumber::ComplexNumber(const Point& point)
 {
-   _real = point.X();
-   _imaginary = point.Y();
+   _real = point['x'];
+   _imaginary = point['y'];
 }
 
 ComplexNumber::ComplexNumber(double real, double imaginary) :

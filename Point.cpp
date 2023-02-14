@@ -207,9 +207,39 @@ double Point::distance(const Point& a, const Point& b)
     return sqrt(ans);
 }
 
+int Point::min_size(const Point* arr, int n)
+{
+    int ans = arr[0].Size();
+    for (int i = 1; i < n; i++)
+        if (arr[i].Size() < ans) ans = arr[i].Size();
+    return ans;
+}
+
+int Point::max_size(const Point* arr, int n)
+{
+    int ans = arr[0].Size();
+    for (int i = 1; i < n; i++)
+        if (arr[i].Size() > ans) ans = arr[i].Size();
+    return ans;
+}
+
+Point Point::middle(const Point* arr, int n)
+{
+    int max = max_size(arr, n);
+    Point ans(max);
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < arr[i].Size(); j++)
+            ans[j] += arr[i][j];
+    for (int i = 0; i < max; i++)
+        ans[i] /= n;
+    return ans;
+}
+
 Point Point::middle(const Point& a, const Point& b)
 {
-    Point ans;
+    Point arr[2] = { a, b };
+    return middle(arr, 2);
+    /*Point ans;
     int i = a.Size(), min = a.Size();
     if (a.Size() < b.Size())
     {
@@ -227,12 +257,17 @@ Point Point::middle(const Point& a, const Point& b)
     for (; i >= 0; i--)
         ans[i] = (a[i] + b[i]) / 2;
     ans.dimension_normalization();
-    return ans;
+    return ans;*/
 }
 
 double Point::angle(const Point& a, const Point& b)
 {
     return acos(a * b / (a.Length() * b.Length()));
+}
+
+double Point::angle(const Point& a, const Point& b, const Point& o)
+{
+    return angle(a - o, b - o);
 }
 
 bool Point::isAtInfinity(const Point& point)

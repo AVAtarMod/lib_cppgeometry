@@ -48,8 +48,12 @@ public:
     void resize(int size);
     void zeroing();
     static double distance(const Point& a, const Point& b);
+    static int min_size(const Point* arr, int n);
+    static int max_size(const Point* arr, int n);
+    static Point middle(const Point* arr, int n);
     static Point middle(const Point& a, const Point& b);
-    static double angle(const Point& a, const Point& b);    
+    static double angle(const Point& a, const Point& b);
+    static double angle(const Point& a, const Point& b, const Point& o);
     /**
      * @brief Does check is point has one or both coordinates at infinity
      *

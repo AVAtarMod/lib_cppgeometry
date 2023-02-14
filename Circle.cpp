@@ -32,8 +32,8 @@ Circle::Circle(const Point& a, const Point& b, const Point& c)
     * @see https://en.wikipedia.org/wiki/Ellipse#Circles
     */
    double X, Y;
-   const double &aX = a['x'], &aY = a['y'], &bX = b['x'], &bY = b['y'], &cX = c['x'],
-                &cY = c['y'];
+   const double &aX = a['x'], &aY = a['y'], &bX = b['x'], &bY = b['y'],
+                &cX = c['x'], &cY = c['y'];
    const double denominator =
      (aX * (bY - cY) + bX * (cY - aY) + cX * (aY - bY));
 
@@ -65,7 +65,8 @@ bool Circle::isBelongs(const Point& a, int8_t dds) const
       throw std::invalid_argument(
         "Circle::isBelongs: cannot set negative precision");
 
-   return round(power(a['x'] - _center['x'], 2) + power(a['y'] - _center['y'], 2),
+   return round(power(a['x'] - _center['x'], 2) +
+                  power(a['y'] - _center['y'], 2),
                 dds) == round(power(_radius, 2), dds);
 }
 
@@ -141,7 +142,7 @@ Point Circle::getExactPoint(const Point& a, ApproximationMethod m) const
       default:
          break;
    }
-   return Point::zero();
+   return Point(0.0, 0.0);
 }
 
 Circle::~Circle()

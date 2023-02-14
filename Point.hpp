@@ -4,6 +4,7 @@
 #include <vector>
 #include <ctype.h>
 #include <algorithm>
+#include <cmath>
 
 class Point
 {
@@ -50,6 +51,8 @@ public:
         _size = 1;
         _dimension = 0;
     }
+
+    Point(double x, double y);
 
     Point(int size)
     {

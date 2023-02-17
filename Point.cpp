@@ -31,9 +31,9 @@ void Point::zero_normalization()
 
 bool Point::equal(const Point& a, int size) const
 {
-   for (int i = 0; i < size; i++)
-      if ((*this)[i] != a[i])
-         return false;
+    for (int i = 0; i < size; i++)
+        if (fabs((*this)[i] - a[i]) > std::numeric_limits<double>::epsilon())
+            return false;
    return true;
 }
 

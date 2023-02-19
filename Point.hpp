@@ -63,4 +63,6 @@ class Point
    static bool isAtInfinity(const Point& point);
 };
 
+std::ostream& operator<<(std::ostream& out, const Point& p);
+
 #endif // GEOMETRY_LIB_POINT_HPP

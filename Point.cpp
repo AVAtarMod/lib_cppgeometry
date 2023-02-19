@@ -176,8 +176,8 @@ void Point::resize(int size)
 {
    double* buf = _coord;
    _coord = new double[size] {};
-   _size = size;
    std::copy_n(buf, std::min(size, _size), _coord);
+   _size = size;
    delete[] buf;
 }
 

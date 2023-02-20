@@ -41,9 +41,9 @@ class Point
    double operator[](const char* ch) const;
    double& operator[](const char* ch);
 
-   const int Size() const { return _size; }
-   const int Dimension() const;
-   const double Length() const { return distance(Point(), *this); }
+   const int size() const { return _size; }
+   const int dimension() const;
+   const double length() const { return distance(Point(), *this); }
 
    void resize(int size);
    void zeroing();

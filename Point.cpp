@@ -242,25 +242,6 @@ Point Point::middle(const Point& a, const Point& b)
 {
    Point arr[2] = { a, b };
    return middle(arr, 2);
-   /*Point ans;
-   int i = a.Size(), min = a.Size();
-   if (a.Size() < b.Size())
-   {
-       ans = Point(b.Size());
-       for (i = ans.Size() - 1; i >= min; i--)
-           ans[i] = b[i] / 2;
-   }
-   else if (a.Size() > b.Size())
-   {
-       min = b.Size();
-       ans = Point(a.Size());
-       for (i = ans.Size() - 1; i >= min; i--)
-           ans[i] = a[i] / 2;
-   }
-   for (; i >= 0; i--)
-       ans[i] = (a[i] + b[i]) / 2;
-   ans.dimension_normalization();
-   return ans;*/
 }
 
 double Point::cos(const Point& a, const Point& b)
@@ -304,4 +285,13 @@ std::ostream& operator<<(std::ostream& out, const Point& p)
    }
    out << p[size - 1];
    return out;
+}
+
+Angle Point::angleDegrees(const Point& a, const Point& b)
+{
+   return angle(a, b) * (180 / M_PI);
+}
+Angle Point::angleDegrees(const Point& a, const Point& o, const Point& b)
+{
+   return angle(a, b, o) * (180 / M_PI);
 }

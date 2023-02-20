@@ -6,6 +6,8 @@
 #include <ctype.h>
 #include <iostream>
 
+#include "Angle.hpp"
+
 class Point
 {
   private:
@@ -36,7 +38,8 @@ class Point
    double operator*(const Point& a) const;
    Point operator^(const Point& a) const;
    /**
-    * @brief Returns the third coordinate of the vector resulting from the cross product.
+    * @brief Returns the third coordinate of the vector resulting from the cross
+    * product.
     */
    double operator|(const Point& a) const;
    double operator[](int ind) const { return _coord[ind]; }
@@ -60,6 +63,22 @@ class Point
    static double cos(const Point& a, const Point& b, const Point& o);
    static double angle(const Point& a, const Point& b);
    static double angle(const Point& a, const Point& b, const Point& o);
+
+   /**
+    * @brief Compute angle AOB, where O = Point::zero()
+    * 
+    * @return Angle (in degrees)
+    */
+   static Angle angleDegrees(const Point& a, const Point& b);
+   /**
+    * @brief Compute angle AOB
+    *
+    * @param a First Point
+    * @param o Middle Point
+    * @param b Last Point
+    * @return Angle (in degrees)
+    */
+   static Angle angleDegrees(const Point& a, const Point& o, const Point& b);
    /**
     * @brief Does check is point has one or both coordinates at infinity
     *

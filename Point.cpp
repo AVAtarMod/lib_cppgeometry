@@ -197,7 +197,7 @@ void Point::zeroing()
 double Point::distance(const Point& a, const Point& b)
 {
     double ans = 0;
-    int i = a.size();
+    int i = a.size() - 1;
     if (a.size() < b.size())
         for (i = b.size() - 1; i >= a.size(); i--)
             ans += b[i] * b[i];

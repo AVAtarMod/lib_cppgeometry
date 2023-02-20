@@ -72,9 +72,10 @@ bool Point::operator==(const Point& a) const
 void Point::operator=(const Point& a)
 {
    this->~Point();
-   _coord = new double[a.size()] {};
-   std::copy_n(a._coord, a.size(), _coord);
-   _size = a.size();
+   int size = a.size();
+   _coord = new double[size] {};
+   std::copy_n(a._coord, size, _coord);
+   _size = size;
 }
 
 void Point::operator+=(const Point& a)

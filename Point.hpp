@@ -36,6 +36,10 @@ class Point
    Point operator+(const Point& a) const;
    double operator*(const Point& a) const;
    Point operator^(const Point& a) const;
+   /**
+    * @brief Returns the third coordinate of the vector resulting from the cross product.
+    */
+   double operator|(const Point& a) const;
    double operator[](int ind) const { return _coord[ind]; }
    double& operator[](int ind) { return _coord[ind]; }
    double operator[](const char* ch) const;

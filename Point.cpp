@@ -136,6 +136,11 @@ Point Point::operator^(const Point& a) const
     return ans;
 }
 
+double Point::operator|(const Point& a) const
+{
+    return (*this)[0] * a[1] - (*this)[1] * a[0];
+}
+
 double Point::operator[](const char* ch) const
 {
     switch (tolower(ch[0])) {

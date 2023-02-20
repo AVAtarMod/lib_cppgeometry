@@ -67,6 +67,7 @@ class Point
     * @param point A point that need to check
     */
    static bool isAtInfinity(const Point& point);
+   static Point zero() { return Point(0.0, 0.0); };
 };
 
 std::ostream& operator<<(std::ostream& out, const Point& p);

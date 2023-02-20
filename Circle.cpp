@@ -147,5 +147,4 @@ Point Circle::getExactPoint(const Point& a, ApproximationMethod m) const
 
 Circle::~Circle()
 {
-   _center.~Point();
 }

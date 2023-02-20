@@ -266,7 +266,7 @@ Point Point::middle(const Point& a, const Point& b)
 
 static double cos(const Point& a, const Point& b)
 {
-    double _cos = a * b / (a.Length() * b.Length());
+    double _cos = a * b / (a.length() * b.length());
     if (_cos > 1) _cos = 1;
     else if (_cos < -1) _cos = -1;
     return _cos;

@@ -264,7 +264,7 @@ Point Point::middle(const Point& a, const Point& b)
     return ans;*/
 }
 
-static double cos(const Point& a, const Point& b)
+double Point::cos(const Point& a, const Point& b)
 {
     double _cos = a * b / (a.length() * b.length());
     if (_cos > 1) _cos = 1;
@@ -272,7 +272,7 @@ static double cos(const Point& a, const Point& b)
     return _cos;
 }
 
-static double cos(const Point& a, const Point& b, const Point& o)
+double Point::cos(const Point& a, const Point& b, const Point& o)
 {
     return cos(a - o, b - o);
 }

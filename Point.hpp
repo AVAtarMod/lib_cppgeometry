@@ -21,7 +21,6 @@ class Point
   public:
    Point();
    Point(int size);
-   Point(double* coord, int size);
    Point(const Point& a);
    Point(double x, double y);
    ~Point() { delete[] _coord; }

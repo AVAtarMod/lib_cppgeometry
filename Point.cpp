@@ -22,10 +22,10 @@ bool Point::is_zeros(int ind) const
 
 void Point::zero_normalization()
 {
-    int s = Size(), i;
+    int s = size(), i;
     for (i = s - 1; i > 0 && (*this)[i] == 0; i--)
         s--;
-    if (s != Size())
+    if (s != size())
         resize(s);
 }
 
@@ -63,14 +63,14 @@ Point::Point(const Point& a)
 
 bool Point::operator==(const Point& a) const
 {
-    int min = Size();
-    if (Size() < a.Size()) {
-        if (!a.is_zeros(a.Size() - Size() - 1))
+    int min = size();
+    if (size() < a.size()) {
+        if (!a.is_zeros(a.size() - size() - 1))
             return false;
     }
-    else if (Size() > a.Size()) {
-        min = a.Size();
-        if (!is_zeros(Size() - a.Size() - 1))
+    else if (size() > a.size()) {
+        min = a.size();
+        if (!is_zeros(size() - a.size() - 1))
             return false;
     }
     return equal(a, min);
@@ -79,16 +79,16 @@ bool Point::operator==(const Point& a) const
 void Point::operator=(const Point& a)
 {
     this->~Point();
-    _coord = new double[a.Size()]{};
-    std::copy_n(a._coord, a.Size(), _coord);
-    _size = a.Size();
+    _coord = new double[a.size()]{};
+    std::copy_n(a._coord, a.size(), _coord);
+    _size = a.size();
 }
 
 void Point::operator+=(const Point& a)
 {
-    if (Size() < a.Size())
-        resize(a.Size());
-    for (int i = 0; i < Size(); i++)
+    if (size() < a.size())
+        resize(a.size());
+    for (int i = 0; i < size(); i++)
         (*this)[i] += a[i];
 }
 
@@ -100,8 +100,8 @@ void Point::operator-=(const Point& a)
 Point Point::operator-() const
 {
     Point ans;
-    ans = Point(Size());
-    for (int i = 0; i < Size(); i++)
+    ans = Point(size());
+    for (int i = 0; i < size(); i++)
         ans[i] = -(*this)[i];
     return ans;
 }
@@ -117,7 +117,7 @@ Point Point::operator+(const Point& a) const
 double Point::operator*(const Point& a) const
 {
     double ans = 0;
-    int min = std::min(a.Size(), Size());
+    int min = std::min(a.size(), size());
     for (int i = 0; i < min; i++)
         ans += a[i] * (*this)[i];
     return ans;
@@ -164,7 +164,7 @@ double& Point::operator[](const char* ch)
     }
 }
 
-const int Point::Dimension() const
+const int Point::dimension() const
 {
     int _dimension = 0;
     for (int i = 0; i < _size; i++)
@@ -192,12 +192,12 @@ void Point::zeroing()
 double Point::distance(const Point& a, const Point& b)
 {
     double ans = 0;
-    int i = a.Size();
-    if (a.Size() < b.Size())
-        for (i = b.Size() - 1; i >= a.Size(); i--)
+    int i = a.size();
+    if (a.size() < b.size())
+        for (i = b.size() - 1; i >= a.size(); i--)
             ans += b[i] * b[i];
-    else if (a.Size() > b.Size())
-        for (i = a.Size() - 1; i >= b.Size(); i--)
+    else if (a.size() > b.size())
+        for (i = a.size() - 1; i >= b.size(); i--)
             ans += a[i] * a[i];
     for (; i >= 0; i--)
         ans += pow(a[i] - b[i], 2);
@@ -211,19 +211,19 @@ double Point::distance(const Point& other) const
 
 int Point::min_size(const Point* arr, int n)
 {
-    int ans = arr[0].Size();
+    int ans = arr[0].size();
     for (int i = 1; i < n; i++)
-        if (arr[i].Size() < ans)
-            ans = arr[i].Size();
+        if (arr[i].size() < ans)
+            ans = arr[i].size();
     return ans;
 }
 
 int Point::max_size(const Point* arr, int n)
 {
-    int ans = arr[0].Size();
+    int ans = arr[0].size();
     for (int i = 1; i < n; i++)
-        if (arr[i].Size() > ans)
-            ans = arr[i].Size();
+        if (arr[i].size() > ans)
+            ans = arr[i].size();
     return ans;
 }
 
@@ -232,7 +232,7 @@ Point Point::middle(const Point* arr, int n)
     int max = max_size(arr, n);
     Point ans(max);
     for (int i = 0; i < n; i++)
-        for (int j = 0; j < arr[i].Size(); j++)
+        for (int j = 0; j < arr[i].size(); j++)
             ans[j] += arr[i][j];
     for (int i = 0; i < max; i++)
         ans[i] /= n;
@@ -266,7 +266,7 @@ Point Point::middle(const Point& a, const Point& b)
 
 double Point::angle(const Point& a, const Point& b)
 {
-    double cos = a * b / (a.Length() * b.Length());
+    double cos = a * b / (a.length() * b.length());
     if (cos > 1) cos = 1;
     else if (cos < -1) cos = -1;
     return acos(cos);
@@ -279,7 +279,7 @@ double Point::angle(const Point& a, const Point& b, const Point& o)
 
 bool Point::isAtInfinity(const Point& point)
 {
-    for (int i = 0; i < point.Size(); i++)
+    for (int i = 0; i < point.size(); i++)
         if (std::isinf(point[i]))
             return true;
     return false;
@@ -287,7 +287,7 @@ bool Point::isAtInfinity(const Point& point)
 
 std::ostream& operator<<(std::ostream& out, const Point& p)
 {
-    size_t size = p.Size();
+    size_t size = p.size();
     for (size_t i = 0; i < size - 1; ++i) {
         out << p[i] << " ";
     }

@@ -264,12 +264,22 @@ Point Point::middle(const Point& a, const Point& b)
     return ans;*/
 }
 
+static double cos(const Point& a, const Point& b)
+{
+    double _cos = a * b / (a.Length() * b.Length());
+    if (_cos > 1) _cos = 1;
+    else if (_cos < -1) _cos = -1;
+    return _cos;
+}
+
+static double cos(const Point& a, const Point& b, const Point& o)
+{
+    return cos(a - o, b - o);
+}
+
 double Point::angle(const Point& a, const Point& b)
 {
-    double cos = a * b / (a.Length() * b.Length());
-    if (cos > 1) cos = 1;
-    else if (cos < -1) cos = -1;
-    return acos(cos);
+    return acos(cos(a, b));
 }
 
 double Point::angle(const Point& a, const Point& b, const Point& o)

@@ -53,6 +53,8 @@ class Point
    static int max_size(const Point* arr, int n);
    static Point middle(const Point* arr, int n);
    static Point middle(const Point& a, const Point& b);
+   static double cos(const Point& a, const Point& b);
+   static double cos(const Point& a, const Point& b, const Point& o);
    static double angle(const Point& a, const Point& b);
    static double angle(const Point& a, const Point& b, const Point& o);
    /**

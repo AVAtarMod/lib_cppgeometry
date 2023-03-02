@@ -14,22 +14,36 @@ Polygon::Polygon(Point* points, int size)
     std::copy_n(points, _size, _points);
 }
 
-bool Polygon::isInside(const Point& p)
+Point Polygon::operator[](int ind) const
+{
+    ind %= _size;
+    if (ind < 0) ind += _size;
+    return _points[ind];
+}
+
+Point& Polygon::operator[](int ind)
+{
+    ind %= _size;
+    if (ind < 0) ind += _size;
+    return _points[ind];
+}
+
+bool Polygon::isInside(const Point& p) const
 {
     return true;
 }
 
-bool Polygon::isSimple()
+bool Polygon::isSimple() const
 {
     return true;
 }
 
-bool Polygon::isConvex()
+bool Polygon::isConvex() const
 {
     return true;
 }
 
-Polygon Polygon::convexHull(std::vector<Point> points)
+Polygon Polygon::convexHull(const std::vector<Point>& points)
 {
     return Polygon(points);
 }

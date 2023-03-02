@@ -20,11 +20,16 @@ class Polygon
       Polygon(Point* points, int size);
       ~Polygon() { delete[] _points; }
 
-      bool isInside(const Point& p);
-      bool isSimple();
-      bool isConvex();
+      Point operator[](int ind) const;
+      Point& operator[](int ind);
 
-      static Polygon convexHull(std::vector<Point> points);
+      const int size() const { return _size; }
+
+      bool isInside(const Point& p) const;
+      bool isSimple() const;
+      bool isConvex() const;
+
+      static Polygon convexHull(const std::vector<Point>& points);
 };
 
 #endif

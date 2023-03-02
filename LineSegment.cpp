@@ -64,3 +64,40 @@ LineSegment::~LineSegment()
    _endpoints[0].~Point();
    _endpoints[1].~Point();
 }
+
+bool LineSegment::areOnSameSide(double a, double b)
+{
+    if (isZero(a) || isZero(b) || (sign(a) == sign(b))) return true;
+    else return false;
+}
+
+bool LineSegment::isIntersection(const Point& p1, const Point& p2, const Point& p3, const Point& p4)
+{
+    double cp1 = (p3 - p1) | (p2 - p1);
+    double cp2 = (p2 - p1) | (p4 - p1);
+    double cp3 = (p1 - p3) | (p4 - p3);
+    double cp4 = (p4 - p3) | (p2 - p3);
+    if (isZero(cp1) && isZero(cp2)) //Do the segments lie on the same line?
+    {
+        double dis = Point::distance(p1, p2);
+        double dis1 = Point::distance(p1, p2) +
+            Point::distance(p2, p3);
+        double dis2 = Point::distance(p1, p4) +
+            Point::distance(p2, p4);
+        if (isZero(dis1 - dis) ||
+            isZero(dis2 - dis))
+            return true;
+        return false;
+    }
+    else if (LineSegment::areOnSameSide(cp1, cp2) ||
+        LineSegment::areOnSameSide(cp3, cp4))
+        return true;
+    return false;
+}
+
+bool LineSegment::isIntersection(const LineSegment& ls) const
+{
+    std::pair< Point, Point > p1{ _endpoints[0], _endpoints[1] };
+    std::pair< Point, Point > p2{ ls._endpoints[0], ls._endpoints[1] };
+    return LineSegment::isIntersection(p1.first, p1.second, p2.first, p2.second);
+}

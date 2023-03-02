@@ -9,6 +9,12 @@ class LineSegment
    Line _line;
    Point _endpoints[2];
 
+   /**
+    * @brief According to the values of vector products, it determines
+    * whether points are on the same side of the segment
+    */
+   static bool areOnSameSide(double a, double b);
+
   public:
    LineSegment(const Point& a, const Point& b);
    LineSegment(const Line& l, const Point endpoints[2]);
@@ -34,6 +40,14 @@ class LineSegment
    // bool isBelongs(Point point) const;
 
    ~LineSegment();
+
+   /**
+    * @brief Checks if the segments p1p2 and p3p4 intersect
+    * 
+    */
+   bool static isIntersection(const Point& p1, const Point& p2, const Point& p3, const Point& p4);
+
+   bool isIntersection(const LineSegment& ls) const;
 };
 
 #endif // GEOMETRY_LIB_LINESEGMENT_HPP

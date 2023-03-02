@@ -7,7 +7,7 @@ Polygon::Polygon(std::vector<Point> points)
     std::copy_n(points, _size, _points);
 }
 
-Polygon::Polygon(double* points, int size)
+Polygon::Polygon(Point* points, int size)
 {
     _points = new Point[size]{};
     _size = size;
@@ -16,20 +16,20 @@ Polygon::Polygon(double* points, int size)
 
 bool Polygon::isInside(const Point& p)
 {
-
+    return true;
 }
 
 bool Polygon::isSimple()
 {
-
+    return true;
 }
 
 bool Polygon::isConvex()
 {
-
+    return true;
 }
 
 Polygon Polygon::convexHull(std::vector<Point> points)
 {
-
+    return Polygon(points);
 }

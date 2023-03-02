@@ -17,7 +17,7 @@ class Polygon
 
   public:
       Polygon(std::vector<Point> points);
-      Polygon(double* points, int size);
+      Polygon(Point* points, int size);
       ~Polygon() { delete[] _points; }
 
       bool isInside(const Point& p);

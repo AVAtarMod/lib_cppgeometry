@@ -62,3 +62,15 @@ int getNumberDigits(int number)
    }
    return numberDigits;
 }
+
+bool isZero(double a)
+{
+    return fabs(a) <= std::numeric_limits<double>::epsilon();
+}
+
+int sign(double a)
+{
+    if (isZero(a)) return 0;
+    else if (a < 0) return -1;
+    else return 1;
+}

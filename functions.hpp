@@ -66,4 +66,18 @@ typename std::enable_if< !std::numeric_limits< T >::is_integer, bool >::type alm
 
 int getNumberDigits(int number);
 
+/**
+ * @brief Checks if the number is zero
+ */
+bool isZero(double a);
+
+/**
+ * @brief Calculates the sign of a number
+ *
+ * @return 1 if the number is greater than zero,
+ * 0 if the number is zero,
+ * -1 if the number is less than zero
+ */
+int sign(double a);
+
 #endif // CPPLIB_FUNCTIONS_HPP

@@ -3,6 +3,9 @@ project(lib_cppgeometry)
 
 # Always include the source and build directories in the include path.
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 # create the static library
 add_library(shared STATIC

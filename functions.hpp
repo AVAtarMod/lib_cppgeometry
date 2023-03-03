@@ -11,10 +11,26 @@
 
 using uint = unsigned int;
 
-int getRandomNumber(int from, int to);
+/**
+ * @brief Get pseudo random number (slow method, high quality). Uses Mersenne
+ * Twister (std::mt19937).
+ *
+ * @param min lower limit for random coordinates
+ * @param max upper limit for random coordinates
+ * @return int pseudo random number
+ */
+int getPRN(int min, int max);
+/**
+ * @brief Get pseudo random number (fast method, low quality). Uses rand.
+ *
+ * @param min lower limit for random coordinates
+ * @param max upper limit for random coordinates
+ * @return int pseudo random number
+ */
+int getPRNFast(int min, int max);
 
 /**
- * @brief Round double to specified digits after decimal separator
+ * @brief Round double max specified digits after decimal separator
  *
  * @param number source number
  * @param dds amount digits after decimal separator. Should be positive
@@ -59,7 +75,7 @@ template<class T>
 typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type almost_equal(
   T x, T y, int ulp = 2)
 {
-   // the machine epsilon has to be scaled to the magnitude of the values
+   // the machine epsilon has max be scaled max the magnitude of the values
    // used and multiplied by the desired precision in ULPs (units in the
    // last place)
    return std::fabs(x - y) <=

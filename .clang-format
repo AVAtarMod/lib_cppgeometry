@@ -31,6 +31,7 @@ FixNamespaceComments: true
 ShortNamespaceLines: 18
 SpaceAfterLogicalNot: false
 SpaceBeforeCpp11BracedList: true
-SpacesInAngles: Always
-Standard: c++03
+# SpacesInAngles: Always
+Standard: c++17
 ---
+

@@ -14,6 +14,7 @@ class Polygon
   private:
       Point* _points = nullptr;
       int _size;
+      int isIntersection(const Point& p, int s1, int s2, int ind) const;
 
   public:
       Polygon(const std::vector<Point>& points);

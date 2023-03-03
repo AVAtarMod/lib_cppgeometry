@@ -1,4 +1,5 @@
 #include "Point.hpp"
+#include "functions.hpp"
 
 #include <cmath>
 #include <limits>

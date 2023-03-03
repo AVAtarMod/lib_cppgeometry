@@ -1,3 +1,7 @@
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #ifndef CPPLIB_FUNCTIONS_HPP
 #define CPPLIB_FUNCTIONS_HPP
 
@@ -5,7 +9,7 @@
 #include <iostream>
 #include <limits>
 
-using uint = unsigned int; 
+using uint = unsigned int;
 
 int getRandomNumber(int from, int to);
 
@@ -38,7 +42,7 @@ bool areEqual(double a, double b, int8_t dds = 0);
  */
 bool areEqual(double a, double b, double precision = 0.01);
 
-template< class T >
+template<class T>
 T power(T a, uint power)
 {
    if (power == 0)
@@ -51,17 +55,17 @@ T power(T a, uint power)
    return result;
 }
 
-template< class T >
-typename std::enable_if< !std::numeric_limits< T >::is_integer, bool >::type almost_equal(
+template<class T>
+typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type almost_equal(
   T x, T y, int ulp = 2)
 {
    // the machine epsilon has to be scaled to the magnitude of the values
    // used and multiplied by the desired precision in ULPs (units in the
    // last place)
    return std::fabs(x - y) <=
-            std::numeric_limits< T >::epsilon() * std::fabs(x + y) * ulp
+            std::numeric_limits<T>::epsilon() * std::fabs(x + y) * ulp
           // unless the result is subnormal
-          || std::fabs(x - y) < std::numeric_limits< T >::min();
+          || std::fabs(x - y) < std::numeric_limits<T>::min();
 }
 
 int getNumberDigits(int number);

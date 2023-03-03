@@ -66,7 +66,7 @@ class Point
 
    /**
     * @brief Compute angle AOB, where O = Point::zero()
-    * 
+    *
     * @return Angle (in degrees)
     */
    static Angle angleDegrees(const Point& a, const Point& b);
@@ -86,6 +86,15 @@ class Point
     */
    static bool isAtInfinity(const Point& point);
    static Point zero() { return Point(0.0, 0.0); };
+   /**
+    * @brief Get the Point object with random coordinates
+    *
+    * @param min lower limit for random coordinates
+    * @param max upper limit for random coordinates
+    * @param size size of result Point. Exmaple: with size=2 Point will be 2D.
+    * @return Point
+    */
+   static Point getRandom(int min, int max, size_t size = 2);
 };
 
 std::ostream& operator<<(std::ostream& out, const Point& p);

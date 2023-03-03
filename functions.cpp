@@ -4,24 +4,30 @@
 
 #include "functions.hpp"
 
-int getRandomNumber(int from, int to)
+int getPRN(int min, int max)
 {
-   try {
-      if (from > to)
-         throw std::runtime_error(
-           "Incorrect couple 'from - to' for generating random numbers");
-   } catch (const std::runtime_error& err) {
-      std::cerr << err.what() << '\n';
-      exit(1);
-   }
+   if (min > max)
+      throw std::runtime_error(std::to_string(min) + std::string(" > ") +
+                               std::to_string(max) + ". Cannot create PRN.");
 
-   unsigned int now = static_cast< unsigned >(
+   unsigned int now = static_cast<unsigned>(
      std::chrono::high_resolution_clock::now().time_since_epoch().count() %
      10000);
    std::mt19937 engine(now);
-   std::uniform_int_distribution< int > random(from, to);
+   std::uniform_int_distribution<int> random(min, max);
 
    return random(engine);
+}
+
+int getPRNFast(int min, int max)
+{
+
+   if (min > max)
+      throw std::runtime_error(std::to_string(min) + std::string(" > ") +
+                               std::to_string(max) + ". Cannot create PRN.");
+
+   srand(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+   return min + rand() % (max - min);
 }
 
 double round(double number, int8_t dds)
@@ -35,7 +41,7 @@ double round(double number, int8_t dds)
       --dds;
    }
 
-   return std::round(number * mult) / static_cast< double >(mult);
+   return std::round(number * mult) / static_cast<double>(mult);
 }
 
 bool areEqual(double a, double b, int8_t dds)
@@ -65,12 +71,15 @@ int getNumberDigits(int number)
 
 bool isZero(double a)
 {
-    return fabs(a) <= std::numeric_limits<double>::epsilon();
+   return fabs(a) <= std::numeric_limits<double>::epsilon();
 }
 
 int sign(double a)
 {
-    if (isZero(a)) return 0;
-    else if (a < 0) return -1;
-    else return 1;
+   if (isZero(a))
+      return 0;
+   else if (a < 0)
+      return -1;
+   else
+      return 1;
 }

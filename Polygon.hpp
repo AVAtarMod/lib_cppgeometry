@@ -16,7 +16,7 @@ class Polygon
       int _size;
 
   public:
-      Polygon(std::vector<Point> points);
+      Polygon(const std::vector<Point>& points);
       Polygon(Point* points, int size);
       ~Polygon() { delete[] _points; }
 

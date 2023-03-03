@@ -1,4 +1,5 @@
 #include "Point.hpp"
+#include "functions.hpp"
 
 #include <cmath>
 #include <limits>
@@ -33,7 +34,7 @@ void Point::zero_normalization()
 bool Point::equal(const Point& a, int size) const
 {
    for (int i = 0; i < size; i++)
-      if (fabs((*this)[i] - a[i]) > std::numeric_limits< double >::epsilon())
+      if (fabs((*this)[i] - a[i]) > std::numeric_limits<double>::epsilon())
          return false;
    return true;
 }
@@ -267,6 +268,15 @@ double Point::angle(const Point& a, const Point& b)
 double Point::angle(const Point& a, const Point& b, const Point& o)
 {
    return angle(a - o, b - o);
+}
+
+Point Point::getRandom(int min, int max, size_t size)
+{
+   Point result(size);
+   for (uint i = 0; i < size; ++i) {
+      result[i] = getPRNFast(min, max);
+   }
+   return result;
 }
 
 bool Point::isAtInfinity(const Point& point)

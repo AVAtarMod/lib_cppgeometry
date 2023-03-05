@@ -46,8 +46,21 @@ class LineSegment
     * 
     */
    bool static isIntersection(const Point& p1, const Point& p2, const Point& p3, const Point& p4);
-
+   /**
+    * @brief Checks if the segments this and ls intersect
+    *
+    */
    bool isIntersection(const LineSegment& ls) const;
+   /**
+    * @brief Checks if point p belongs to segment p1p2
+    *
+    */
+   bool static isBelongs(const Point& p1, const Point& p2, const Point& p);
+   /**
+    * @brief Checks if point p belongs to segment this
+    *
+    */
+   bool isBelongs(const Point& p) const;
 };
 
 #endif // GEOMETRY_LIB_LINESEGMENT_HPP

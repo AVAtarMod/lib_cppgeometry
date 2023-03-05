@@ -101,3 +101,15 @@ bool LineSegment::isIntersection(const LineSegment& ls) const
     std::pair< Point, Point > p2{ ls._endpoints[0], ls._endpoints[1] };
     return LineSegment::isIntersection(p1.first, p1.second, p2.first, p2.second);
 }
+
+bool LineSegment::isBelongs(const Point& p1, const Point& p2, const Point& p)
+{
+    return isZero(Point::distance(p, p1) +
+        Point::distance(p, p2) -
+        Point::distance(p1, p2));
+}
+
+bool LineSegment::isBelongs(const Point& p) const
+{
+    return isBelongs(this->_endpoints[0], this->_endpoints[1], p);
+}

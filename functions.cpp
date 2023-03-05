@@ -1,6 +1,7 @@
 #include <chrono>
 #include <cstring>
 #include <random>
+#include <string>
 
 #include "functions.hpp"
 

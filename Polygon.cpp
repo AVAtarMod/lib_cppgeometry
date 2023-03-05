@@ -131,12 +131,16 @@ int Polygon::convCoord(int ind) const
 
 static bool isInsideTriangle(const Point& p1, const Point& p2, const Point& p3, const Point& p)
 {
-    int cr_prod1, cr_prod2, cr_prod3;
-    cr_prod1 = sign((p1 - p3) | (p - p3));
-    cr_prod2 = sign((p2 - p1) | (p - p1));
-    cr_prod3 = sign((p3 - p2) | (p - p2));
-    if (cr_prod1 == 0 || cr_prod2 == 0 || cr_prod3 == 0 ||
-        abs(cr_prod1 + cr_prod2 + cr_prod3) == 3) return true;
+    int sum = 0;
+    sum += sign((p1 - p3) | (p - p3));
+    sum += sign((p2 - p1) | (p - p1));
+    sum += sign((p3 - p2) | (p - p2));
+    sum = abs(sum);
+    if (sum == 3 || sum == 2) return true;
+    else if (LineSegment::isBelongs(p1, p2, p) ||
+        LineSegment::isBelongs(p2, p3, p) ||
+        LineSegment::isBelongs(p3, p1, p))
+        return true;
     else return false;
 }
 

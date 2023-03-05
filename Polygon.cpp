@@ -1,5 +1,7 @@
 #include "Polygon.hpp"
 #include "functions.hpp"
+#include "Line.hpp"
+#include "LineSegment.hpp"
 
 Polygon::Polygon(const std::vector<Point>& points)
 {
@@ -17,90 +19,75 @@ Polygon::Polygon(Point* points, int size)
    std::copy_n(points, _size, _points);
 }
 
-Point Polygon::operator[](int ind) const
+int Polygon::countIntersections(const Point& p, const std::vector<int>& signs)
 {
-   ind %= _size;
-   if (ind < 0)
-      ind += _size;
-   return _points[ind];
+    int count = 0, dif = 0;
+    for (int i = 0; i < signs.size() - 1; i++)
+        if (signs[i] != signs[i + 1] || signs[i] == 0) // There is intersection?
+            if (signs[i] == signs[i + 1]) dif++; // signs[i] = 0 signs[i + 1] = 0
+            else if (abs(signs[i]) == abs(signs[i + 1])) count++; // signs[i] = +-1 signs[i + 1] = -+1
+            else if (signs[i] == 0) // signs[i] = 0 signs[i + 1] = -+1
+            {
+                if (signs[i - dif] != signs[i + 1]) count++; // signs[i - dif] = +-1 signs[i + 1] = -+1
+                dif = 0;
+            }
+            else dif++; // signs[i] = +-1 signs[i + 1] = 0
+    return count;
 }
 
-Point& Polygon::operator[](int ind)
+int Polygon::isIntersectionPointOnRight(const Point& p, int ind) const
 {
-   ind %= _size;
-   if (ind < 0)
-      ind += _size;
-   return _points[ind];
-}
-
-int Polygon::isIntersection(const Point& p, int s1, int s2, int ind) const
-{
-    int j;
-    int s_buf;
-    if (s1 != s2 || s1 == 0) // There is intersection?
-        if (s1 == s2) // s1 = 0 s2 = 0
-        {
-            if (isZero(Point::distance(p, _points[ind]) +
-                Point::distance(p, _points[ind + 1]) -
-                Point::distance(_points[ind], _points[ind + 1]))) // The point on a horizontal line?
-                return 0;
-            int _s1 = 0, _s2 = 0;
-            for (j = ind + 2; _s1 == 0; j++)
-                _s1 = sign(p["y"] - _points[j]["y"]);
-            for (j = ind - 1; _s2 == 0; j--)
-                _s2 = sign(p["y"] - _points[j]["y"]);
-            return isIntersection(p, _s1, _s2, ind);
-        }
-        else if (abs(s1) == abs(s2)) return 1; // s1 = +-1 s2 = -+1
-        else if (s1 == 0) // s1 = 0 s2 = -+1
-        {
-            s_buf = sign(p["y"] - _points[ind - 1]["y"]);
-            if (s_buf != s2 && s_buf != 0) return 1;
-        }
-        else // s1 = +-1 s2 = 0
-        {
-            s_buf = sign(p["y"] - _points[ind + 2]["y"]);
-            if (s_buf != s1 && s_buf != 0) return 1;
-        }
-    return -1;
+    Point inter = Line::intersect(
+        Line((*this)[ind], (*this)[ind + 1]),
+        Line(p, Point(p["x"] + 1, p["y"])));
+    if (std::isinf(inter["x"]))
+    {
+        if (LineSegment::isBelongs((*this)[ind], (*this)[ind + 1], p))
+            return 0;
+    }
+    else if (p == inter) return 0;
+    if (0 >= p["x"] - inter["x"]) return 1;
+    else return -1;
 }
 
 bool Polygon::isInside(const Point& p) const
 {
-    int i, j;
-    int s_buf, s1, s2, _s1, _s2;
-    int count = 0;
-    for (i = 0; i < _size; i++)
-        if (_points[i]["x"] >= p["x"] ||
-            _points[i + 1]["x"] >= p["x"])
-        {
-            s1 = sign(p["y"] - _points[i]["y"]);
-            s2 = sign(p["y"] - _points[i + 1]["y"]);
-            if (s1 != s2 || s1 == 0) // There is intersection?
-                if (s1 == s2) // s1 = 0 s2 = 0
-                {
-                    _s1 = 0;
-                    for (j = i + 2; _s1 == 0; j++)
-                        _s1 = sign(p["y"] - _points[j]["y"]);
-                    _s2 = 0;
-                    for (j = i - 1; _s2 == 0; j--)
-                        _s2 = sign(p["y"] - _points[j]["y"]);
+    int i, on_right = -1;
+    bool cond_i, cond_i_1, is_part1 = true;
+    std::vector<int> signs_part1 = std::vector<int>();
+    std::vector<int> signs_part2 = std::vector<int>();
 
-                    count++;
-                }
-                else if (abs(s1) == abs(s2)) count++; // s1 = +-1 s2 = -+1
-                else if (s1 == 0) // s1 = 0 s2 = -+1
-                {
-                    s_buf = sign(p["y"] - _points[i - 1]["y"]);
-                    if (s_buf != s2 && s_buf != 0) count++;
-                }
-                else // s1 = +-1 s2 = 0
-                {
-                    s_buf = sign(p["y"] - _points[i + 1]["y"]);
-                    if (s_buf != s1 && s_buf != 0) count++;
-                }
+    cond_i_1 = (*this)[0]["x"] >= p["x"];
+    for (i = 0; i < _size - 1; i++)
+    {
+        cond_i = cond_i_1;
+        cond_i_1 = (*this)[i + 1]["x"] >= p["x"];
+        if ((cond_i && cond_i_1) ||
+            (cond_i || cond_i_1) &&
+            (on_right = isIntersectionPointOnRight(p, i)) >= 0) //on_right value is used later in the code
+        {
+            if (on_right == 0) return true;
+            if (is_part1)
+            {
+                if (signs_part1.size() == 0)
+                    signs_part1.push_back(sign(p["y"] - (*this)[i]["y"]));
+                signs_part1.push_back(sign(p["y"] - (*this)[i + 1]["y"]));
+            }
+            else
+            {
+                if (signs_part2.size() == 0)
+                    signs_part2.push_back(sign(p["y"] - (*this)[i]["y"]));
+                signs_part2.push_back(sign(p["y"] - (*this)[i + 1]["y"]));
+            }
         }
-    return true;
+        else is_part1 = false;
+    }
+
+    for (i = 0; i < signs_part1.size(); i++)
+        signs_part2.push_back(signs_part1[i]);
+    if (countIntersections(p, signs_part2) % 2 == 0)
+        return false;
+    else return true;
 }
 
 bool Polygon::isSimple() const
@@ -111,6 +98,14 @@ bool Polygon::isSimple() const
 bool Polygon::isConvex() const
 {
    return true;
+}
+
+int Polygon::convCoord(int ind) const
+{
+    ind %= _size;
+    if (ind < 0)
+        ind += _size;
+    return ind;
 }
 
 Polygon Polygon::convexHull(const std::vector<Point>& points)

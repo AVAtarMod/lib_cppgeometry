@@ -28,7 +28,7 @@ class Polygon
        * @brief Checks if the intersection point is located on the right relative to p?
        *
        */
-      int isIntersectionPointOnRight(const Point& p, int ind) const;
+      int intersectionPointIsOnRight(const Point& p, int ind) const;
 
   public:
       Polygon(const std::vector<Point>& points);
@@ -41,10 +41,13 @@ class Polygon
       const int size() const { return _size; }
 
       bool isInside(const Point& p) const;
+      double* anglesForConvexPolygon() const;
+      bool isInsideConvexPolygon(const Point& p, double* angles) const;
       bool isSimple() const;
       bool isConvex() const;
       int convCoord(int ind) const;
 
+      static bool isInsideTriangle(const Point& p1, const Point& p2, const Point& p3, const Point& p);
       static Polygon convexHull(const std::vector<Point>& points);
 };
 

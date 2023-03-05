@@ -2,6 +2,7 @@
 #include "functions.hpp"
 #include "Line.hpp"
 #include "LineSegment.hpp"
+#include <stdlib.h>
 
 Polygon::Polygon(const std::vector<Point>& points)
 {
@@ -35,7 +36,7 @@ int Polygon::countIntersections(const Point& p, const std::vector<int>& signs)
     return count;
 }
 
-int Polygon::isIntersectionPointOnRight(const Point& p, int ind) const
+int Polygon::intersectionPointIsOnRight(const Point& p, int ind) const
 {
     Point inter = Line::intersect(
         Line((*this)[ind], (*this)[ind + 1]),
@@ -64,7 +65,7 @@ bool Polygon::isInside(const Point& p) const
         cond_i_1 = (*this)[i + 1]["x"] >= p["x"];
         if ((cond_i && cond_i_1) ||
             (cond_i || cond_i_1) &&
-            (on_right = isIntersectionPointOnRight(p, i)) >= 0) //on_right value is used later in the code
+            (on_right = intersectionPointIsOnRight(p, i)) >= 0) //on_right value is used later in the code
         {
             if (on_right == 0) return true;
             if (is_part1)
@@ -90,6 +91,26 @@ bool Polygon::isInside(const Point& p) const
     else return true;
 }
 
+double* Polygon::anglesForConvexPolygon() const
+{
+    double* angles = new double[_size];
+    Point c = Point::middle(_points, 3);
+    Point c1 = c + Point(1, 0);
+    int i;
+    for (i = 0; i < _size; i++)
+    {
+        angles[i] = Point::angle((*this)[i], c1, c);
+        if ((*this)[i]["y"] < c["y"]) angles[i] = -angles[i] + 2 * M_PI;
+    }
+    std::sort(angles, angles + _size);
+    return angles;
+}
+
+bool Polygon::isInsideConvexPolygon(const Point& p, double* angles) const
+{
+    return true;
+}
+
 bool Polygon::isSimple() const
 {
    return true;
@@ -106,6 +127,11 @@ int Polygon::convCoord(int ind) const
     if (ind < 0)
         ind += _size;
     return ind;
+}
+
+static bool isInsideTriangle(const Point& p1, const Point& p2, const Point& p3, const Point& p)
+{
+    return true;
 }
 
 Polygon Polygon::convexHull(const std::vector<Point>& points)

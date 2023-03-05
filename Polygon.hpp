@@ -41,8 +41,8 @@ class Polygon
       const int size() const { return _size; }
 
       bool isInside(const Point& p) const;
-      double* anglesForConvexPolygon() const;
-      bool isInsideConvexPolygon(const Point& p, double* angles) const;
+      std::pair<double, const Point*>* anglesForConvexPolygon() const;
+      bool isInsideConvexPolygon(const Point& p, std::pair<double, const Point*>* angles) const;
       bool isSimple() const;
       bool isConvex() const;
       int convCoord(int ind) const;

@@ -91,24 +91,45 @@ bool Polygon::isInside(const Point& p) const
     else return true;
 }
 
-double* Polygon::anglesForConvexPolygon() const
+std::pair<double, const Point*>* Polygon::anglesForConvexPolygon() const
 {
-    double* angles = new double[_size];
+    std::pair<double, const Point*>* angles = new std::pair<double, const Point*>[_size];
     Point c = Point::middle(_points, 3);
     Point c1 = c + Point(1, 0);
-    int i;
-    for (i = 0; i < _size; i++)
+    for (int i = 0; i < _size; i++)
     {
-        angles[i] = Point::angle((*this)[i], c1, c);
-        if ((*this)[i]["y"] < c["y"]) angles[i] = -angles[i] + 2 * M_PI;
+        angles[i].first = Point::angle((*this)[i], c1, c);
+        angles[i].second = &_points[i];
+        if ((*this)[i]["y"] < c["y"]) angles[i].first = -angles[i].first + 2 * M_PI;
     }
-    std::sort(angles, angles + _size);
+    std::sort(angles, angles + _size,
+        [](std::pair<double, const Point*> a,
+        std::pair<double, const Point*> b)
+        { return a.first < b.first; });
     return angles;
 }
 
-bool Polygon::isInsideConvexPolygon(const Point& p, double* angles) const
+bool Polygon::isInsideConvexPolygon(const Point& p, std::pair<double, const Point*>* angles) const
 {
-    return true;
+    Point c = Point::middle(_points, 3);
+    Point c1 = c + Point(1, 0);
+    double angle = Point::angle(p, c1, c);
+    if (p["y"] < c["y"]) angle = -angle + 2 * M_PI;
+
+    int mid = _size / 2, l = 0, r = _size - 1;
+    if (angle < angles[0].first || angle > angles[_size - 1].first)
+    {
+        l = r;
+        r = 0;
+    }
+    else while (r - l != 1)
+    {
+        if (angle < angles[mid].first) r = mid;
+        else l = mid;
+        mid = (l + r) / 2;
+    }
+    return Polygon::isInsideTriangle(c,
+        *angles[l].second, *angles[r].second, p);
 }
 
 bool Polygon::isSimple() const
@@ -129,7 +150,7 @@ int Polygon::convCoord(int ind) const
     return ind;
 }
 
-static bool isInsideTriangle(const Point& p1, const Point& p2, const Point& p3, const Point& p)
+bool Polygon::isInsideTriangle(const Point& p1, const Point& p2, const Point& p3, const Point& p)
 {
     int sum = 0;
     sum += sign((p1 - p3) | (p - p3));

@@ -80,6 +80,24 @@ class Point
     */
    static Angle angleDegrees(const Point& a, const Point& o, const Point& b);
    /**
+    * @brief Calculates the angle between b and the positive direction of the OX axis
+    *
+    * @return Angle (from 0 to 2*pi)
+    */
+   static double angle360(const Point& b);
+   /**
+    * @brief Calculates the angle between b - o and the positive direction of the OX axis
+    *
+    * @return Angle (from 0 to 2*pi)
+    */
+   static double angle360(const Point& b, const Point& o);
+   /**
+    * @brief Does check is point p lies inside the angle p1p2p3
+    *
+    * @return Angle (from 0 to 2*pi)
+    */
+   static bool isInsideAngle(const Point& p1, const Point& p2, const Point& p3, const Point& p);
+   /**
     * @brief Does check is point has one or both coordinates at infinity
     *
     * @param point A point that need to check

@@ -134,12 +134,29 @@ bool Polygon::isInsideConvexPolygon(const Point& p, std::pair<double, const Poin
 
 bool Polygon::isSimple() const
 {
-   return true;
+    int i, j;
+    for (i = 0; i < _size - 1; i++)
+        for (j = i + 2; j < _size - 1; j++)
+            if (LineSegment::isIntersection(
+                (*this)[i], (*this)[i + 1],
+                (*this)[j], (*this)[j + 1]))
+                return false;
+    return true;
 }
 
 bool Polygon::isConvex() const
 {
-   return true;
+    int _sign, temp;
+    temp = sign(((*this)[1] - (*this)[0]) |
+        ((*this)[2] - (*this)[0]));
+    for (int i = 1; i < _size - 1; i++)
+    {
+        _sign = temp;
+        temp = sign(((*this)[i + 1] - (*this)[i]) |
+            ((*this)[i + 2] - (*this)[i]));
+        if (_sign + temp == 0 && _sign != 0) return false;
+    }
+    return true;
 }
 
 int Polygon::convCoord(int ind) const

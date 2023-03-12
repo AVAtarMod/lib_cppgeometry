@@ -65,32 +65,20 @@ LineSegment::~LineSegment()
    _endpoints[1].~Point();
 }
 
-bool LineSegment::areOnSameSide(double a, double b)
-{
-    if (isZero(a) || isZero(b) || (sign(a) == sign(b))) return true;
-    else return false;
-}
-
 bool LineSegment::isIntersection(const Point& p1, const Point& p2, const Point& p3, const Point& p4)
 {
-    double cp1 = (p3 - p1) | (p2 - p1);
-    double cp2 = (p2 - p1) | (p4 - p1);
-    double cp3 = (p1 - p3) | (p4 - p3);
-    double cp4 = (p4 - p3) | (p2 - p3);
-    if (isZero(cp1) && isZero(cp2)) //Do the segments lie on the same line?
-    {
-        double dis = Point::distance(p1, p2);
-        double dis1 = Point::distance(p1, p2) +
-            Point::distance(p2, p3);
-        double dis2 = Point::distance(p1, p4) +
-            Point::distance(p2, p4);
-        if (isZero(dis1 - dis) ||
-            isZero(dis2 - dis))
-            return true;
-        return false;
-    }
-    else if (LineSegment::areOnSameSide(cp1, cp2) ||
-        LineSegment::areOnSameSide(cp3, cp4))
+    bool c1 = LineSegment::isBelongs(p3, p4, p1);
+    bool c2 = LineSegment::isBelongs(p3, p4, p2);
+    bool c3 = LineSegment::isBelongs(p1, p2, p3);
+    bool c4 = LineSegment::isBelongs(p1, p2, p4);
+    if (c1 || c2 || c3 || c4) return true;
+
+    double cros_prod1 = (p3 - p1) | (p2 - p1);
+    double cros_prod2 = (p2 - p1) | (p4 - p1);
+    double cros_prod3 = (p1 - p3) | (p4 - p3);
+    double cros_prod4 = (p4 - p3) | (p2 - p3);
+    if ((sign(cros_prod1) == sign(cros_prod2)) ||
+        (sign(cros_prod3) == sign(cros_prod4)))
         return true;
     return false;
 }

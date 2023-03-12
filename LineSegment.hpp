@@ -9,12 +9,6 @@ class LineSegment
    Line _line;
    Point _endpoints[2];
 
-   /**
-    * @brief According to the values of vector products, it determines
-    * whether points are on the same side of the segment
-    */
-   static bool areOnSameSide(double a, double b);
-
   public:
    LineSegment(const Point& a, const Point& b);
    LineSegment(const Line& l, const Point endpoints[2]);

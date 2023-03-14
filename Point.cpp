@@ -272,9 +272,12 @@ double Point::angle(const Point& a, const Point& b, const Point& o)
 
 Point Point::getRandom(int min, int max, size_t size)
 {
+   const int scale = 100;
    Point result(size);
    for (uint i = 0; i < size; ++i) {
-      result[i] = getPRNFast(min, max);
+      double val =
+        static_cast<double>(getPRNFast(min * scale, max * scale)) / scale;
+      result[i] = val;
    }
    return result;
 }

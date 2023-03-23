@@ -72,7 +72,7 @@ int getNumberDigits(int number)
 
 bool isZero(double a)
 {
-   return fabs(a) <= std::numeric_limits<double>::epsilon();
+   return fabs(a) <= eps;
 }
 
 int sign(double a)

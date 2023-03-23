@@ -11,6 +11,8 @@
 
 using uint = unsigned int;
 
+static double eps = 0.00000000001;
+
 /**
  * @brief Get pseudo random number (slow method, high quality). Uses Mersenne
  * Twister (std::mt19937).

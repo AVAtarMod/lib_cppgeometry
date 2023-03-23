@@ -34,7 +34,7 @@ void Point::zero_normalization()
 bool Point::equal(const Point& a, int size) const
 {
    for (int i = 0; i < size; i++)
-      if (fabs((*this)[i] - a[i]) > std::numeric_limits<double>::epsilon())
+      if (!isZero((*this)[i]- a[i]))
          return false;
    return true;
 }
@@ -308,23 +308,26 @@ Angle Point::angleDegrees(const Point& a, const Point& o, const Point& b)
 
 double Point::angle360(const Point& b)
 {
-    Point a = Point(1, 0);
-    double angle = Point::angle(a, b);
-    if (b["y"] < 0) angle = 2 * M_PI - angle;
-    return angle;
+    return angle360(Point(1, 0), b, Point(0, 0));
 }
 
 double Point::angle360(const Point& b, const Point& o)
 {
-    return angle360(b - o);
+    return angle360(Point(1, 0), b, o);
+}
+
+double Point::angle360(const Point& a, const Point& b, const Point& o)
+{
+    double angle = Point::angle(a, b, o);
+    if ((a - o | b - o) < 0) angle = 2 * M_PI - angle;
+    return angle;
 }
 
 bool Point::isInsideAngle(const Point& p1, const Point& p2, const Point& p3, const Point& p)
 {
-    double angle1 = angle360(p1, p2);
-    double angle3 = angle360(p3, p2);
-    double angle = angle360(p, p2);
-    if (isZero(angle1 - angle) || isZero(angle3 - angle) ||
-        angle1 < angle && angle3 > angle) return true;
+    double angle_p3 = angle360(p1, p3, p2);
+    double angle_p = angle360(p1, p, p2);
+    if (isZero(angle_p3 - angle_p) || angle_p3 > angle_p)
+        return true;
     return false;
 }

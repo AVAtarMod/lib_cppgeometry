@@ -189,7 +189,48 @@ bool Polygon::isInsideTriangle(const Point& p1, const Point& p2,
       return false;
 }
 
-Polygon grahamConvexHull(const std::vector<Point>& points) {}
+Polygon grahamConvexHull(const std::vector<Point>& points)
+{
+   int i, j;
+   Point o = Point::middle(&points[0], points.size());
+   std::vector<Point> points_p(points);
+   for (i = 0; i < points_p.size(); i++)
+      points_p[i].toPolarCoord2(o);
+
+   std::vector<int> indices(points.size());
+   for (i = 0; i < indices.size(); i++)
+      indices[i] = i;
+   std::sort(indices.begin(), indices.end(), [&](int a, int b) {
+      return points_p[a][1] < points_p[b][1];
+   });
+
+   bool is_zero;
+   for (i = 0; i < indices.size(); i++) {
+      is_zero = isZero(points_p[indices[i]][1] -
+          points_p[indices[i + 1]][1]);
+      if (is_zero || points_p[indices[i]][0] <
+          points_p[indices[i + 1]][0]) {
+         indices.erase(indices.begin() + i);
+         i--;
+      }
+   }
+
+   double cr_prod;
+   for (i = 0; i <= indices.size(); i++) {
+      cr_prod = points[indices[i + 1]] - points[indices[i]] |
+                points[indices[i + 2]] - points[indices[i + 1]];
+      if (!isZero(cr_prod) && cr_prod < 0) {
+         indices.erase(indices.begin() + i + 1);
+         i -= 2;
+      }
+   }
+
+   std::vector<Point> ans(indices.size());
+   for (i = 0; i < ans.size(); i++)
+      ans[i] = Point(points[indices[i]]);
+   return Polygon(ans);
+}
+
 Polygon jarvisConvexHull(const std::vector<Point>& points) {}
 
 Polygon Polygon::convexHull(const std::vector<Point>& points,

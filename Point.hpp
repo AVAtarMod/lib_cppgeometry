@@ -53,6 +53,8 @@ class Point
 
    void resize(int size);
    void zeroing();
+   void toPolarCoord2(const Point& o);
+   void toPolarCoord2();
    static double distance(const Point& a, const Point& b);
    double distance(const Point& other) const;
    static int min_size(const Point* arr, int n);

@@ -189,6 +189,20 @@ void Point::zeroing()
    _size = 1;
 }
 
+void Point::toPolarCoord2(const Point& o)
+{
+    (*this) -= o;
+    _coord[0] = sqrt(
+        _coord[0] * _coord[0] +
+        _coord[1] * _coord[1]);
+    _coord[1] = atan2(_coord[1], _coord[0]);
+}
+
+void Point::toPolarCoord2()
+{
+    toPolarCoord2(Point());
+}
+
 double Point::distance(const Point& a, const Point& b)
 {
    double ans = 0;

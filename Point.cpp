@@ -192,10 +192,11 @@ void Point::zeroing()
 void Point::toPolarCoord2(const Point& o)
 {
     (*this) -= o;
-    _coord[0] = sqrt(
+    double coord0 = sqrt(
         _coord[0] * _coord[0] +
         _coord[1] * _coord[1]);
     _coord[1] = atan2(_coord[1], _coord[0]);
+    _coord[0] = coord0;
 }
 
 void Point::toPolarCoord2()

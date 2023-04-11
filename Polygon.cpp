@@ -165,10 +165,15 @@ bool Polygon::isConvex() const
 
 int Polygon::convCoord(int ind) const
 {
-   ind %= _size;
-   if (ind < 0)
-      ind += _size;
-   return ind;
+    return convCoord(ind, _size);
+}
+
+int Polygon::convCoord(int ind, int size)
+{
+    ind %= size;
+    if (ind < 0)
+        ind += size;
+    return ind;
 }
 
 bool Polygon::isInsideTriangle(const Point& p1, const Point& p2,
@@ -206,32 +211,33 @@ Polygon grahamConvexHull(const std::vector<Point>& points)
 
    bool is_zero;
    for (i = 0; i < indices.size(); i++) {
-      is_zero = isZero(points_p[indices[i]][1] -
-          points_p[indices[i + 1]][1]);
-      if (is_zero || points_p[indices[i]][0] <
-          points_p[indices[i + 1]][0]) {
-         indices.erase(indices.begin() + i);
-         i--;
-      }
+       is_zero = isZero(points_p[indices[i]][1] -
+           points_p[indices[Polygon::convCoord(i + 1, indices.size())]][1]);
+       if (is_zero && points_p[indices[i]][0] <
+           points_p[indices[Polygon::convCoord(i + 1, indices.size())]][0]) {
+           indices.erase(indices.begin() + i);
+           i--;
+       }
    }
 
    double cr_prod;
-   for (i = 0; i <= indices.size(); i++) {
-      cr_prod = points[indices[i + 1]] - points[indices[i]] |
-                points[indices[i + 2]] - points[indices[i + 1]];
+   int size = indices.size();
+   for (i = 0; i <= size; i++) {
+      cr_prod = (points[indices[Polygon::convCoord(i + 1, indices.size())]] - points[indices[Polygon::convCoord(i, indices.size())]]) |
+                (points[indices[Polygon::convCoord(i + 2, indices.size())]] - points[indices[Polygon::convCoord(i + 1, indices.size())]]);
       if (!isZero(cr_prod) && cr_prod < 0) {
          indices.erase(indices.begin() + i + 1);
+           size = indices.size();
          i -= 2;
       }
    }
-
    std::vector<Point> ans(indices.size());
    for (i = 0; i < ans.size(); i++)
       ans[i] = Point(points[indices[i]]);
    return Polygon(ans);
 }
 
-Polygon jarvisConvexHull(const std::vector<Point>& points) {}
+Polygon jarvisConvexHull(const std::vector<Point>& points) { return Polygon(points); }
 
 Polygon Polygon::convexHull(const std::vector<Point>& points,
                             ConvexHullMethod m)

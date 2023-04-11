@@ -53,6 +53,7 @@ class Polygon
    bool isSimple() const;
    bool isConvex() const;
    int convCoord(int ind) const;
+   static int convCoord(int ind, int size);
 
    static bool isInsideTriangle(const Point& p1, const Point& p2,
                                 const Point& p3, const Point& p);

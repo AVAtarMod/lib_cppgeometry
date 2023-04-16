@@ -22,6 +22,12 @@ std::pair< Point, Point > LineSegment::getEndpoints() const
 {
    return std::pair< Point, Point > { _endpoints[0], _endpoints[1] };
 }
+Point LineSegment::getBegin() const {
+   return _endpoints[0];
+}
+Point LineSegment::getEnd() const {
+   return _endpoints[1];
+}
 double LineSegment::length() const
 {
    // ((a_x-b_x)^2+(a_y-b_y)^2)^(1/2)

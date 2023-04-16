@@ -8,6 +8,8 @@
 #include <vector>
 
 #include "Point.hpp"
+#include "LineSegment.hpp"
+
 enum class ConvexHullMethod
 {
    GRAHAM, // a.k.a Graham's scan
@@ -67,6 +69,7 @@ class Polygon
                                 const Point& p3, const Point& p);
    static Polygon convexHull(const std::vector<Point>& points,
                              ConvexHullMethod m);
+   LineSegment* LineClippingCyrusBeck(LineSegment ls) const;
 };
 
 #endif

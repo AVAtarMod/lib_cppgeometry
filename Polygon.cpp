@@ -1,6 +1,6 @@
 #include "Polygon.hpp"
 #include "Line.hpp"
-#include "LineSegment.hpp"
+//#include "LineSegment.hpp"
 #include "functions.hpp"
 
 #include <stdlib.h>
@@ -210,26 +210,33 @@ Polygon grahamConvexHull(const std::vector<Point>& points)
       return points_p[a][1] < points_p[b][1];
    });
 
-   bool is_zero;
+   bool is_zero_angle, is_zero_dis;
    for (i = 0; i < indices.size(); i++) {
-       is_zero = isZero(points_p[indices[i]][1] -
-           points_p[indices[Polygon::convCoord(i + 1, indices.size())]][1]);
-       if (is_zero && points_p[indices[i]][0] <
-           points_p[indices[Polygon::convCoord(i + 1, indices.size())]][0]) {
-           indices.erase(indices.begin() + i);
-           i--;
-       }
+      is_zero_angle =
+        isZero(points_p[indices[i]][1] -
+               points_p[indices[Polygon::convCoord(i + 1, indices.size())]][1]);
+      is_zero_dis =
+        isZero(points_p[indices[i]][0] -
+               points_p[indices[Polygon::convCoord(i + 1, indices.size())]][0]);
+      if (is_zero_angle &&
+          (is_zero_dis ||
+           points_p[indices[i]][0] <
+             points_p[indices[Polygon::convCoord(i + 1, indices.size())]][0])) {
+         indices.erase(indices.begin() + i);
+         i--;
+      }
    }
    double cr_prod;
    int size = indices.size();
    for (i = 0; i <= size; i++) {
       cr_prod = (points[indices[Polygon::convCoord(i + 1, indices.size())]] - points[indices[Polygon::convCoord(i, indices.size())]]) |
                 (points[indices[Polygon::convCoord(i + 2, indices.size())]] - points[indices[Polygon::convCoord(i + 1, indices.size())]]);
-      if (!isZero(cr_prod) && cr_prod < 0) {
-         indices.erase(indices.begin() + i + 1);
+       if (!isZero(cr_prod) && cr_prod < 0) {
+           indices.erase(indices.begin() +
+                         Polygon::convCoord(i + 1, indices.size()));
            size = indices.size();
-         i -= 2;
-      }
+           i -= 2;
+       }
    }
    std::vector<Point> ans(indices.size());
    for (i = 0; i < ans.size(); i++)
@@ -334,6 +341,36 @@ Polygon Polygon::convexHull(const std::vector<Point>& points,
          break;
    }
    return Polygon(points);
+}
+
+LineSegment* Polygon::LineClippingCyrusBeck(LineSegment ls) const {
+   Point center = Point::middle(_points, _size);
+   int direction = sign(_points[1] - _points[0] | center - _points[0]);
+   if (direction == 0)
+      throw "Polygon is degenerate!";
+
+   Point D(ls.getEnd() - ls.getBegin());
+   Point w_i, N_i;
+   double Q_i, P_i, t0 = 0, t1 = 1, t;
+   for (int i = 0; i != _size * direction; i += direction) {
+      N_i = Point((*this)[i + direction][1] - (*this)[i][1],
+                  (*this)[i + direction][1] - (*this)[i][1]);
+      w_i = Point(ls.getBegin() - (*this)[i]);
+      Q_i = N_i * w_i;
+      P_i = N_i * D;
+      if (isZero(P_i)) {
+         if (!isZero(Q_i) && Q_i < 0)
+            return nullptr;
+      } else {
+         t = -Q_i / P_i;
+         if (isZero(t) || isZero(t - 1) || t > 0 && t < 1)
+            if (P_i > 0)
+               t0 = t;
+            else
+               t1 = t;
+      }
+   }
+   return &ls;
 }
 
 std::vector<Point> Polygon::get() const

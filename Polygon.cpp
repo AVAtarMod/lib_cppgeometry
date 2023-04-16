@@ -197,7 +197,7 @@ bool Polygon::isInsideTriangle(const Point& p1, const Point& p2,
 
 Polygon grahamConvexHull(const std::vector<Point>& points)
 {
-   int i, j;
+   int i;
    Point o = Point::middle(&points[0], points.size());
    std::vector<Point> points_p(points);
    for (i = 0; i < points_p.size(); i++)
@@ -227,16 +227,20 @@ Polygon grahamConvexHull(const std::vector<Point>& points)
       }
    }
    double cr_prod;
-   int size = indices.size();
+   int size = indices.size(), j;
    for (i = 0; i <= size; i++) {
-      cr_prod = (points[indices[Polygon::convCoord(i + 1, indices.size())]] - points[indices[Polygon::convCoord(i, indices.size())]]) |
-                (points[indices[Polygon::convCoord(i + 2, indices.size())]] - points[indices[Polygon::convCoord(i + 1, indices.size())]]);
-       if (!isZero(cr_prod) && cr_prod < 0) {
-           indices.erase(indices.begin() +
-                         Polygon::convCoord(i + 1, indices.size()));
-           size = indices.size();
-           i -= 2;
-       }
+      cr_prod = (points[indices[Polygon::convCoord(i + 1, indices.size())]] -
+                 points[indices[Polygon::convCoord(i, indices.size())]]) |
+                (points[indices[Polygon::convCoord(i + 2, indices.size())]] -
+                 points[indices[Polygon::convCoord(i + 1, indices.size())]]);
+      if (!isZero(cr_prod) && cr_prod < 0) {
+         j = Polygon::convCoord(i + 1, indices.size());
+         indices.erase(indices.begin() + j);
+         size = indices.size();
+         if (j == 0)
+            i--;
+         i -= 2;
+      }
    }
    std::vector<Point> ans(indices.size());
    for (i = 0; i < ans.size(); i++)
@@ -418,8 +422,8 @@ LineSegment* Polygon::LineClippingCyrusBeck(LineSegment ls) const {
    Point w_i, N_i;
    double Q_i, P_i, t0 = 0, t1 = 1, t;
    for (int i = 0; i != _size * direction; i += direction) {
-      N_i = Point((*this)[i + direction][1] - (*this)[i][1],
-                  (*this)[i + direction][1] - (*this)[i][1]);
+      N_i = Point((*this)[i + direction]["y"] - (*this)[i]["y"],
+                  (*this)[i]["x"] - (*this)[i + direction]["x"]);
       w_i = Point(ls.getBegin() - (*this)[i]);
       Q_i = N_i * w_i;
       P_i = N_i * D;
@@ -435,7 +439,11 @@ LineSegment* Polygon::LineClippingCyrusBeck(LineSegment ls) const {
                t1 = t;
       }
    }
-   return &ls;
+   double dx, dy;
+   dx = ls.getEnd()["x"] - ls.getBegin()["x"];
+   dy = ls.getEnd()["y"] - ls.getBegin()["y"];
+   return new LineSegment(Point(ls.getBegin()["x"], dx * t0),
+                          Point(ls.getBegin()["y"], dy * t1));
 }
 
 std::vector<Point> Polygon::get() const

@@ -56,7 +56,7 @@ class Line
    bool isInX(double x) const;
    bool isInY(double y) const;
    /**
-    * @brief Does check is point belongs to this line
+    * @brief Does check is point belongs to `this` line
     * 
     * @param point source point
     * @return true if belongs
@@ -67,7 +67,7 @@ class Line
    bool isPerpendicular(const Line& other, double precision = 0.01) const;
 
    /**
-    * @brief Swap @b this Line with @b other
+    * @brief Swap @b `this` Line with @b other
     */
    void swap(Line& other) { Line::swap(*this, other); };
 

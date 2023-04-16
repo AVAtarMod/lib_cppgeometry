@@ -43,7 +43,7 @@ class CircleArc
              const Point& betweenAB, bool approximate);
 
    /**
-    * @brief Does check is Point belongs to this circle arc
+    * @brief Does check is Point belongs to `this` circle arc
     *
     * @param point A point that need to check
     */

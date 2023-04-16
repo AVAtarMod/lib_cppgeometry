@@ -17,15 +17,15 @@ class LineSegment
    double length() const;
 
    /**
-    * @brief Move this line segment along the specified segment
+    * @brief Move `this` line segment along the specified segment
     *
     * @param other The line segment along which the segment will move. One of it
-    * endpoints must be endpoint of this segment
+    * endpoints must be endpoint of `this` segment
     */
    LineSegment move(const LineSegment& other) const;
    
    /**
-    * @brief Does check is point belongs to this line
+    * @brief Does check is point belongs to `this` line
     *
     * @param point source point
     * @return true if belongs
@@ -41,7 +41,7 @@ class LineSegment
     */
    bool static isIntersection(const Point& p1, const Point& p2, const Point& p3, const Point& p4);
    /**
-    * @brief Checks if the segments this and ls intersect
+    * @brief Checks if the segments `this` and ls intersect
     *
     */
    bool isIntersection(const LineSegment& ls) const;
@@ -51,7 +51,7 @@ class LineSegment
     */
    bool static isBelongs(const Point& p1, const Point& p2, const Point& p);
    /**
-    * @brief Checks if point p belongs to segment this
+    * @brief Checks if point p belongs to segment `this`
     *
     */
    bool isBelongs(const Point& p) const;

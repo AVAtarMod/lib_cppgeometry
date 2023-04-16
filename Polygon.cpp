@@ -294,7 +294,6 @@ std::pair<size_t, Point> jarvisGetNextPoint(const Point& current,
    return { result_idx, points[result_idx] };
 }
 
-// TODO not finished
 Polygon jarvisConvexHull(std::vector<Point> points)
 {
    const size_t& size = points.size();

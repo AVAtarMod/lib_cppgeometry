@@ -98,10 +98,7 @@ Point Point::operator-() const
 Point Point::operator+(const Point& a) const
 {
    Point ans = Point(*this);
-   if (_coordinates.size() < a._coordinates.size())
-      ans.resize(a._coordinates.size());
-   for (size_t i = 0; i < _coordinates.size(); i++)
-      ans[i] += a[i];
+   ans += a;
    return ans;
 }
 

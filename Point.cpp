@@ -314,7 +314,7 @@ double Point::angle360(const Point& b)
 {
    return angle360(Point(1, 0), b, Point(0, 0));
 }
-double Point::angle360()
+double Point::angle360() const
 {
    return angle360(Point(1, 0), *this, Point(0, 0));
 }

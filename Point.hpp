@@ -105,7 +105,7 @@ class Point
     *
     * @return double Angle (from 0 to 2*pi)
     */
-   double angle360();
+   double angle360() const;
 
    /**
     * @brief Calculates the angle between the positive direction of the OX axis

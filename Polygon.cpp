@@ -166,15 +166,15 @@ bool Polygon::isConvex() const
 
 int Polygon::convCoord(int ind) const
 {
-    return convCoord(ind, _size);
+   return convCoord(ind, _size);
 }
 
 int Polygon::convCoord(int ind, int size)
 {
-    ind %= size;
-    if (ind < 0)
-        ind += size;
-    return ind;
+   ind %= size;
+   if (ind < 0)
+      ind += size;
+   return ind;
 }
 
 bool Polygon::isInsideTriangle(const Point& p1, const Point& p2,
@@ -244,6 +244,75 @@ Polygon grahamConvexHull(const std::vector<Point>& points)
    return Polygon(ans);
 }
 
+struct Side
+{
+  public:
+   enum type
+   {
+      Left,
+      Right
+   };
+   void operator=(const type& t);
+   Side(const type& t);
+   static const size_t size = 2;
+   type operator+(int shift) const;
+   Side operator=(const Side& s) = delete;
+   bool operator==(const type& t) const;
+
+  private:
+   type _value;
+};
+
+Side::type Side::operator+(int shift) const
+{
+   return static_cast<type>(std::abs(static_cast<int>(_value) + shift) % size);
+}
+void Side::operator=(const type& t)
+{
+   _value = t;
+}
+bool Side::operator==(const type& t) const
+{
+   return t == _value;
+}
+Side::Side(const type& t)
+{
+   _value = t;
+}
+
+double getValidAngle(const Point& p, const Side& s)
+{
+   double angle = p.angle360() * (180 / M_PI);
+   if (s == Side::Left) {
+      if (angle < 0)
+         angle += 360;
+      auto val = 180 - angle;
+      // check degree value, throw exception if invalid
+      angle = Angle(-90, val, 90).degrees();
+   }
+   return angle;
+}
+std::vector<std::pair<Point, const size_t>> getPointBySide(
+  const Side& s, const std::vector<Point>& points)
+{
+   std::vector<std::pair<Point, const size_t>> result;
+
+   const size_t& size = points.size();
+   if (s == Side::Right)
+      // Add points which to the right of current
+      for (size_t i = 0; i < size; ++i) {
+         if (isZero(points[i]["x"]) || points[i]["x"] > 0)
+            result.push_back({ points[i], i });
+      }
+   else if (s == Side::Left)
+      // Add points which to the left of current
+      for (size_t i = 0; i < size; ++i) {
+         if (isZero(points[i]["x"]) || points[i]["x"] < 0)
+            result.push_back({ points[i], i });
+      }
+   return result;
+}
+
 /**
  * @brief Get next point by gift wrapping algorithm (next point is point from
  * points vector)
@@ -254,54 +323,44 @@ Polygon grahamConvexHull(const std::vector<Point>& points)
  * @return std::pair<size_t, Point> pair(point index in points, next point)
  */
 std::pair<size_t, Point> jarvisGetNextPoint(const Point& current,
-                                            const std::vector<Point>& points)
+                                            const std::vector<Point>& points,
+                                            Side& side)
 {
    const size_t& size = points.size();
+   std::vector<std::pair<Point, const size_t>> view_scope;
+   std::vector<Point> normalized(size);
 
-   std::vector<Point> view_scope;
-   bool isRightSide = true;
-   // Add points which to the right of current
    for (size_t i = 0; i < size; ++i) {
       // Make current (0,0) relative to points
-      Point normalized = points[i] - current;
-      if (normalized["x"] > 0)
-         view_scope.push_back(normalized);
+      normalized[i] = points[i] - current;
    }
-   // If we have only points which to the left of current,
-   // will see on it.
-   // As result, we have points which only to the right
-   // or to the left of current
+
+   view_scope = getPointBySide(side, normalized);
    if (view_scope.size() == 0) {
-      for (auto&& i : points) {
-         view_scope.push_back(i - current);
-      }
-      isRightSide = false;
+      side = side + 1;
+      view_scope = getPointBySide(side, normalized);
    }
-   std::vector<std::pair<double, size_t>> angles(view_scope.size());
-   for (size_t i = 0; i < view_scope.size(); ++i) {
-      angles[i].first = view_scope[i].angle360() * (180 / M_PI);
-      angles[i].second = i;
-      if (!isRightSide) {
-         if (angles[i].first < 0)
-            angles[i].first += 360;
-         auto val = 180 - angles[i].first;
-         // check degree value, throw exception if invalid
-         angles[i].first = Angle(-90, val, 90).degrees();
+
+   std::pair<double, size_t> result_angle, cur_angle;
+   result_angle = { getValidAngle(view_scope[0].first, side),
+                    view_scope[0].second };
+
+   for (size_t i = 1; i < view_scope.size(); ++i) {
+      cur_angle.first = getValidAngle(view_scope[i].first, side);
+      cur_angle.second = view_scope[i].second; // Save index in points to pair
+
+      if (side == Side::Left) {
+         if (cur_angle.first > result_angle.first)
+            result_angle = cur_angle;
+      } else {
+         if (cur_angle.first < result_angle.first)
+            result_angle = cur_angle;
       }
    }
-   // Make angles with first - min angle (up to -90),
-   // last - max angle (up to 90)
-   std::sort(angles.begin(),
-             angles.end(),
-             [](const std::pair<double, size_t>& lhs,
-                const std::pair<double, size_t>& rhs) {
-                return lhs.first < rhs.first;
-             });
-   size_t result_idx = angles.at(0).second;
+   size_t result_idx = result_angle.second;
    return { result_idx, points[result_idx] };
 }
 
-// TODO not finished
 Polygon jarvisConvexHull(std::vector<Point> points)
 {
    const size_t& size = points.size();
@@ -313,16 +372,22 @@ Polygon jarvisConvexHull(std::vector<Point> points)
       if (i["y"] < min["y"])
          min = i;
    }
+
    std::vector<Point> convexHullPoints;
    convexHullPoints.push_back(min);
    {
       Point current = min;
+      size_t i = 0;
+      Side s = Side::Right;
       points.erase(std::find(points.begin(), points.end(), current));
       do {
-         auto pair = jarvisGetNextPoint(current, points);
+         auto pair = jarvisGetNextPoint(current, points, s);
          current = pair.second;
          convexHullPoints.push_back(current);
          points.erase(points.begin() + pair.first);
+         if (i == 0)
+            points.push_back(min);
+         ++i;
       } while (current != min && points.size() > 0);
    }
 

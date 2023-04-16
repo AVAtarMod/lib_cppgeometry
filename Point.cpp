@@ -173,7 +173,6 @@ void Point::resize(size_t size)
 
 void Point::zeroing()
 {
-   this->~Point();
    _coordinates = std::vector<double>(1, 0);
 }
 

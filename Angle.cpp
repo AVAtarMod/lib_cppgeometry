@@ -4,9 +4,36 @@
 #include <stdexcept>
 #include <string>
 
-Angle::Angle(double value)
+struct AngleLimits
 {
-   if (0.0 <= value && value <= 360.0 && !std::isinf(value))
+   double min;
+   double max;
+};
+AngleLimits getLimit(Angle::Type type)
+{
+   switch (type) {
+      case Angle::Type::Any:
+         return { -360, 360 };
+      case Angle::Type::Positive:
+         return { 0, 360 };
+      default:
+         break;
+   }
+}
+
+Angle::Angle(double value, Type type)
+{
+   auto limits = getLimit(type);
+   if (limits.min <= value && value <= limits.max && !std::isinf(value))
+      _degrees = value;
+   else
+      throw std::runtime_error(
+        "Cannot construct Angle by incorrect degrees value (" +
+        std::to_string(value) + ")");
+}
+Angle::Angle(double min, double value, double max)
+{
+   if (min <= value && value <= max && !std::isinf(value))
       _degrees = value;
    else
       throw std::runtime_error(

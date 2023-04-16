@@ -17,7 +17,7 @@ class Polygon
 {
   private:
    Point* _points = nullptr;
-   int _size;
+   size_t _size;
 
    /**
     * @brief Calculates the count of intersections of the ray and the polygon
@@ -42,6 +42,14 @@ class Polygon
    ~Polygon() { delete[] _points; }
 
    Point operator[](int ind) const { return _points[convCoord(ind)]; }
+
+   /**
+    * @brief Get all points of `this` Polygon
+    * 
+    * @return std::vector<Point> points of this polygon
+    */
+   std::vector<Point> get() const;
+
    Point& operator[](int ind) { return _points[convCoord(ind)]; }
 
    const int size() const { return _size; }

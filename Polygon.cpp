@@ -2,12 +2,13 @@
 #include "Line.hpp"
 #include "LineSegment.hpp"
 #include "functions.hpp"
+
 #include <stdlib.h>
 
 Polygon::Polygon(const std::vector<Point>& points)
 {
    _size = points.size();
-   _points = new Point[_size] {};
+   _points = new Point[_size];
    for (uint i = 0; i < _size; ++i) {
       _points[i] = points[i];
    }
@@ -219,7 +220,6 @@ Polygon grahamConvexHull(const std::vector<Point>& points)
            i--;
        }
    }
-
    double cr_prod;
    int size = indices.size();
    for (i = 0; i <= size; i++) {
@@ -237,7 +237,90 @@ Polygon grahamConvexHull(const std::vector<Point>& points)
    return Polygon(ans);
 }
 
-Polygon jarvisConvexHull(const std::vector<Point>& points) { return Polygon(points); }
+/**
+ * @brief Get next point by gift wrapping algorithm (next point is point from
+ * points vector)
+ *
+ * @param current current point
+ * @param points remained points (all must be not processed and not contain
+ * current)
+ * @return std::pair<size_t, Point> pair(point index in points, next point)
+ */
+std::pair<size_t, Point> jarvisGetNextPoint(const Point& current,
+                                            const std::vector<Point>& points)
+{
+   const size_t& size = points.size();
+
+   std::vector<Point> view_scope;
+   bool isRightSide = true;
+   // Add points which to the right of current
+   for (size_t i = 0; i < size; ++i) {
+      // Make current (0,0) relative to points
+      Point normalized = points[i] - current;
+      if (normalized["x"] > 0)
+         view_scope.push_back(normalized);
+   }
+   // If we have only points which to the left of current,
+   // will see on it.
+   // As result, we have points which only to the right
+   // or to the left of current
+   if (view_scope.size() == 0) {
+      for (auto&& i : points) {
+         view_scope.push_back(i - current);
+      }
+      isRightSide = false;
+   }
+   std::vector<std::pair<double, size_t>> angles(view_scope.size());
+   for (size_t i = 0; i < view_scope.size(); ++i) {
+      angles[i].first = view_scope[i].angle360() * (180 / M_PI);
+      angles[i].second = i;
+      if (!isRightSide) {
+         if (angles[i].first < 0)
+            angles[i].first += 360;
+         auto val = 180 - angles[i].first;
+         // check degree value, throw exception if invalid
+         angles[i].first = Angle(-90, val, 90).degrees();
+      }
+   }
+   // Make angles with first - min angle (up to -90),
+   // last - max angle (up to 90)
+   std::sort(angles.begin(),
+             angles.end(),
+             [](const std::pair<double, size_t>& lhs,
+                const std::pair<double, size_t>& rhs) {
+                return lhs.first < rhs.first;
+             });
+   size_t result_idx = angles.at(0).second;
+   return { result_idx, points[result_idx] };
+}
+
+// TODO not finished
+Polygon jarvisConvexHull(std::vector<Point> points)
+{
+   const size_t& size = points.size();
+   if (size < 3)
+      throw std::runtime_error("Cannot construct hull by lesser than 3 points");
+
+   Point min = points[0];
+   for (auto&& i : points) {
+      if (i["y"] < min["y"])
+         min = i;
+   }
+   std::vector<Point> convexHullPoints;
+   convexHullPoints.push_back(min);
+   {
+      Point current = min;
+      points.erase(std::find(points.begin(), points.end(), current));
+      do {
+         auto pair = jarvisGetNextPoint(current, points);
+         current = pair.second;
+         convexHullPoints.push_back(current);
+         points.erase(points.begin() + pair.first);
+      } while (current != min && points.size() > 0);
+   }
+
+   return Polygon(convexHullPoints);
+}
 
 Polygon Polygon::convexHull(const std::vector<Point>& points,
                             ConvexHullMethod m)
@@ -251,4 +334,13 @@ Polygon Polygon::convexHull(const std::vector<Point>& points,
          break;
    }
    return Polygon(points);
+}
+
+std::vector<Point> Polygon::get() const
+{
+   std::vector<Point> result;
+   for (size_t i = 0; i < _size; ++i) {
+      result.push_back(_points[i]);
+   }
+   return result;
 }

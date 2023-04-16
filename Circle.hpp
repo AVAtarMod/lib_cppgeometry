@@ -30,7 +30,7 @@ class Circle
 
    bool isBelongs(const Point& a) const;
    /**
-    * @brief Does check is Point belongs to this circle with precision up to dds
+    * @brief Does check is Point belongs to `this` circle with precision up to dds
     * digits after decimal separator
     *
     * @param a A point that need to check
@@ -40,7 +40,7 @@ class Circle
    /**
     * @brief Get the angle of the point.
     *
-    * @param a Point. Should belongs to this circle, otherwise angle will be
+    * @param a Point. Should belongs to `this` circle, otherwise angle will be
     * calculated approximately
     * @return Angle of the point
     */
@@ -53,11 +53,11 @@ class Circle
     */
    Point getPoint(const Angle& a) const;
    /**
-    * @brief Get the exact point, that belongs to this circle
+    * @brief Get the exact point, that belongs to `this` circle
     *
     * @param a A point that need to clarify
     * @param m approximation method
-    * @return Point - resulted point, that belongs to this circle
+    * @return Point - resulted point, that belongs to `this` circle
     */
    Point getExactPoint(const Point& a, ApproximationMethod m = BY_Y_AXIS) const;
 

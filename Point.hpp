@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <ctype.h>
+#include <vector>
 #include <iostream>
 
 #include "Angle.hpp"
@@ -11,8 +12,7 @@
 class Point
 {
   private:
-   double* _coord = nullptr;
-   int _size;
+   std::vector<double> _coordinates;
 
    bool is_zeros(int ind) const;
    void zero_normalization();
@@ -25,14 +25,14 @@ class Point
    Point(int size);
    Point(const Point& a);
    Point(double x, double y);
-   ~Point() { delete[] _coord; }
+   ~Point() { }
 
    bool operator==(const Point& a) const;
    bool operator!=(const Point& a) const { return !(*this == a); }
    void operator=(const Point& a);
    void operator+=(const Point& a);
    void operator-=(const Point& a);
-   Point operator-(const Point& a) const { return (*this) + (-a); }
+   Point operator-(const Point& a) const { return *this + (-a); }
    Point operator-() const;
    Point operator+(const Point& a) const;
    double operator*(const Point& a) const;
@@ -42,18 +42,29 @@ class Point
     * product.
     */
    double operator|(const Point& a) const;
-   double operator[](int ind) const { return _coord[ind]; }
-   double& operator[](int ind) { return _coord[ind]; }
+   double operator[](int ind) const {return _coordinates.at(ind); }
+   double& operator[](int ind) { return _coordinates.at(ind); }
    double operator[](const char* ch) const;
    double& operator[](const char* ch);
 
-   const int size() const { return _size; }
+   const int size() const { return _coordinates.size(); }
    const int dimension() const;
    const double length() const { return distance(Point(), *this); }
 
-   void resize(int size);
+   void resize(size_t size);
    void zeroing();
+   /**
+    * @brief Convert Cartesian coordinates to polar coordinates of `this` point
+    *
+    * @param o origin (axes intersection point)
+    * @return void (None)
+    */
    void toPolarCoord2(const Point& o);
+   /**
+    * @brief Convert `this` point Cartesian coordinates to polar coordinates
+    * Point(0,0) - origin
+    * @return void (None)
+    */
    void toPolarCoord2();
    static double distance(const Point& a, const Point& b);
    double distance(const Point& other) const;
@@ -78,33 +89,44 @@ class Point
     * @param a First Point
     * @param o Middle Point
     * @param b Last Point
-    * @return Angle (in degrees)
+    * @return Angle Result angle (in degrees)
     */
    static Angle angleDegrees(const Point& a, const Point& o, const Point& b);
    /**
-    * @brief Calculates the angle between the positive direction of the OX axis and b
+    * @brief Calculates the angle between the positive direction of the OX axis
+    * and b
     *
-    * @return Angle (from 0 to 2*pi)
+    * @return double Angle (from 0 to 2*pi)
     */
    static double angle360(const Point& b);
    /**
-    * @brief Calculates the angle between the positive direction of the OX axis and b - o
+    * @brief Calculates the angle between the positive direction of the OX axis
+    * and `this` point
     *
-    * @return Angle (from 0 to 2*pi)
+    * @return double Angle (from 0 to 2*pi)
+    */
+   double angle360();
+
+   /**
+    * @brief Calculates the angle between the positive direction of the OX axis
+    * and b - o
+    *
+    * @return double Angle (from 0 to 2*pi)
     */
    static double angle360(const Point& b, const Point& o);
    /**
     * @brief Calculates the angle between a - o and b - o
     *
-    * @return Angle (from 0 to 2*pi)
+    * @return double Angle (from 0 to 2*pi)
     */
    static double angle360(const Point& a, const Point& b, const Point& o);
    /**
     * @brief Does check is point p lies inside the angle p1p2p3
     *
-    * @return Angle (from 0 to 2*pi)
+    * @return bool
     */
-   static bool isInsideAngle(const Point& p1, const Point& p2, const Point& p3, const Point& p);
+   static bool isInsideAngle(const Point& p1, const Point& p2, const Point& p3,
+                             const Point& p);
    /**
     * @brief Does check is point has one or both coordinates at infinity
     *
@@ -117,10 +139,11 @@ class Point
     *
     * @param min lower limit for random coordinates
     * @param max upper limit for random coordinates
-    * @param size size of result Point. Exmaple: with size=2 Point will be 2D.
+    * @param size size of result Point. Example: with size=2 Point will be 2D.
     * @return Point
     */
    static Point getRandom(int min, int max, size_t size = 2);
+   std::string to_string();
 };
 
 std::ostream& operator<<(std::ostream& out, const Point& p);

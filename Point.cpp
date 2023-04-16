@@ -3,20 +3,20 @@
 
 #include <cmath>
 #include <limits>
+#include <sstream>
 
 Point::Point(double x, double y)
 {
-   _coord = new double[2];
-   _coord[0] = x;
-   _coord[1] = y;
-   _size = 2;
+   _coordinates = std::vector<double>(2);
+   _coordinates[0] = x;
+   _coordinates[1] = y;
 }
 
 bool Point::is_zeros(int ind) const
 {
-   if (ind >= _size)
+   if (ind >= _coordinates.size())
       return false;
-   for (int i = ind; i < _size; i++)
+   for (int i = ind; i < size(); i++)
       if ((*this)[i] != 0)
          return false;
    return true;
@@ -34,21 +34,19 @@ void Point::zero_normalization()
 bool Point::equal(const Point& a, int size) const
 {
    for (int i = 0; i < size; i++)
-      if (!isZero((*this)[i]- a[i]))
+      if (!isZero((*this)[i] - a[i]))
          return false;
    return true;
 }
 
 Point::Point()
 {
-   _coord = new double[1] {};
-   _size = 1;
+   _coordinates = std::vector<double>(1);
 }
 
 Point::Point(int size)
 {
-   _coord = new double[size] {};
-   _size = size;
+   _coordinates = std::vector<double>(size);
 }
 
 Point::Point(const Point& a)
@@ -72,18 +70,14 @@ bool Point::operator==(const Point& a) const
 
 void Point::operator=(const Point& a)
 {
-   this->~Point();
-   int size = a.size();
-   _coord = new double[size] {};
-   std::copy_n(a._coord, size, _coord);
-   _size = size;
+   _coordinates = a._coordinates;
 }
 
 void Point::operator+=(const Point& a)
 {
    if (size() < a.size())
       resize(a.size());
-   for (int i = 0; i < size(); i++)
+   for (size_t i = 0; i < _coordinates.size(); i++)
       (*this)[i] += a[i];
 }
 
@@ -103,9 +97,11 @@ Point Point::operator-() const
 
 Point Point::operator+(const Point& a) const
 {
-   Point ans = Point();
-   ans += *this;
-   ans += a;
+   Point ans = Point(*this);
+   if (_coordinates.size() < a._coordinates.size())
+      ans.resize(a._coordinates.size());
+   for (size_t i = 0; i < _coordinates.size(); i++)
+      ans[i] += a[i];
    return ans;
 }
 
@@ -167,41 +163,35 @@ double& Point::operator[](const char* ch)
 const int Point::dimension() const
 {
    int _dimension = 0;
-   for (int i = 0; i < _size; i++)
+   for (int i = 0; i < size(); i++)
       if ((*this)[i] != 0)
          _dimension++;
    return _dimension;
 }
 
-void Point::resize(int size)
+void Point::resize(size_t size)
 {
-   double* buf = _coord;
-   _coord = new double[size] {};
-   std::copy_n(buf, std::min(size, _size), _coord);
-   _size = size;
-   delete[] buf;
+   _coordinates.resize(size);
 }
 
 void Point::zeroing()
 {
    this->~Point();
-   _coord = new double[1] {};
-   _size = 1;
+   _coordinates = std::vector<double>(1, 0);
 }
 
 void Point::toPolarCoord2(const Point& o)
 {
-    (*this) -= o;
-    double coord0 = sqrt(
-        _coord[0] * _coord[0] +
-        _coord[1] * _coord[1]);
-    _coord[1] = atan2(_coord[1], _coord[0]);
-    _coord[0] = coord0;
+   (*this) -= o;
+   double coord0 = sqrt(_coordinates[0] * _coordinates[0] +
+                        _coordinates[1] * _coordinates[1]);
+   _coordinates[1] = atan2(_coordinates[1], _coordinates[0]);
+   _coordinates[0] = coord0;
 }
 
 void Point::toPolarCoord2()
 {
-    toPolarCoord2(Point());
+   toPolarCoord2(Point());
 }
 
 double Point::distance(const Point& a, const Point& b)
@@ -326,26 +316,43 @@ Angle Point::angleDegrees(const Point& a, const Point& o, const Point& b)
 
 double Point::angle360(const Point& b)
 {
-    return angle360(Point(1, 0), b, Point(0, 0));
+   return angle360(Point(1, 0), b, Point(0, 0));
+}
+double Point::angle360()
+{
+   return angle360(Point(1, 0), *this, Point(0, 0));
 }
 
 double Point::angle360(const Point& b, const Point& o)
 {
-    return angle360(Point(1, 0), b, o);
+   return angle360(Point(1, 0), b, o);
 }
 
 double Point::angle360(const Point& a, const Point& b, const Point& o)
 {
-    double angle = Point::angle(a, b, o);
-    if ((a - o | b - o) < 0) angle = 2 * M_PI - angle;
-    return angle;
+   double angle = Point::angle(a, b, o);
+   if ((a - o | b - o) < 0)
+      angle = 2 * M_PI - angle;
+   return angle;
 }
 
-bool Point::isInsideAngle(const Point& p1, const Point& p2, const Point& p3, const Point& p)
+bool Point::isInsideAngle(const Point& p1, const Point& p2, const Point& p3,
+                          const Point& p)
 {
-    double angle_p3 = angle360(p1, p3, p2);
-    double angle_p = angle360(p1, p, p2);
-    if (isZero(angle_p3 - angle_p) || angle_p3 > angle_p)
-        return true;
-    return false;
+   double angle_p3 = angle360(p1, p3, p2);
+   double angle_p = angle360(p1, p, p2);
+   if (isZero(angle_p3 - angle_p) || angle_p3 > angle_p)
+      return true;
+   return false;
+}
+
+std::string Point::to_string()
+{
+   std::stringstream result;
+   result << "(";
+   for (size_t i = 0; i < size() - 1; ++i) {
+      result << _coordinates[i] << ", ";
+   }
+   result << _coordinates[size() - 1] << ")";
+   return result.str();
 }

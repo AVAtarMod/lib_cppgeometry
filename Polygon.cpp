@@ -1,6 +1,6 @@
 #include "Polygon.hpp"
 #include "Line.hpp"
-//#include "LineSegment.hpp"
+// #include "LineSegment.hpp"
 #include "functions.hpp"
 
 #include <stdlib.h>
@@ -290,10 +290,12 @@ double getValidAngle(const Point& p, const Side& s)
    if (s == Side::Left) {
       if (angle < 0)
          angle += 360;
-      auto val = 180 - angle;
-      // check degree value, throw exception if invalid
-      angle = Angle(-90, val, 90).degrees();
+      angle = 180 - angle;
    }
+   if (angle > 180)
+      angle = angle - 360;
+   // check degree value, throw exception if invalid
+   angle = Angle(-90, angle, 90).degrees();
    return angle;
 }
 std::vector<std::pair<Point, const size_t>> getPointBySide(
@@ -394,6 +396,7 @@ Polygon jarvisConvexHull(std::vector<Point> points)
          ++i;
       } while (current != min && points.size() > 0);
    }
+   convexHullPoints.pop_back();
 
    return Polygon(convexHullPoints);
 }
@@ -412,7 +415,8 @@ Polygon Polygon::convexHull(const std::vector<Point>& points,
    return Polygon(points);
 }
 
-LineSegment* Polygon::LineClippingCyrusBeck(LineSegment ls) const {
+LineSegment* Polygon::LineClippingCyrusBeck(LineSegment ls) const
+{
    Point center = Point::middle(_points, _size);
    int direction = sign(_points[1] - _points[0] | center - _points[0]);
    if (direction == 0)

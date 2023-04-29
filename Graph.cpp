@@ -330,3 +330,46 @@
 
 //     return result;
 // }
+
+#include "Graph.hpp"
+
+struct Graph::NumberedPoint {
+    unsigned int _numder;
+    Point _p;
+
+    NumberedPoint()
+    {
+       _numder = 0;
+       _p = Point();
+    }
+
+    NumberedPoint(Point p, unsigned int numder) {
+        _numder = numder;
+        _p = Point(p);
+    }
+
+    operator Point () {
+        return Point(_p);
+    }
+};
+
+Graph::Graph(const matrix_t& adjacencyMatrix, std::vector<Point> points)
+{
+    _adjacencyMatrix = matrix_t(adjacencyMatrix);
+    _points = std::vector<NumberedPoint>(points.size());
+    for (int i = 0; i < _points.size(); i++)
+        _points[i] = NumberedPoint(points[i], i);
+}
+
+/* Polygon Graph::localizationOfAPoint(const Point& p) const
+{
+    std::vector<Point> po = std::vector<Point>();
+    po.back(p);
+    return Polygon(new std::vector<Point>{ p });
+}*/
+
+Graph::~Graph()
+{
+    _adjacencyMatrix.~vector();
+    _points.~vector();
+}

@@ -5,21 +5,25 @@
 
 #include <vector>
 #include <iostream>
+#include "Point.hpp"
+#include "Polygon.hpp"
 
 using matrix_t = std::vector<std::vector<int>>;
 
 class Graph {
   private:
-    uint size = 0;
-
+      struct NumberedPoint;
+    //  unsigned int size = 0;
+    matrix_t _adjacencyMatrix;
+    std::vector<NumberedPoint> _points;
     // * Must be List1D<int>* adjacencyList
    //  List1D<List1D<int>> adjacencyList = nullptr;
 
   public:
     enum Method { BY_DEPTH, BY_WIDTH };
 
-    Graph();
-    Graph(const matrix_t& adjacencyMatrix);
+   // Graph();
+    Graph(const matrix_t& adjacencyMatrix, std::vector<Point> points);
    //  Graph(const List1D<List1D<int>> adjacencyList);
 
     void operator=(const Graph& graph);
@@ -31,6 +35,8 @@ class Graph {
     bool validate() const;
 
     friend std::istream& operator>>(std::istream& input, Graph& number);
+
+    Polygon localizationOfAPoint(const Point& p) const;
 
     ~Graph();
 };

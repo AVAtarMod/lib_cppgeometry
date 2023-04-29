@@ -41,12 +41,15 @@ bool Point::equal(const Point& a, int size) const
 
 Point::Point()
 {
-   _coordinates = std::vector<double>(1);
+    _coordinates = std::vector<double>(1);
+    _coordinates[0] = 0;
 }
 
 Point::Point(int size)
 {
    _coordinates = std::vector<double>(size);
+   for (int i = 0; i < size; i++)
+       _coordinates[i] = 0;
 }
 
 Point::Point(const Point& a)

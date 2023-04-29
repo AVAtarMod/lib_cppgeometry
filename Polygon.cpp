@@ -415,8 +415,7 @@ Polygon Polygon::convexHull(const std::vector<Point>& points,
    return Polygon(points);
 }
 
-LineSegment* Polygon::LineClippingCyrusBeck(LineSegment ls) const
-{
+LineSegment* Polygon::LineClippingCyrusBeck(const LineSegment& ls) const {
    Point center = Point::middle(_points, _size);
    int direction = sign(_points[1] - _points[0] | center - _points[0]);
    if (direction == 0)
@@ -428,6 +427,8 @@ LineSegment* Polygon::LineClippingCyrusBeck(LineSegment ls) const
    for (int i = 0; i != _size * direction; i += direction) {
       N_i = Point((*this)[i + direction]["y"] - (*this)[i]["y"],
                   (*this)[i]["x"] - (*this)[i + direction]["x"]);
+      if (sign(N_i * (center - (*this)[i])) == -1)
+          N_i = -N_i;
       w_i = Point(ls.getBegin() - (*this)[i]);
       Q_i = N_i * w_i;
       P_i = N_i * D;
@@ -446,8 +447,7 @@ LineSegment* Polygon::LineClippingCyrusBeck(LineSegment ls) const
    double dx, dy;
    dx = ls.getEnd()["x"] - ls.getBegin()["x"];
    dy = ls.getEnd()["y"] - ls.getBegin()["y"];
-   return new LineSegment(Point(ls.getBegin()["x"], dx * t0),
-                          Point(ls.getBegin()["y"], dy * t1));
+   return new LineSegment(Point(dx * t0, dy * t0), Point(dx * t1, dy * t1));
 }
 
 std::vector<Point> Polygon::get() const

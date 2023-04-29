@@ -69,7 +69,7 @@ class Polygon
                                 const Point& p3, const Point& p);
    static Polygon convexHull(const std::vector<Point>& points,
                              ConvexHullMethod m);
-   LineSegment* LineClippingCyrusBeck(LineSegment ls) const;
+   LineSegment* LineClippingCyrusBeck(const LineSegment& ls) const;
 };
 
 #endif

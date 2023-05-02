@@ -5,15 +5,22 @@
 #include <cmath>
 #include <ctype.h>
 #include <iostream>
+#include <memory>
 #include <vector>
 
-#include "Point.hpp"
 #include "LineSegment.hpp"
+#include "Point.hpp"
 
 enum class ConvexHullMethod
 {
    GRAHAM, // a.k.a Graham's scan
    JARVIS  // a.k.a gift wrapping algorithm
+};
+enum class ClipSegmentMethod
+{
+   COHEN_SUTHERLAND,
+   SPROULE_SUTHERLAND,
+   CYRUS_BECK
 };
 class Polygon
 {
@@ -22,18 +29,19 @@ class Polygon
    size_t _size;
 
    /**
-    * @brief Calculates the count of intersections of the ray and the polygon
+    * @brief Calculates the count of intersections of the ray and the
+    * polygon
     *
     * @param p The point from which the ray originates
-    * @param signs Values vector -1, 0, 1. Determine the y-coordinate of a
-    * polygon point relative to the y-coordinate of a point p
+    * @param signs Values vector -1, 0, 1. Determine the y-coordinate
+    * of a polygon point relative to the y-coordinate of a point p
     * @return Count of intersections
     *
     */
    int static countIntersections(const Point& p, const std::vector<int>& signs);
    /**
-    * @brief Checks if the intersection point is located on the right relative
-    * to p?
+    * @brief Checks if the intersection point is located on the right
+    * relative to p?
     *
     */
    int intersectionPointIsOnRight(const Point& p, int ind) const;
@@ -47,7 +55,7 @@ class Polygon
 
    /**
     * @brief Get all points of `this` Polygon
-    * 
+    *
     * @return std::vector<Point> points of this polygon
     */
    std::vector<Point> get() const;
@@ -69,12 +77,18 @@ class Polygon
                                 const Point& p3, const Point& p);
    static Polygon convexHull(const std::vector<Point>& points,
                              ConvexHullMethod m);
+
    /**
-    * @brief Cutting a segment using the Cyrus-Beck algorithm
+    * @brief Cutting a segment using specified method
     *
-    * @return Clipping segment pointer. If the pointer is nullptr, then the segment was outside the area
+    * @param ls segment to clip
+    * @param m method to use for clip
+    *
+    * @return std::unique_ptr<LineSegment> pointer to line segment.
+    * If the pointer is nullptr, then `ls` is outside the area
     */
-   LineSegment* LineClippingCyrusBeck(const LineSegment& ls) const;
+   std::unique_ptr<LineSegment> segmentInsidePolygon(const LineSegment& ls,
+                                                     ClipSegmentMethod m) const;
 };
 
 #endif

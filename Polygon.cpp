@@ -415,7 +415,24 @@ Polygon Polygon::convexHull(const std::vector<Point>& points,
    return Polygon(points);
 }
 
-LineSegment* Polygon::LineClippingCyrusBeck(const LineSegment& ls) const {
+std::unique_ptr<LineSegment> Polygon::segmentInsidePolygon(const LineSegment& s,
+                                                           ClipSegmentMethod m) const
+{
+   switch (m) {
+      case ClipSegmentMethod::COHEN_SUTHERLAND:
+         return grahamConvexHull(points);
+      case ClipSegmentMethod::SPROULE_SUTHERLAND:
+         return jarvisConvexHull(points);
+      case ClipSegmentMethod::CYRUS_BECK:
+         return lineClippingCyrusBeck(s);
+      default:
+         break;
+   }
+   return Polygon(points);
+}
+std::unique_ptr<LineSegment> lineClippingCyrusBeck(const LineSegment& ls) {}
+std::unique_ptr<LineSegment> lineClippingCyrusBeck(const LineSegment& ls)
+{
    Point center = Point::middle(_points, _size);
    int direction = sign(_points[1] - _points[0] | center - _points[0]);
    if (direction == 0)
@@ -428,7 +445,7 @@ LineSegment* Polygon::LineClippingCyrusBeck(const LineSegment& ls) const {
       N_i = Point((*this)[i + direction]["y"] - (*this)[i]["y"],
                   (*this)[i]["x"] - (*this)[i + direction]["x"]);
       if (sign(N_i * (center - (*this)[i])) == -1)
-          N_i = -N_i;
+         N_i = -N_i;
       w_i = Point(ls.getBegin() - (*this)[i]);
       Q_i = N_i * w_i;
       P_i = N_i * D;
@@ -447,7 +464,8 @@ LineSegment* Polygon::LineClippingCyrusBeck(const LineSegment& ls) const {
    double dx, dy;
    dx = ls.getEnd()["x"] - ls.getBegin()["x"];
    dy = ls.getEnd()["y"] - ls.getBegin()["y"];
-   return new LineSegment(Point(dx * t0, dy * t0), Point(dx * t1, dy * t1));
+   return std::unique_ptr<LineSegment>(
+     new LineSegment(Point(dx * t0, dy * t0), Point(dx * t1, dy * t1)));
 }
 
 std::vector<Point> Polygon::get() const

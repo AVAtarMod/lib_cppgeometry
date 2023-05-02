@@ -69,6 +69,11 @@ class Polygon
                                 const Point& p3, const Point& p);
    static Polygon convexHull(const std::vector<Point>& points,
                              ConvexHullMethod m);
+   /**
+    * @brief Cutting a segment using the Cyrus-Beck algorithm
+    *
+    * @return Clipping segment pointer. If the pointer is nullptr, then the segment was outside the area
+    */
    LineSegment* LineClippingCyrusBeck(const LineSegment& ls) const;
 };
 

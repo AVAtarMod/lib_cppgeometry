@@ -1,336 +1,3 @@
-// #include <cstring>
-// #include <sstream>
-
-// #include "Graph.hpp"
-// #include "stack.hpp"
-
-// // SERVICE FUNCTIONS
-
-// bool allValuesTrue(bool* array, uint length);
-// bool validateMatrix(const matrix_t& matrix);
-// bool validateList(const List1D<List1D<int>> adjacencyList);
-// void printRowAL(const IntList1D rowOfAdjacencyList);
-// IntList1D* getSpanningTreeByDepth(const IntList1D* arrayOfLists, uint length);
-// IntList1D* getSpanningTreeByWidth(const IntList1D* arrayOfLists, uint length);
-// IntList1D* getArrayFrom(const List1D<List1D<int>> adjacencyList, uint size);
-// List1D<List1D<int>> getListOfListsFrom(const IntList1D* adjacencyArray,
-//                                        uint size);
-
-// Graph::Graph() {}
-
-// Graph::Graph(const matrix_t& adjacencyMatrix) {
-//     if (validateMatrix(adjacencyMatrix)) {
-//         size = adjacencyMatrix.size();
-//         adjacencyList = nullptr;
-
-//         for (uint row = 0; row < size; ++row) {
-//             List1D<int> listRow = nullptr;
-//             for (uint col = 0; col < size; ++col)
-//                 for (int count = 0; count < adjacencyMatrix[row][col];
-//                      ++count) {
-//                     pushBack(listRow, static_cast<int>(col));
-//                 }
-//             pushBack(adjacencyList, listRow);
-//         }
-//     }
-// }
-
-// void Graph::operator=(const Graph& graph) {
-//     this->~Graph();
-//     size = graph.size;
-
-//     adjacencyList = nullptr;
-//     List1D_element<List1D<int>>* list_ptr = *graph.adjacencyList;
-//     for (uint i = 0; i < size; ++i) {
-//         pushBack(adjacencyList, copy(list_ptr->data));
-//         list_ptr = list_ptr->next;
-//     }
-// }
-
-// List1D<List1D<int>> Graph::getAdjacencyList() const {
-//     if (size == 0)
-//         return nullptr;
-
-//     List1D<List1D<int>> result = nullptr;
-//     List1D_element<List1D<int>>* list_ptr = *adjacencyList;
-//     for (uint i = 0; i < size; ++i) {
-//         pushBack(result, copy(list_ptr->data));
-//         list_ptr = list_ptr->next;
-//     }
-//     return result;
-// }
-
-// const matrix_t Graph::getAdjacencyMatrix() const {
-//     matrix_t matrix(size, std::vector<int>(size, 0));
-//     if (size != 0) {
-//         List1D_element<List1D<int>>* list_ptr = *adjacencyList;
-//         for (uint row = 0; row < size; ++row) {
-//             IntList1D_element* vertexIndex_ptr = *(list_ptr->data);
-//             for (uint col = 0; col < size; ++col) {
-//                 while (vertexIndex_ptr &&
-//                        col == static_cast<uint>(vertexIndex_ptr->data)) {
-//                     ++matrix[col][row];
-//                     vertexIndex_ptr = vertexIndex_ptr->next;
-//                 }
-//             }
-//             list_ptr = list_ptr->next;
-//         }
-//     }
-//     return matrix;
-// }
-
-// Graph Graph::getSpanningTree(Method m) const {
-//     Graph spanningTree;
-//     spanningTree.size = size;
-//     const IntList1D* array = getArrayFrom(adjacencyList, size);
-//     List1D<List1D<int>>& resultList = spanningTree.adjacencyList;
-//     IntList1D* result;
-
-//     if (m == Method::BY_DEPTH) {
-//         result = getSpanningTreeByDepth(array, size);
-//     } else if (m == Method::BY_WIDTH) {
-//         result = getSpanningTreeByWidth(array, size);
-//     }
-//     resultList = getListOfListsFrom(result, size);
-//     for (uint i = 0; i < size; ++i) {
-//         deleteList(result[i]);
-//     }
-//     return spanningTree;
-// }
-
-// std::istream& operator>>(std::istream& input, Graph& graph) {
-//     char* buffer = new char[INT8_MAX];
-//     input.getline(buffer, INT8_MAX, '\n');
-
-//     if (!input.eof() && strlen(buffer) != 0) {
-//         const int maxPossibleSize = INT8_MAX / 2 + 1;
-//         matrix_t matrix(1, std::vector<int>(maxPossibleSize));
-//         std::stringstream stream(buffer);
-
-//         uint matrixSize = 0;
-//         for (uint col = 0; !stream.eof(); ++col) {
-//             stream >> matrix[0][col];
-//             ++matrixSize;
-//         }
-
-//         matrix.resize(matrixSize);
-//         for (auto& i : matrix) {
-//             i.resize(matrixSize);
-//         }
-
-//         for (uint row = 1; row < matrixSize; ++row) {
-//             for (uint col = 0; col < matrixSize; ++col) {
-//                 input >> matrix[row][col];
-//             }
-//         }
-//         delete[] buffer;
-//         buffer = nullptr;
-//         if (validateMatrix(matrix))
-//             graph = Graph(matrix);
-//     }
-//     if (buffer)
-//         delete[] buffer;
-//     return input;
-// }
-
-// void Graph::print() const {
-//     if (size != 0) {
-//         const List1D_element<List1D<int>>* list_ptr = *adjacencyList;
-//         for (uint i = 0; i < size && list_ptr; ++i) {
-//             std::cout << i + 1 << ": ";
-//             printRowAL(list_ptr->data);
-//             std::cout << '\n';
-//             list_ptr = list_ptr->next;
-//         }
-//     } else
-//         std::cout << "null";
-// }
-
-// bool Graph::validate() const { return validateList(adjacencyList); }
-
-// Graph::~Graph() {
-//     if (size != 0) {
-//         List1D_element<List1D<int>>* list_ptr = *adjacencyList;
-
-//         for (uint i = 0; i < size; ++i) {
-//             deleteList(list_ptr->data);
-//             list_ptr = list_ptr->next;
-//         }
-//         deleteList(adjacencyList);
-//         size = 0;
-//     }
-// }
-
-// // SERVICE FUNCTIONS
-
-// bool allValuesTrue(bool* array, uint length) {
-//     for (uint i = 0; i < length; ++i)
-//         if (array[i] == false)
-//             return false;
-
-//     return true;
-// }
-
-// bool validateMatrix(const matrix_t& matrix) {
-//     uint size = matrix.size();
-
-//     for (uint row = 0; row < size; ++row) {
-//         for (uint col = row; col < size; ++col)
-//             if (matrix[row][col] != matrix[col][row]) {
-//                 std::string err =
-//                     "matrix data in (" + std::to_string(row) + ';' +
-//                     std::to_string(col) + ") doesn't match with (" +
-//                     std::to_string(col) + ';' + std::to_string(row) + ")";
-//                 throw std::runtime_error(err);
-//                 return false;
-//             }
-//     }
-//     return true;
-// }
-
-// // * Code not optimized
-// bool validateList(const List1D<List1D<int>> adjacencyList) {
-//     const List1D_element<List1D<int>>* list_ptr = *adjacencyList;
-//     int index = 0;
-//     while (list_ptr != nullptr) {
-//         const IntList1D row = list_ptr->data;
-//         const IntList1D_element* row_ptr = *row;
-
-//         while (row_ptr != nullptr) {
-//             int indexCheck = row_ptr->data;
-//             uint uIndexCheck = static_cast<uint>(indexCheck);
-
-//             if (indexCheck != index &&
-//                 findFirstOf(getElementAt(adjacencyList, uIndexCheck)->data,
-//                             index) == -1)
-//                 return false;
-//             row_ptr = row_ptr->next;
-//         }
-//         list_ptr = list_ptr->next;
-//         ++index;
-//     }
-//     return true;
-// }
-
-// void printRowALRecursion(const IntList1D_element* begin, bool start) {
-//     if (begin != nullptr) {
-//         if (start)
-//             std::cout << begin->data + 1;
-//         else
-//             std::cout << " " << begin->data + 1;
-//         printRowALRecursion(begin->next, false);
-//     }
-// }
-
-// void printRowAL(const List1D<int> rowOfAdjacencyList) {
-//     if (rowOfAdjacencyList)
-//         printRowALRecursion(*rowOfAdjacencyList, true);
-// }
-
-// IntList1D* getArrayFrom(const List1D<List1D<int>> adjacencyList, uint size) {
-//     IntList1D* result = new IntList1D[size]{nullptr};
-//     const List1D_element<List1D<int>>* list_ptr = *adjacencyList;
-//     for (uint i = 0; i < size && list_ptr; ++i) {
-//         result[i] = copy(list_ptr->data);
-//         list_ptr = list_ptr->next;
-//     }
-
-//     return result;
-// }
-
-// List1D<List1D<int>> getListOfListsFrom(const IntList1D* adjacencyArray,
-//                                        uint size) {
-//     List1D<List1D<int>> result = nullptr;
-
-//     for (uint i = 0; i < size; ++i) {
-//         pushBack(result, copy(adjacencyArray[i]));
-//     }
-
-//     return result;
-// }
-
-// int getNextIndexFromList(IntList1D list, const bool* isVertexViewed) {
-//     IntList1D_element* list_ptr = *list;
-//     int nextIndex = -1, index;
-//     while (list_ptr != nullptr && nextIndex == -1) {
-//         index = list_ptr->data;
-//         if (!isVertexViewed[index])
-//             nextIndex = index;
-//         list_ptr = list_ptr->next;
-//     }
-//     return nextIndex;
-// }
-
-// int getNextIndex(const bool* isVertexViewed, const IntList1D* arrayOfLists,
-//                  IntStack vertexes, int& index) {
-//     IntStack_element* currentData = nullptr;
-
-//     int nextIndexList =
-//         getNextIndexFromList(arrayOfLists[index], isVertexViewed);
-//     while (nextIndexList == -1) {
-//         currentData = pop(vertexes);
-//         if (currentData) {
-//             index = (currentData->data);
-//             nextIndexList =
-//                 getNextIndexFromList(arrayOfLists[index], isVertexViewed);
-//             delete currentData;
-//         } else
-//             break;
-//     }
-//     return nextIndexList;
-// }
-
-// IntList1D* getSpanningTreeByDepth(const IntList1D* arrayOfLists, uint length) {
-//     IntList1D* result = new IntList1D[length];
-//     IntStack vertexes = nullptr;
-//     int index = 0, nextIndex = 0;
-
-//     bool* isVertexViewed = new bool[length]{false};
-//     do {
-//         push(vertexes, index);
-//         isVertexViewed[index] = true;
-//         nextIndex = getNextIndex(isVertexViewed, arrayOfLists, vertexes, index);
-//         if (nextIndex >= 0) {
-//             pushBack(result[nextIndex], index);
-//             pushBack(result[index], nextIndex);
-//         }
-//         index = nextIndex;
-//     } while (!allValuesTrue(isVertexViewed, length));
-//     delete[] isVertexViewed;
-//     deleteStack(vertexes);
-
-//     return result;
-// }
-
-// IntList1D* getSpanningTreeByWidth(const IntList1D* arrayOfLists, uint length) {
-//     IntList1D* result = new IntList1D[length];
-//     int index = 0, nextIndex = 0;
-//     IntStack vertexes = nullptr;
-
-//     bool* isVertexViewed = new bool[length]{false};
-//     do {
-//         push(vertexes, nextIndex);
-//         isVertexViewed[nextIndex] = true;
-//         nextIndex = getNextIndexFromList(arrayOfLists[index], isVertexViewed);
-//         if (nextIndex >= 0) {
-//             pushBack(result[nextIndex], index);
-//             pushBack(result[index], nextIndex);
-//         } else {
-//             nextIndex =
-//                 getNextIndex(isVertexViewed, arrayOfLists, vertexes, index);
-//             if (nextIndex != -1 && index != -1) {
-//                 pushBack(result[nextIndex], index);
-//                 pushBack(result[index], nextIndex);
-//             }
-//         }
-
-//     } while (!allValuesTrue(isVertexViewed, length));
-//     delete[] isVertexViewed;
-//     deleteStack(vertexes);
-
-//     return result;
-// }
-
 #include "Graph.hpp"
 
 struct Graph::NumberedPoint {
@@ -347,10 +14,6 @@ struct Graph::NumberedPoint {
         _numder = numder;
         _p = Point(p);
     }
-
-    operator Point () {
-        return Point(_p);
-    }
 };
 
 Graph::Graph(const matrix_t& adjacencyMatrix, std::vector<Point> points)
@@ -361,12 +24,92 @@ Graph::Graph(const matrix_t& adjacencyMatrix, std::vector<Point> points)
         _points[i] = NumberedPoint(points[i], i);
 }
 
-/* Polygon Graph::localizationOfAPoint(const Point& p) const
+template<typename T1, typename T2>
+std::pair<int, int> Graph::binSearch(const T1& t1, const std::vector<T2>& t2,
+                                     bool (*op)(const T1&, const T2&))
 {
-    std::vector<Point> po = std::vector<Point>();
-    po.back(p);
-    return Polygon(new std::vector<Point>{ p });
-}*/
+    std::pair<int, int> ans { 0, t2.size() - 1 };
+    int mid = (ans.second - ans.first) / 2;
+    while (ans.first < ans.second - 1) {
+        if (op(t1, t2[mid]))
+           mid = ans.first;
+        else
+           mid = ans.second;
+    }
+    if (ans.second == ans.first)
+        if (ans.first == 0)
+           ans.second = 1;
+        else if (ans.first == t2.size() - 1)
+           ans.first = t2.size() - 1;
+    return ans;
+}
+
+bool Graph::isLower(const Point& p, const NumberedPoint& vert)
+{
+    return !isZero(vert._p["y"] - p["y"]) && vert._p["y"] < p["y"];
+}
+
+bool Graph::isOnLeft(const Point& p, const LineSegment& edge)
+{
+    Line l = edge.getLine();
+    switch (l.getType()) {
+        case LineType::CONST_X:
+           return !isZero(l.B() - p["x"]) && l.B() < p["x"];
+        case LineType::NORMAL:
+           double y = l.y(p["x"]);
+           if (l.K() < 0)
+              return !isZero(y - p["y"]) && y > p["y"];
+           else
+              return !isZero(y - p["y"]) && y < p["y"];
+        default:
+           return true;
+    }
+}
+
+Polygon Graph::localizationOfAPoint(const Point& p) const
+{
+    std::vector<NumberedPoint> points(_points);
+    std::sort(
+      points.begin(), points.end(), [](NumberedPoint a, NumberedPoint b) {
+         return !isZero(a._p["y"] - b._p["y"]) && a._p["y"] < b._p["y"];
+      });
+    std::pair<int, int> vertical_range =
+      binSearch(p, points, isLower); // need to make a pointer
+
+    // Finding edges that intersect the found area
+    std::vector<LineSegment> edges;
+    int i, j;
+    Line l,
+      l_horizontal[2] { Line(points[vertical_range.first]._p,
+                             points[vertical_range.first]._p + Point(1, 0)),
+                        Line(points[vertical_range.second]._p,
+                             points[vertical_range.second]._p + Point(1, 0)) };
+    Point endpoints[2];
+    for (i = 0; i <= vertical_range.first; i++)
+        for (j = vertical_range.second; j < points.size(); j++)
+           if (_adjacencyMatrix[points[i]._numder][points[j]._numder] == 1) {
+              l = Line(points[i]._p, points[j]._p);
+              endpoints[0] = Line::intersect(l, l_horizontal[0]);
+              endpoints[1] = Line::intersect(l, l_horizontal[1]);
+              edges.push_back(LineSegment(l, endpoints));
+           }
+
+    std::sort(edges.begin(), edges.end(), [](LineSegment a, LineSegment b) {
+       return a.getBegin()["x"] < b.getBegin()["x"] ||
+              a.getEnd()["x"] < b.getEnd()["x"];
+    });
+    std::pair<int, int> line_range = binSearch(p, edges, isOnLeft); // need to make a pointer
+
+    std::vector<Point> polygon_points;
+    polygon_points.push_back(edges[line_range.first].getBegin());
+    if (edges[line_range.second].getBegin() != polygon_points[0])
+        polygon_points.push_back(edges[line_range.second].getBegin());
+    polygon_points.push_back(edges[line_range.second].getEnd());
+    if (edges[line_range.second].getBegin() !=
+        polygon_points[polygon_points.size() - 1])
+        polygon_points.push_back(edges[line_range.second].getBegin());
+    return Polygon(polygon_points);
+}
 
 Graph::~Graph()
 {

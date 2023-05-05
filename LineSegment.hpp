@@ -16,6 +16,7 @@ class LineSegment
    std::pair< Point, Point > getEndpoints() const;
    Point getBegin() const;
    Point getEnd() const;
+   Line getLine() const;
    double length() const;
 
    /**

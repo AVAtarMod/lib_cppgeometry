@@ -28,6 +28,9 @@ Point LineSegment::getBegin() const {
 Point LineSegment::getEnd() const {
    return _endpoints[1];
 }
+Line LineSegment::getLine() const {
+   return _line;
+}
 double LineSegment::length() const
 {
    // ((a_x-b_x)^2+(a_y-b_y)^2)^(1/2)

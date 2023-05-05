@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <iostream>
+#include <memory>
 #include "Point.hpp"
 #include "Polygon.hpp"
 #include "functions.hpp"
@@ -20,8 +21,9 @@ class Graph
    std::vector<NumberedPoint> _points;
 
    template<typename T1, typename T2>
-   static std::pair<int, int> binSearch(const T1& t1, const std::vector<T2>& t2,
-                                        bool (*op)(const T1&, const T2&));
+   static std::unique_ptr<std::pair<int, int>> binSearch(
+     const T1& t1, const std::vector<T2>& t2,
+     bool (*less)(const T1&, const T2&));
    static bool isLower(const Point& p, const NumberedPoint& vert);
    static bool isOnLeft(const Point& p, const LineSegment& edge);
 
@@ -46,7 +48,8 @@ class Graph
 
    friend std::istream& operator>>(std::istream& input, Graph& number);
 
-   Polygon localizationOfAPoint(const Point& p) const;
+   std::unique_ptr<Polygon> localizationOfAPoint(
+     const Point& p) const;
 
    ~Graph();
 };

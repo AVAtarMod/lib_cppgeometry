@@ -73,20 +73,20 @@ Polygon Graph::localizationOfAPoint(const Point& p) const
       points.begin(), points.end(), [](NumberedPoint a, NumberedPoint b) {
          return !isZero(a._p["y"] - b._p["y"]) && a._p["y"] < b._p["y"];
       });
-    std::pair<int, int> vertical_range =
+    std::pair<int, int> horizontal_range =
       binSearch(p, points, isLower); // need to make a pointer
 
     // Finding edges that intersect the found area
     std::vector<LineSegment> edges;
     int i, j;
     Line l,
-      l_horizontal[2] { Line(points[vertical_range.first]._p,
-                             points[vertical_range.first]._p + Point(1, 0)),
-                        Line(points[vertical_range.second]._p,
-                             points[vertical_range.second]._p + Point(1, 0)) };
+      l_horizontal[2] { Line(points[horizontal_range.first]._p,
+                             points[horizontal_range.first]._p + Point(1, 0)),
+                        Line(points[horizontal_range.second]._p,
+                             points[horizontal_range.second]._p + Point(1, 0)) };
     Point endpoints[2];
-    for (i = 0; i <= vertical_range.first; i++)
-        for (j = vertical_range.second; j < points.size(); j++)
+    for (i = 0; i <= horizontal_range.first; i++)
+        for (j = horizontal_range.second; j < points.size(); j++)
            if (_adjacencyMatrix[points[i]._numder][points[j]._numder] == 1) {
               l = Line(points[i]._p, points[j]._p);
               endpoints[0] = Line::intersect(l, l_horizontal[0]);

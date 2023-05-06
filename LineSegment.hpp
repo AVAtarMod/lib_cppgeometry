@@ -13,20 +13,22 @@ class LineSegment
    LineSegment(const Point& a, const Point& b);
    LineSegment(const Line& l, const Point endpoints[2]);
 
-   std::pair< Point, Point > getEndpoints() const;
+   std::pair<Point, Point> getEndpoints() const;
    Point getBegin() const;
    Point getEnd() const;
+   Point getPointByX(double x) const;
+   Point getPointByY(double y) const;
    Line getLine() const;
    double length() const;
 
    /**
     * @brief Move `this` line segment along the specified segment
     *
-    * @param other The line segment along which the segment will move. One of it
-    * endpoints must be endpoint of `this` segment
+    * @param other The line segment along which the segment will move.
+    * One of it endpoints must be endpoint of `this` segment
     */
    LineSegment move(const LineSegment& other) const;
-   
+
    /**
     * @brief Does check is point belongs to `this` line
     *
@@ -40,9 +42,10 @@ class LineSegment
 
    /**
     * @brief Checks if the segments p1p2 and p3p4 intersect
-    * 
+    *
     */
-   bool static isIntersection(const Point& p1, const Point& p2, const Point& p3, const Point& p4);
+   bool static isIntersection(const Point& p1, const Point& p2,
+                              const Point& p3, const Point& p4);
    /**
     * @brief Checks if the segments `this` and ls intersect
     *
@@ -52,7 +55,8 @@ class LineSegment
     * @brief Checks if point p belongs to segment p1p2
     *
     */
-   bool static isBelongs(const Point& p1, const Point& p2, const Point& p);
+   bool static isBelongs(const Point& p1, const Point& p2,
+                         const Point& p);
    /**
     * @brief Checks if point p belongs to segment `this`
     *

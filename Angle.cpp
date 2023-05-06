@@ -19,12 +19,14 @@ AngleLimits getLimit(Angle::Type type)
       default:
          break;
    }
+   return { -90, 90 };
 }
 
 Angle::Angle(double value, Type type)
 {
    auto limits = getLimit(type);
-   if (limits.min <= value && value <= limits.max && !std::isinf(value))
+   if (limits.min <= value && value <= limits.max &&
+       !std::isinf(value))
       _degrees = value;
    else
       throw std::runtime_error(
@@ -87,4 +89,9 @@ Angle Angle::operator/(const double& number) const
 Angle Angle::fullAngle()
 {
    return Angle(360.0);
+}
+
+bool operator<(const double& degreeAngle, const Angle& other)
+{
+   return Angle(degreeAngle) < other;
 }

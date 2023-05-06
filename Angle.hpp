@@ -12,10 +12,18 @@ class Angle
   public:
    enum Type
    {
-      /// @brief Value between 0 and 360
+      /**
+       * @brief Value between 0 and 360
+       */
       Positive,
-      /// @brief Value between -360 and 360
-      Any
+      /**
+       * @brief Value between -360 and 360
+       */
+      Any,
+      /**
+       * @brief Value between -90 and 90
+       */
+      Default
    };
    /**
     * @brief Construct a new Angle object by degrees
@@ -23,7 +31,7 @@ class Angle
     * @param value an angle in degrees. Must be between 0 and 360
     * @param type angle type (see Type description)
     */
-   Angle(double value = 0.0, Type type = Positive);
+   Angle(double value = 0.0, Type type = Any);
    /**
     * @brief Construct a new Angle object by degrees
     *
@@ -42,7 +50,7 @@ class Angle
    Angle operator-(const Angle& other) const;
    /**
     * @brief Divide angle value to number
-    * 
+    *
     * @param value Number that will divides `this` angle
     */
    Angle operator/(const double& number) const;
@@ -54,5 +62,5 @@ class Angle
 
    static Angle fullAngle();
 };
-
+bool operator<(const double& degreeAngle, const Angle& other);
 #endif // GEOMETRY_LIB_ANGLE _HPP

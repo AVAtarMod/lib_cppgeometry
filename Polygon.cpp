@@ -1,9 +1,14 @@
 #include "Polygon.hpp"
 #include "Line.hpp"
-// #include "LineSegment.hpp"
 #include "functions.hpp"
 
 #include <stdlib.h>
+std::unique_ptr<LineSegment> lineClippingCohenSutherland(
+  LineSegment ls, const Polygon& polygon);
+std::unique_ptr<LineSegment> lineClippingSprouleSutherland(
+  LineSegment ls, const Polygon& polygon);
+std::unique_ptr<LineSegment> lineClippingCyrusBeck(
+  const LineSegment& ls, const Polygon& polygon);
 
 Polygon::Polygon(const std::vector<Point>& points)
 {
@@ -21,11 +26,13 @@ Polygon::Polygon(Point* points, int size)
    std::copy_n(points, _size, _points);
 }
 
-int Polygon::countIntersections(const Point& p, const std::vector<int>& signs)
+int Polygon::countIntersections(const Point& p,
+                                const std::vector<int>& signs)
 {
    int count = 0, dif = 0;
    for (int i = 0; i < signs.size() - 1; i++)
-      if (signs[i] != signs[i + 1] || signs[i] == 0) // There is intersection?
+      if (signs[i] != signs[i + 1] ||
+          signs[i] == 0) // There is intersection?
          if (signs[i] == signs[i + 1])
             dif++; // signs[i] = 0 signs[i + 1] = 0
          else if (abs(signs[i]) == abs(signs[i + 1]))
@@ -94,7 +101,8 @@ bool Polygon::isInside(const Point& p) const
       return true;
 }
 
-std::pair<double, const Point*>* Polygon::anglesForConvexPolygon() const
+std::pair<double, const Point*>* Polygon::anglesForConvexPolygon()
+  const
 {
    std::pair<double, const Point*>* angles =
      new std::pair<double, const Point*>[_size];
@@ -106,12 +114,11 @@ std::pair<double, const Point*>* Polygon::anglesForConvexPolygon() const
       if ((*this)[i]["y"] < c["y"])
          angles[i].first = -angles[i].first + 2 * M_PI;
    }
-   std::sort(
-     angles,
-     angles + _size,
-     [](std::pair<double, const Point*> a, std::pair<double, const Point*> b) {
-        return a.first < b.first;
-     });
+   std::sort(angles,
+             angles + _size,
+             [](std::pair<double, const Point*> a,
+                std::pair<double, const Point*>
+                  b) { return a.first < b.first; });
    return angles;
 }
 
@@ -136,7 +143,8 @@ bool Polygon::isInsideConvexPolygon(
             l = mid;
          mid = (l + r) / 2;
       }
-   return Polygon::isInsideTriangle(c, *angles[l].second, *angles[r].second, p);
+   return Polygon::isInsideTriangle(
+     c, *angles[l].second, *angles[r].second, p);
 }
 
 bool Polygon::isSimple() const
@@ -144,8 +152,10 @@ bool Polygon::isSimple() const
    int i, j;
    for (i = 0; i < _size - 1; i++)
       for (j = i + 2; j < _size - 1; j++)
-         if (LineSegment::isIntersection(
-               (*this)[i], (*this)[i + 1], (*this)[j], (*this)[j + 1]))
+         if (LineSegment::isIntersection((*this)[i],
+                                         (*this)[i + 1],
+                                         (*this)[j],
+                                         (*this)[j + 1]))
             return false;
    return true;
 }
@@ -156,8 +166,8 @@ bool Polygon::isConvex() const
    temp = sign(((*this)[1] - (*this)[0]) | ((*this)[2] - (*this)[0]));
    for (int i = 1; i < _size - 1; i++) {
       _sign = temp;
-      temp =
-        sign(((*this)[i + 1] - (*this)[i]) | ((*this)[i + 2] - (*this)[i]));
+      temp = sign(((*this)[i + 1] - (*this)[i]) |
+                  ((*this)[i + 2] - (*this)[i]));
       if (_sign + temp == 0 && _sign != 0)
          return false;
    }
@@ -212,16 +222,18 @@ Polygon grahamConvexHull(const std::vector<Point>& points)
 
    bool is_zero_angle, is_zero_dis;
    for (i = 0; i < indices.size(); i++) {
-      is_zero_angle =
-        isZero(points_p[indices[i]][1] -
-               points_p[indices[Polygon::convCoord(i + 1, indices.size())]][1]);
-      is_zero_dis =
-        isZero(points_p[indices[i]][0] -
-               points_p[indices[Polygon::convCoord(i + 1, indices.size())]][0]);
+      is_zero_angle = isZero(
+        points_p[indices[i]][1] -
+        points_p[indices[Polygon::convCoord(i + 1, indices.size())]]
+                [1]);
+      is_zero_dis = isZero(
+        points_p[indices[i]][0] -
+        points_p[indices[Polygon::convCoord(i + 1, indices.size())]]
+                [0]);
       if (is_zero_angle &&
-          (is_zero_dis ||
-           points_p[indices[i]][0] <
-             points_p[indices[Polygon::convCoord(i + 1, indices.size())]][0])) {
+          (is_zero_dis || points_p[indices[i]][0] <
+                            points_p[indices[Polygon::convCoord(
+                              i + 1, indices.size())]][0])) {
          indices.erase(indices.begin() + i);
          i--;
       }
@@ -229,10 +241,11 @@ Polygon grahamConvexHull(const std::vector<Point>& points)
    double cr_prod;
    int size = indices.size(), j;
    for (i = 0; i <= size; i++) {
-      cr_prod = (points[indices[Polygon::convCoord(i + 1, indices.size())]] -
-                 points[indices[Polygon::convCoord(i, indices.size())]]) |
-                (points[indices[Polygon::convCoord(i + 2, indices.size())]] -
-                 points[indices[Polygon::convCoord(i + 1, indices.size())]]);
+      cr_prod =
+        (points[indices[Polygon::convCoord(i + 1, indices.size())]] -
+         points[indices[Polygon::convCoord(i, indices.size())]]) |
+        (points[indices[Polygon::convCoord(i + 2, indices.size())]] -
+         points[indices[Polygon::convCoord(i + 1, indices.size())]]);
       if (!isZero(cr_prod) && cr_prod < 0) {
          j = Polygon::convCoord(i + 1, indices.size());
          indices.erase(indices.begin() + j);
@@ -269,7 +282,8 @@ struct Side
 
 Side::type Side::operator+(int shift) const
 {
-   return static_cast<type>(std::abs(static_cast<int>(_value) + shift) % size);
+   return static_cast<type>(
+     std::abs(static_cast<int>(_value) + shift) % size);
 }
 void Side::operator=(const type& t)
 {
@@ -286,6 +300,8 @@ Side::Side(const type& t)
 
 double getValidAngle(const Point& p, const Side& s)
 {
+   // TODO: fix angle value check (by default angle between -360 and
+   // 360, but was between 0 and 360)
    double angle = p.angle360() * (180 / M_PI);
    if (s == Side::Left) {
       if (angle < 0)
@@ -320,17 +336,17 @@ std::vector<std::pair<Point, const size_t>> getPointBySide(
 }
 
 /**
- * @brief Get next point by gift wrapping algorithm (next point is point from
- * points vector)
+ * @brief Get next point by gift wrapping algorithm (next point is
+ * point from points vector)
  *
  * @param current current point
- * @param points remained points (all must be not processed and not contain
- * current)
- * @return std::pair<size_t, Point> pair(point index in points, next point)
+ * @param points remained points (all must be not processed and not
+ * contain current)
+ * @return std::pair<size_t, Point> pair(point index in points, next
+ * point)
  */
-std::pair<size_t, Point> jarvisGetNextPoint(const Point& current,
-                                            const std::vector<Point>& points,
-                                            Side& side)
+std::pair<size_t, Point> jarvisGetNextPoint(
+  const Point& current, const std::vector<Point>& points, Side& side)
 {
    const size_t& size = points.size();
    std::vector<std::pair<Point, const size_t>> view_scope;
@@ -353,7 +369,8 @@ std::pair<size_t, Point> jarvisGetNextPoint(const Point& current,
 
    for (size_t i = 1; i < view_scope.size(); ++i) {
       cur_angle.first = getValidAngle(view_scope[i].first, side);
-      cur_angle.second = view_scope[i].second; // Save index in points to pair
+      cur_angle.second =
+        view_scope[i].second; // Save index in points to pair
 
       if (side == Side::Left) {
          if (cur_angle.first > result_angle.first)
@@ -371,7 +388,8 @@ Polygon jarvisConvexHull(std::vector<Point> points)
 {
    const size_t& size = points.size();
    if (size < 3)
-      throw std::runtime_error("Cannot construct hull by lesser than 3 points");
+      throw std::runtime_error(
+        "Cannot construct hull by lesser than 3 points");
 
    Point min = points[0];
    for (auto&& i : points) {
@@ -415,26 +433,275 @@ Polygon Polygon::convexHull(const std::vector<Point>& points,
    return Polygon(points);
 }
 
-std::unique_ptr<LineSegment> Polygon::segmentInsidePolygon(const LineSegment& s,
-                                                           ClipSegmentMethod m) const
+std::unique_ptr<LineSegment> Polygon::segmentInsidePolygon(
+  const LineSegment& s, ClipSegmentMethod m) const
 {
    switch (m) {
       case ClipSegmentMethod::COHEN_SUTHERLAND:
-         return grahamConvexHull(points);
+         return lineClippingCohenSutherland(s, *this);
       case ClipSegmentMethod::SPROULE_SUTHERLAND:
-         return jarvisConvexHull(points);
+         return lineClippingSprouleSutherland(s, *this);
       case ClipSegmentMethod::CYRUS_BECK:
-         return lineClippingCyrusBeck(s);
+         return lineClippingCyrusBeck(s, *this);
       default:
          break;
    }
-   return Polygon(points);
+   return std::unique_ptr<LineSegment>();
 }
-std::unique_ptr<LineSegment> lineClippingCyrusBeck(const LineSegment& ls) {}
-std::unique_ptr<LineSegment> lineClippingCyrusBeck(const LineSegment& ls)
+
+struct LineEndCode
 {
-   Point center = Point::middle(_points, _size);
-   int direction = sign(_points[1] - _points[0] | center - _points[0]);
+   uint8_t mask = 0b0000;
+
+   LineEndCode(const std::pair<std::pair<double, double>,
+                               std::pair<double, double>>& xy_minmax,
+               const Point& p)
+   {
+      const std::pair<double, double>& x = xy_minmax.first;
+      const std::pair<double, double>& y = xy_minmax.second;
+      if (p["x"] < x.first)
+         mask |= 0b0001;
+      if (p["x"] > x.second)
+         mask |= 0b0010;
+      if (p["y"] < y.first)
+         mask |= 0b0100;
+      if (p["y"] > y.second)
+         mask |= 0b1000;
+   }
+   bool operator==(const LineEndCode& other)
+   {
+      return mask == other.mask;
+   }
+};
+/**
+ * @brief Computes minmax by polygon points
+ *
+ * @param polygon
+ * @return std::pair<std::pair<double, double>, std::pair<double,
+ * double>> pair(minmax by X, minmax by Y)
+ */
+std::pair<std::pair<double, double>, std::pair<double, double>> xy_minmax(
+  const Polygon& polygon)
+{
+   std::pair<double, double> x = { polygon[0]["x"], polygon[0]["x"] },
+                             y = { polygon[0]["y"], polygon[0]["y"] };
+   for (size_t i = 0; i < polygon.size(); ++i) {
+      /**
+       * @brief Check current X is min/max
+       */
+      if (polygon[i]["x"] < x.first)
+         x.first = polygon[i]["x"];
+      else if (polygon[i]["x"] > x.second)
+         x.second = polygon[i]["x"];
+      /**
+       * @brief Check current Y is min/max
+       */
+      if (polygon[i]["y"] < y.first)
+         y.first = polygon[i]["y"];
+      else if (polygon[i]["y"] > y.second)
+         y.second = polygon[i]["y"];
+   }
+   return { x, y };
+}
+
+enum class SegmentPosition
+{
+   UNKNOWN,
+   INSIDE,
+   OUTSIDE
+};
+SegmentPosition getSegmentPosition(const LineEndCode& begin,
+                                   const LineEndCode& end)
+{
+   if (begin.mask == end.mask) {
+      if (begin.mask == 0)
+         return SegmentPosition::INSIDE;
+      if ((begin.mask ^ end.mask) == 0)
+         return SegmentPosition::OUTSIDE;
+   }
+   return SegmentPosition::UNKNOWN;
+}
+
+Point getPointOnBorder(const Point& currentPoint,
+                       const std::pair<double, double>& x_minmax,
+                       const std::pair<double, double>& y_minmax,
+                       const LineSegment& ls)
+{
+   Point result;
+   if (currentPoint["y"] < y_minmax.first) {
+      result = ls.getPointByY(y_minmax.first);
+   } else if (currentPoint["y"] > y_minmax.second) {
+      result = ls.getPointByY(y_minmax.second);
+   } else if (currentPoint["x"] < x_minmax.first) {
+      result = ls.getPointByX(x_minmax.first);
+   } else if (currentPoint["x"] > x_minmax.second) {
+      result = ls.getPointByX(x_minmax.second);
+   }
+   return result;
+}
+
+std::unique_ptr<LineSegment> lineClippingCohenSutherland(
+  LineSegment ls, const Polygon& polygon)
+{
+   if (polygon.size() != 4)
+      throw std::runtime_error(
+        "Cannot use COHEN_SUTHERLAND method for polygon size != 4 (current size is " +
+        std::to_string(polygon.size()) + ")");
+   auto ret = xy_minmax(polygon);
+
+   Point lsBeginCurrent = ls.getBegin(), lsEndCurrent = ls.getEnd();
+   LineEndCode begin(ret, lsBeginCurrent), end(ret, lsEndCurrent);
+   const auto& x = ret.first;
+   const auto& y = ret.second;
+
+   SegmentPosition pos = getSegmentPosition(begin, end);
+   Point lsBeginNext = lsBeginCurrent, lsEndNext = lsEndCurrent;
+
+   while (pos != SegmentPosition::INSIDE) {
+      if (pos == SegmentPosition::OUTSIDE) {
+         return std::unique_ptr<LineSegment>();
+      }
+      /**
+       * @brief Store previous value in old variables
+       */
+      lsBeginCurrent = lsBeginNext, lsEndCurrent = lsEndNext;
+      lsBeginNext = getPointOnBorder(lsBeginNext, x, y, ls);
+      lsEndNext = getPointOnBorder(lsEndNext, x, y, ls);
+#ifdef DEBUG
+      std::cout << "DEBUG: prevBegin=" << lsBeginCurrent
+                << " prevEnd=" << lsEndCurrent
+                << "; begin=" << lsBeginNext << " end=" << lsEndNext
+                << "\n";
+#endif // DEBUG
+      // TODO: fix case when begin = end (float comparison)
+      if (sign(lsBeginCurrent["x"] - lsEndCurrent["x"]) !=
+            sign(lsBeginNext["x"] - lsEndNext["x"]) ||
+          sign(lsBeginCurrent["y"] - lsEndCurrent["y"]) !=
+            sign(lsBeginNext["y"] - lsEndNext["y"])) {
+         lsBeginNext = lsBeginCurrent, lsEndNext = lsEndCurrent;
+      }
+
+      begin = LineEndCode(ret, lsBeginNext),
+      end = LineEndCode(ret, lsEndNext);
+      pos = getSegmentPosition(begin, end);
+   }
+   ls = LineSegment(lsBeginNext, lsEndNext);
+   return std::make_unique<LineSegment>(ls);
+}
+
+/**
+ * @brief Get fair LineType.
+ *
+ * @param l line which type need to compute
+ * @return LineType If line slope (value in -90° < x < 90°) is
+ * - in 60° < x < 90°,-90 < x < -60 -> CONST_X
+ * - in -30° < x  < 30° -> CONST_Y
+ * - NORMAL, otherwise.
+ */
+LineType getFairLineType(const Line& l)
+{
+   Angle slope = atan(l.K()) * (180 / M_PI);
+   if (60 < slope && slope < 90 || -90 < slope && slope < -60) {
+      return LineType::CONST_X;
+   } else if (-30 < slope && slope < 30) {
+      return LineType::CONST_Y;
+   }
+   return LineType::NORMAL;
+}
+
+int8_t getPartSign(LineType fairLineType, const LineSegment& ls)
+{
+   switch (fairLineType) {
+      case LineType::CONST_X:
+         return -sign(ls.getBegin()["y"] - ls.getEnd()["y"]);
+         break;
+      case LineType::CONST_Y:
+      case LineType::NORMAL:
+         return -sign(ls.getBegin()["x"] - ls.getEnd()["x"]);
+         break;
+      default:
+         break;
+   }
+   return 0;
+}
+std::pair<Point, Point> getPartBeginEnd(LineType type, size_t n,
+                                        size_t partLength,
+                                        int8_t partSign,
+                                        const LineSegment& ls)
+{
+   std::pair<Point, Point> result;
+   double partBegin;
+   switch (type) {
+      case LineType::CONST_Y:
+         partBegin = ls.getBegin()["x"] + n * partLength * partSign;
+         result.first = ls.getPointByX(partBegin);
+         result.second =
+           ls.getPointByX(partBegin + partLength * partSign);
+         break;
+      case LineType::CONST_X:
+      case LineType::NORMAL:
+         partBegin = ls.getBegin()["y"] + n * partLength * partSign;
+         result.first = ls.getPointByY(partBegin);
+         result.second =
+           ls.getPointByY(partBegin + partLength * partSign);
+         break;
+      default:
+         break;
+   }
+   return result;
+}
+std::unique_ptr<LineSegment> lineClippingSprouleSutherland(
+  LineSegment ls, const Polygon& polygon)
+{
+   if (polygon.size() != 4)
+      throw std::runtime_error(
+        "Cannot use SPROULE_SUTHERLAND method for polygon size != 4 (current size is " +
+        std::to_string(polygon.size()) + ")");
+
+   size_t n = 2;
+   const float precision = 0.0001;
+   const double length = ls.length();
+
+   while (length / n > precision) {
+      ++n;
+   }
+
+   Point lsBegin = ls.getBegin(), lsEnd = ls.getEnd();
+   LineType type = getFairLineType(ls.getLine());
+   auto ret = xy_minmax(polygon);
+   int8_t partSign = getPartSign(type, ls);
+   bool isPartSegmentInside = false;
+
+   SegmentPosition current = SegmentPosition::OUTSIDE, next;
+   for (size_t i = 0; i < n; ++i) {
+      auto pair = getPartBeginEnd(type, n, length / n, partSign, ls);
+      next = getSegmentPosition(LineEndCode(ret, pair.first),
+                                LineEndCode(ret, pair.second));
+      if (next == SegmentPosition::INSIDE) {
+         isPartSegmentInside = true;
+         if (current == SegmentPosition::OUTSIDE)
+            lsBegin = pair.first;
+      }
+      if (current == SegmentPosition::INSIDE &&
+          next == SegmentPosition::OUTSIDE)
+         lsEnd = pair.second;
+   }
+   if (!isPartSegmentInside)
+      return std::unique_ptr<LineSegment>(nullptr);
+
+   ls = LineSegment(lsBegin, lsEnd);
+   return std::make_unique<LineSegment>(ls);
+}
+
+std::unique_ptr<LineSegment> lineClippingCyrusBeck(
+  const LineSegment& ls, const Polygon& polygon)
+{
+   const std::vector<Point> _points = polygon.get();
+   const size_t _size = polygon.size();
+
+   Point center = Point::middle(_points.data(), _size);
+   int direction =
+     sign(_points[1] - _points[0] | center - _points[0]);
    if (direction == 0)
       throw "Polygon is degenerate!";
 
@@ -442,11 +709,11 @@ std::unique_ptr<LineSegment> lineClippingCyrusBeck(const LineSegment& ls)
    Point w_i, N_i;
    double Q_i, P_i, t0 = 0, t1 = 1, t;
    for (int i = 0; i != _size * direction; i += direction) {
-      N_i = Point((*this)[i + direction]["y"] - (*this)[i]["y"],
-                  (*this)[i]["x"] - (*this)[i + direction]["x"]);
-      if (sign(N_i * (center - (*this)[i])) == -1)
+      N_i = Point(polygon[i + direction]["y"] - polygon[i]["y"],
+                  polygon[i]["x"] - polygon[i + direction]["x"]);
+      if (sign(N_i * (center - polygon[i])) == -1)
          N_i = -N_i;
-      w_i = Point(ls.getBegin() - (*this)[i]);
+      w_i = Point(ls.getBegin() - polygon[i]);
       Q_i = N_i * w_i;
       P_i = N_i * D;
       if (isZero(P_i)) {
@@ -464,8 +731,8 @@ std::unique_ptr<LineSegment> lineClippingCyrusBeck(const LineSegment& ls)
    double dx, dy;
    dx = ls.getEnd()["x"] - ls.getBegin()["x"];
    dy = ls.getEnd()["y"] - ls.getBegin()["y"];
-   return std::unique_ptr<LineSegment>(
-     new LineSegment(Point(dx * t0, dy * t0), Point(dx * t1, dy * t1)));
+   return std::unique_ptr<LineSegment>(new LineSegment(
+     Point(dx * t0, dy * t0), Point(dx * t1, dy * t1)));
 }
 
 std::vector<Point> Polygon::get() const

@@ -4,8 +4,8 @@
 #include <algorithm>
 #include <cmath>
 #include <ctype.h>
-#include <vector>
 #include <iostream>
+#include <vector>
 
 #include "Angle.hpp"
 
@@ -18,14 +18,15 @@ class Point
    void zero_normalization();
    bool equal(const Point& a, int size) const;
 
-   friend std::ostream& operator<<(std::ostream& out, const Point& number);
+   friend std::ostream& operator<<(std::ostream& out,
+                                   const Point& number);
 
   public:
    Point();
    Point(int size);
    Point(const Point& a);
    Point(double x, double y);
-   ~Point() { }
+   ~Point() {}
 
    bool operator==(const Point& a) const;
    bool operator!=(const Point& a) const { return !(*this == a); }
@@ -38,11 +39,11 @@ class Point
    double operator*(const Point& a) const;
    Point operator^(const Point& a) const;
    /**
-    * @brief Returns the third coordinate of the vector resulting from the cross
-    * product.
+    * @brief Returns the third coordinate of the vector resulting from
+    * the cross product.
     */
    double operator|(const Point& a) const;
-   double operator[](int ind) const {return _coordinates.at(ind); }
+   double operator[](int ind) const { return _coordinates.at(ind); }
    double& operator[](int ind) { return _coordinates.at(ind); }
    double operator[](const char* ch) const;
    double& operator[](const char* ch);
@@ -54,15 +55,16 @@ class Point
    void resize(size_t size);
    void zeroing();
    /**
-    * @brief Convert Cartesian coordinates to polar coordinates of `this` point
+    * @brief Convert Cartesian coordinates to polar coordinates of
+    * `this` point
     *
     * @param o origin (axes intersection point)
     * @return void (None)
     */
    void toPolarCoord2(const Point& o);
    /**
-    * @brief Convert `this` point Cartesian coordinates to polar coordinates
-    * Point(0,0) - origin
+    * @brief Convert `this` point Cartesian coordinates to polar
+    * coordinates Point(0,0) - origin
     * @return void (None)
     */
    void toPolarCoord2();
@@ -75,7 +77,8 @@ class Point
    static double cos(const Point& a, const Point& b);
    static double cos(const Point& a, const Point& b, const Point& o);
    static double angle(const Point& a, const Point& b);
-   static double angle(const Point& a, const Point& b, const Point& o);
+   static double angle(const Point& a, const Point& b,
+                       const Point& o);
 
    /**
     * @brief Compute angle AOB, where O = Point::zero()
@@ -91,25 +94,26 @@ class Point
     * @param b Last Point
     * @return Angle Result angle (in degrees)
     */
-   static Angle angleDegrees(const Point& a, const Point& o, const Point& b);
+   static Angle angleDegrees(const Point& a, const Point& o,
+                             const Point& b);
    /**
-    * @brief Calculates the angle between the positive direction of the OX axis
-    * and b
+    * @brief Calculates the angle between the positive direction of
+    * the OX axis and b
     *
     * @return double Angle (from 0 to 2*pi)
     */
    static double angle360(const Point& b);
    /**
-    * @brief Calculates the angle between the positive direction of the OX axis
-    * and `this` point
+    * @brief Calculates the angle between the positive direction of
+    * the OX axis and `this` point
     *
     * @return double Angle (from 0 to 2*pi)
     */
    double angle360() const;
 
    /**
-    * @brief Calculates the angle between the positive direction of the OX axis
-    * and b - o
+    * @brief Calculates the angle between the positive direction of
+    * the OX axis and b - o
     *
     * @return double Angle (from 0 to 2*pi)
     */
@@ -119,16 +123,18 @@ class Point
     *
     * @return double Angle (from 0 to 2*pi)
     */
-   static double angle360(const Point& a, const Point& b, const Point& o);
+   static double angle360(const Point& a, const Point& b,
+                          const Point& o);
    /**
     * @brief Does check is point p lies inside the angle p1p2p3
     *
     * @return bool
     */
-   static bool isInsideAngle(const Point& p1, const Point& p2, const Point& p3,
-                             const Point& p);
+   static bool isInsideAngle(const Point& p1, const Point& p2,
+                             const Point& p3, const Point& p);
    /**
-    * @brief Does check is point has one or both coordinates at infinity
+    * @brief Does check is point has one or both coordinates at
+    * infinity
     *
     * @param point A point that need to check
     */
@@ -139,7 +145,8 @@ class Point
     *
     * @param min lower limit for random coordinates
     * @param max upper limit for random coordinates
-    * @param size size of result Point. Example: with size=2 Point will be 2D.
+    * @param size size of result Point. Example: with size=2 Point
+    * will be 2D.
     * @return Point
     */
    static Point getRandom(int min, int max, size_t size = 2);

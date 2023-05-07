@@ -117,11 +117,6 @@ bool LineSegment::isBelongs(const Point& p) const
    return isBelongs(this->_endpoints[0], this->_endpoints[1], p);
 }
 
-Line LineSegment::getLine() const
-{
-   return _line;
-}
-
 Point LineSegment::getPointByX(double x) const
 {
    return Point(x, _line.y(x));

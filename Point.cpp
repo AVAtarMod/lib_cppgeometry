@@ -41,15 +41,15 @@ bool Point::equal(const Point& a, int size) const
 
 Point::Point()
 {
-    _coordinates = std::vector<double>(1);
-    _coordinates[0] = 0;
+   _coordinates = std::vector<double>(1);
+   _coordinates[0] = 0;
 }
 
 Point::Point(int size)
 {
    _coordinates = std::vector<double>(size);
    for (int i = 0; i < size; i++)
-       _coordinates[i] = 0;
+      _coordinates[i] = 0;
 }
 
 Point::Point(const Point& a)
@@ -132,7 +132,7 @@ double Point::operator|(const Point& a) const
    return (*this)[0] * a[1] - (*this)[1] * a[0];
 }
 
-double Point::operator[](const char* ch) const
+double Point::operator[](const std::string& ch) const
 {
    switch (tolower(ch[0])) {
       case 'x':
@@ -146,7 +146,7 @@ double Point::operator[](const char* ch) const
    }
 }
 
-double& Point::operator[](const char* ch)
+double& Point::operator[](const std::string& ch)
 {
    switch (tolower(ch[0])) {
       case 'x':
@@ -160,7 +160,7 @@ double& Point::operator[](const char* ch)
    }
 }
 
-const int Point::dimension() const
+size_t Point::dimension() const
 {
    int _dimension = 0;
    for (int i = 0; i < size(); i++)
@@ -213,7 +213,7 @@ double Point::distance(const Point& other) const
    return Point::distance(*this, other);
 }
 
-int Point::min_size(const Point* arr, int n)
+size_t Point::min_size(const Point* arr, int n)
 {
    int ans = arr[0].size();
    for (int i = 1; i < n; i++)
@@ -222,7 +222,16 @@ int Point::min_size(const Point* arr, int n)
    return ans;
 }
 
-int Point::max_size(const Point* arr, int n)
+size_t Point::max_size(const std::vector<Point>& arr)
+{
+   int ans = arr.at(0).size();
+   for (int i = 1; i < arr.size(); i++)
+      if (arr.at(i).size() > ans)
+         ans = arr.at(i).size();
+   return ans;
+}
+
+size_t Point::max_size(const Point* arr, int n)
 {
    int ans = arr[0].size();
    for (int i = 1; i < n; i++)
@@ -240,6 +249,18 @@ Point Point::middle(const Point* arr, int n)
          ans[j] += arr[i][j];
    for (int i = 0; i < max; i++)
       ans[i] /= n;
+   return ans;
+}
+
+Point Point::middle(const std::vector<Point>& array)
+{
+   int max = max_size(array);
+   Point ans(max);
+   for (int i = 0; i < array.size(); i++)
+      for (int j = 0; j < array[i].size(); j++)
+         ans[j] += array[i][j];
+   for (int i = 0; i < max; i++)
+      ans[i] /= array.size();
    return ans;
 }
 
@@ -280,7 +301,8 @@ Point Point::getRandom(int min, int max, size_t size)
    Point result(size);
    for (uint i = 0; i < size; ++i) {
       double val =
-        static_cast<double>(getPRNFast(min * scale, max * scale)) / scale;
+        static_cast<double>(getPRNFast(min * scale, max * scale)) /
+        scale;
       result[i] = val;
    }
    return result;
@@ -308,7 +330,8 @@ Angle Point::angleDegrees(const Point& a, const Point& b)
 {
    return angle(a, b) * (180 / M_PI);
 }
-Angle Point::angleDegrees(const Point& a, const Point& o, const Point& b)
+Angle Point::angleDegrees(const Point& a, const Point& o,
+                          const Point& b)
 {
    return angle(a, b, o) * (180 / M_PI);
 }
@@ -335,8 +358,8 @@ double Point::angle360(const Point& a, const Point& b, const Point& o)
    return angle;
 }
 
-bool Point::isInsideAngle(const Point& p1, const Point& p2, const Point& p3,
-                          const Point& p)
+bool Point::isInsideAngle(const Point& p1, const Point& p2,
+                          const Point& p3, const Point& p)
 {
    double angle_p3 = angle360(p1, p3, p2);
    double angle_p = angle360(p1, p, p2);

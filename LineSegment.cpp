@@ -15,7 +15,7 @@ LineSegment::LineSegment(const Line& l, const Point endpoints[2]) :
      l.isBelongs(endpoints[0]) && l.isBelongs(endpoints[1]);
    if (!isPointsCorrect)
       throw std::runtime_error(
-        "Cannot construct line segment: endpoints not on soource line");
+        "Cannot construct line segment: endpoints not on source line");
 }
 
 std::pair<Point, Point> LineSegment::getEndpoints() const
@@ -56,7 +56,7 @@ LineSegment LineSegment::move(const LineSegment& other) const
       thisIdx = 1;
    } else
       throw std::invalid_argument(
-        "LineSegment::move: one of argument endpoints must be enpoint of this segment");
+        "LineSegment::move: one of argument endpoints must be endpoint of this segment");
 
    double dx, dy;
    dx = otherPoints[otherIdx]["x"] - _endpoints[thisIdx]["x"];
@@ -69,12 +69,7 @@ LineSegment LineSegment::move(const LineSegment& other) const
 
 LineSegment::~LineSegment()
 {
-   /**
-    * @brief Cleanup of points and line
-    */
-   _line.~Line();
-   _endpoints[0].~Point();
-   _endpoints[1].~Point();
+   //! There is no need manual cleanup of points and line
 }
 
 bool LineSegment::isIntersection(const Point& p1, const Point& p2,

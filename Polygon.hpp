@@ -25,8 +25,7 @@ enum class ClipSegmentMethod
 class Polygon
 {
   private:
-   Point* _points = nullptr;
-   size_t _size;
+   std::vector<Point> _points;
 
    /**
     * @brief Calculates the count of intersections of the ray and the
@@ -38,7 +37,8 @@ class Polygon
     * @return Count of intersections
     *
     */
-   int static countIntersections(const Point& p, const std::vector<int>& signs);
+   int static countIntersections(const Point& p,
+                                 const std::vector<int>& signs);
    /**
     * @brief Checks if the intersection point is located on the right
     * relative to p?
@@ -48,8 +48,8 @@ class Polygon
 
   public:
    Polygon(const std::vector<Point>& points);
-   Polygon(Point* points, int size);
-   ~Polygon() { delete[] _points; }
+   Polygon(Point* points, size_t size);
+   ~Polygon() {}
 
    Point operator[](int ind) const { return _points[convCoord(ind)]; }
 
@@ -62,12 +62,12 @@ class Polygon
 
    Point& operator[](int ind) { return _points[convCoord(ind)]; }
 
-   const int size() const { return _size; }
+   const int size() const { return _points.size(); }
 
    bool isInside(const Point& p) const;
    std::pair<double, const Point*>* anglesForConvexPolygon() const;
-   bool isInsideConvexPolygon(const Point& p,
-                              std::pair<double, const Point*>* angles) const;
+   bool isInsideConvexPolygon(
+     const Point& p, std::pair<double, const Point*>* angles) const;
    bool isSimple() const;
    bool isConvex() const;
    int convCoord(int ind) const;
@@ -87,8 +87,8 @@ class Polygon
     * @return std::unique_ptr<LineSegment> pointer to line segment.
     * If the pointer is nullptr, then `ls` is outside the area
     */
-   std::unique_ptr<LineSegment> segmentInsidePolygon(const LineSegment& ls,
-                                                     ClipSegmentMethod m) const;
+   std::unique_ptr<LineSegment> segmentInsidePolygon(
+     const LineSegment& ls, ClipSegmentMethod m) const;
 };
 
 #endif

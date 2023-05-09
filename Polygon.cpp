@@ -12,18 +12,15 @@ std::unique_ptr<LineSegment> lineClippingCyrusBeck(
 
 Polygon::Polygon(const std::vector<Point>& points)
 {
-   _size = points.size();
-   _points = new Point[_size];
-   for (uint i = 0; i < _size; ++i) {
-      _points[i] = points[i];
-   }
+   _points = points;
 }
 
-Polygon::Polygon(Point* points, int size)
+Polygon::Polygon(Point* points, size_t size)
 {
-   _points = new Point[size] {};
-   _size = size;
-   std::copy_n(points, _size, _points);
+   _points.resize(size);
+   for (size_t i = 0; i < size; ++i) {
+      _points[i] = points[i];
+   }
 }
 
 int Polygon::countIntersections(const Point& p,
@@ -70,7 +67,7 @@ bool Polygon::isInside(const Point& p) const
    std::vector<int> signs_part2 = std::vector<int>();
 
    cond_i_1 = (*this)[0]["x"] >= p["x"];
-   for (i = 0; i < _size - 1; i++) {
+   for (i = 0; i < size() - 1; i++) {
       cond_i = cond_i_1;
       cond_i_1 = (*this)[i + 1]["x"] >= p["x"];
       if ((cond_i && cond_i_1) ||
@@ -105,17 +102,17 @@ std::pair<double, const Point*>* Polygon::anglesForConvexPolygon()
   const
 {
    std::pair<double, const Point*>* angles =
-     new std::pair<double, const Point*>[_size];
-   Point c = Point::middle(_points, 3);
+     new std::pair<double, const Point*>[size()];
+   Point c = Point::middle(_points);
    Point c1 = c + Point(1, 0);
-   for (int i = 0; i < _size; i++) {
+   for (int i = 0; i < size(); i++) {
       angles[i].first = Point::angle((*this)[i], c1, c);
       angles[i].second = &_points[i];
       if ((*this)[i]["y"] < c["y"])
          angles[i].first = -angles[i].first + 2 * M_PI;
    }
    std::sort(angles,
-             angles + _size,
+             angles + size(),
              [](std::pair<double, const Point*> a,
                 std::pair<double, const Point*>
                   b) { return a.first < b.first; });
@@ -125,14 +122,14 @@ std::pair<double, const Point*>* Polygon::anglesForConvexPolygon()
 bool Polygon::isInsideConvexPolygon(
   const Point& p, std::pair<double, const Point*>* angles) const
 {
-   Point c = Point::middle(_points, 3);
+   Point c = Point::middle(_points);
    Point c1 = c + Point(1, 0);
    double angle = Point::angle(p, c1, c);
    if (p["y"] < c["y"])
       angle = -angle + 2 * M_PI;
 
-   int mid = _size / 2, l = 0, r = _size - 1;
-   if (angle < angles[0].first || angle > angles[_size - 1].first) {
+   int mid = size() / 2, l = 0, r = size() - 1;
+   if (angle < angles[0].first || angle > angles[size() - 1].first) {
       l = r;
       r = 0;
    } else
@@ -150,8 +147,8 @@ bool Polygon::isInsideConvexPolygon(
 bool Polygon::isSimple() const
 {
    int i, j;
-   for (i = 0; i < _size - 1; i++)
-      for (j = i + 2; j < _size - 1; j++)
+   for (i = 0; i < size() - 1; i++)
+      for (j = i + 2; j < size() - 1; j++)
          if (LineSegment::isIntersection((*this)[i],
                                          (*this)[i + 1],
                                          (*this)[j],
@@ -164,7 +161,7 @@ bool Polygon::isConvex() const
 {
    int _sign, temp;
    temp = sign(((*this)[1] - (*this)[0]) | ((*this)[2] - (*this)[0]));
-   for (int i = 1; i < _size - 1; i++) {
+   for (int i = 1; i < size() - 1; i++) {
       _sign = temp;
       temp = sign(((*this)[i + 1] - (*this)[i]) |
                   ((*this)[i + 2] - (*this)[i]));
@@ -176,7 +173,7 @@ bool Polygon::isConvex() const
 
 int Polygon::convCoord(int ind) const
 {
-   return convCoord(ind, _size);
+   return convCoord(ind, size());
 }
 
 int Polygon::convCoord(int ind, int size)
@@ -540,6 +537,17 @@ Point getPointOnBorder(const Point& currentPoint,
    return result;
 }
 
+bool isOverlappedEnds(const Point& lsBeginCurrent,
+                      const Point& lsEndCurrent,
+                      const Point& lsBeginNext,
+                      const Point& lsEndNext)
+{
+   return (sign(lsBeginCurrent["x"] - lsEndCurrent["x"]) !=
+            sign(lsBeginNext["x"] - lsEndNext["x"]) ||
+          sign(lsBeginCurrent["y"] - lsEndCurrent["y"]) !=
+              sign(lsBeginNext["y"] - lsEndNext["y"])) &&
+            lsBeginNext != lsEndNext;
+}
 std::unique_ptr<LineSegment> lineClippingCohenSutherland(
   LineSegment ls, const Polygon& polygon)
 {
@@ -574,11 +582,12 @@ std::unique_ptr<LineSegment> lineClippingCohenSutherland(
                 << "\n";
 #endif // DEBUG
       // TODO: fix case when begin = end (float comparison)
-      if (sign(lsBeginCurrent["x"] - lsEndCurrent["x"]) !=
-            sign(lsBeginNext["x"] - lsEndNext["x"]) ||
-          sign(lsBeginCurrent["y"] - lsEndCurrent["y"]) !=
-            sign(lsBeginNext["y"] - lsEndNext["y"])) {
-         lsBeginNext = lsBeginCurrent, lsEndNext = lsEndCurrent;
+      if (isOverlappedEnds(
+            lsBeginCurrent, lsEndCurrent, lsBeginNext, lsEndNext)) {
+         lsBeginNext = lsBeginCurrent;
+         if (isOverlappedEnds(
+               lsBeginCurrent, lsEndCurrent, lsBeginNext, lsEndNext))
+            lsEndNext = lsEndCurrent;
       }
 
       begin = LineEndCode(ret, lsBeginNext),
@@ -697,9 +706,8 @@ std::unique_ptr<LineSegment> lineClippingCyrusBeck(
   const LineSegment& ls, const Polygon& polygon)
 {
    const std::vector<Point> _points = polygon.get();
-   const size_t _size = polygon.size();
 
-   Point center = Point::middle(_points.data(), _size);
+   Point center = Point::middle(_points);
    int direction =
      sign(_points[1] - _points[0] | center - _points[0]);
    if (direction == 0)
@@ -708,7 +716,7 @@ std::unique_ptr<LineSegment> lineClippingCyrusBeck(
    Point D(ls.getEnd() - ls.getBegin());
    Point w_i, N_i;
    double Q_i, P_i, t0 = 0, t1 = 1, t;
-   for (int i = 0; i != _size * direction; i += direction) {
+   for (int i = 0; i != polygon.size() * direction; i += direction) {
       N_i = Point(polygon[i + direction]["y"] - polygon[i]["y"],
                   polygon[i]["x"] - polygon[i + direction]["x"]);
       if (sign(N_i * (center - polygon[i])) == -1)
@@ -737,9 +745,5 @@ std::unique_ptr<LineSegment> lineClippingCyrusBeck(
 
 std::vector<Point> Polygon::get() const
 {
-   std::vector<Point> result;
-   for (size_t i = 0; i < _size; ++i) {
-      result.push_back(_points[i]);
-   }
-   return result;
+   return _points;
 }

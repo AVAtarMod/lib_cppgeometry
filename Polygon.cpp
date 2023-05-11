@@ -519,6 +519,17 @@ SegmentPosition getSegmentPosition(const LineEndCode& begin,
    return SegmentPosition::UNKNOWN;
 }
 
+/**
+ * @brief Get the Point on border is point outise a area
+ *
+ * @param currentPoint point to move
+ * @param x_minmax min and max values of X axis of area
+ * @param y_minmax min and max values of Y axis of area
+ * @param ls LineSegment on which move point. `currentPoint` must
+ * belongs to `ls`
+ * @return Point(0) if `currentPoint` already inside area, or
+ * valid Point(x,y) if `currentPoint` outside
+ */
 Point getPointOnBorder(const Point& currentPoint,
                        const std::pair<double, double>& x_minmax,
                        const std::pair<double, double>& y_minmax,
@@ -543,10 +554,10 @@ bool isOverlappedEnds(const Point& lsBeginCurrent,
                       const Point& lsEndNext)
 {
    return (sign(lsBeginCurrent["x"] - lsEndCurrent["x"]) !=
-            sign(lsBeginNext["x"] - lsEndNext["x"]) ||
-          sign(lsBeginCurrent["y"] - lsEndCurrent["y"]) !=
-              sign(lsBeginNext["y"] - lsEndNext["y"])) &&
-            lsBeginNext != lsEndNext;
+             sign(lsBeginNext["x"] - lsEndNext["x"]) ||
+           sign(lsBeginCurrent["y"] - lsEndCurrent["y"]) !=
+             sign(lsBeginNext["y"] - lsEndNext["y"])) &&
+          lsBeginNext != lsEndNext;
 }
 std::unique_ptr<LineSegment> lineClippingCohenSutherland(
   LineSegment ls, const Polygon& polygon)
@@ -581,15 +592,25 @@ std::unique_ptr<LineSegment> lineClippingCohenSutherland(
                 << "; begin=" << lsBeginNext << " end=" << lsEndNext
                 << "\n";
 #endif // DEBUG
-      // TODO: fix case when begin = end (float comparison)
-      if (isOverlappedEnds(
+      bool isBeginReverted = false, isEndReverted = false;
+      if (lsBeginNext == Point()) {
+         lsBeginNext = lsBeginCurrent;
+         isBeginReverted = true;
+      }
+      if (lsEndNext == Point()) {
+         lsEndNext = lsEndCurrent;
+         isEndReverted = true;
+      }
+      if (!isBeginReverted &&
+          isOverlappedEnds(
             lsBeginCurrent, lsEndCurrent, lsBeginNext, lsEndNext)) {
          lsBeginNext = lsBeginCurrent;
-         if (isOverlappedEnds(
-               lsBeginCurrent, lsEndCurrent, lsBeginNext, lsEndNext))
-            lsEndNext = lsEndCurrent;
       }
-
+      if (!isEndReverted &&
+          isOverlappedEnds(
+            lsBeginCurrent, lsEndCurrent, lsBeginNext, lsEndNext)) {
+         lsEndNext = lsEndCurrent;
+      }
       begin = LineEndCode(ret, lsBeginNext),
       end = LineEndCode(ret, lsEndNext);
       pos = getSegmentPosition(begin, end);

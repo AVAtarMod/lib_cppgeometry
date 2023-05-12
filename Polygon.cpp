@@ -755,7 +755,6 @@ std::unique_ptr<LineSegment> lineClippingCyrusBeck(
             return std::unique_ptr<LineSegment>(nullptr);
       } else {
          t = -Q_i / P_i;
-         // if (isZero(t) || isZero(t - 1) || t > 0 && t < 1)
          if (P_i > 0) {
             if (t > t0)
                t0 = t;

@@ -752,16 +752,19 @@ std::unique_ptr<LineSegment> lineClippingCyrusBeck(
       P_i = N_i * D;
       if (isZero(P_i)) {
          if (!isZero(Q_i) && Q_i < 0)
-            return nullptr;
+            return std::unique_ptr<LineSegment>(nullptr);
       } else {
          t = -Q_i / P_i;
-         if (isZero(t) || isZero(t - 1) || t > 0 && t < 1)
-            if (P_i > 0)
+         // if (isZero(t) || isZero(t - 1) || t > 0 && t < 1)
+         if (P_i > 0) {
+            if (t > t0)
                t0 = t;
-            else
-               t1 = t;
+         } else if (t < t1)
+            t1 = t;
       }
    }
+   if (!isZero(t1 - t0) && t1 < t0)
+      return std::unique_ptr<LineSegment>(nullptr);
    double dx, dy;
    dx = ls.getEnd()["x"] - ls.getBegin()["x"];
    dy = ls.getEnd()["y"] - ls.getBegin()["y"];

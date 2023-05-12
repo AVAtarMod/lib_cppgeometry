@@ -643,10 +643,10 @@ int8_t getPartSign(LineType fairLineType, const LineSegment& ls)
 {
    switch (fairLineType) {
       case LineType::CONST_X:
+      case LineType::NORMAL:
          return -sign(ls.getBegin()["y"] - ls.getEnd()["y"]);
          break;
       case LineType::CONST_Y:
-      case LineType::NORMAL:
          return -sign(ls.getBegin()["x"] - ls.getEnd()["x"]);
          break;
       default:
@@ -654,8 +654,8 @@ int8_t getPartSign(LineType fairLineType, const LineSegment& ls)
    }
    return 0;
 }
-std::pair<Point, Point> getPartBeginEnd(LineType type, size_t n,
-                                        size_t partLength,
+std::pair<Point, Point> getPartBeginEnd(LineType type, size_t i,
+                                        double partLength,
                                         int8_t partSign,
                                         const LineSegment& ls)
 {
@@ -663,14 +663,14 @@ std::pair<Point, Point> getPartBeginEnd(LineType type, size_t n,
    double partBegin;
    switch (type) {
       case LineType::CONST_Y:
-         partBegin = ls.getBegin()["x"] + n * partLength * partSign;
+         partBegin = ls.getBegin()["x"] + i * partLength * partSign;
          result.first = ls.getPointByX(partBegin);
          result.second =
            ls.getPointByX(partBegin + partLength * partSign);
          break;
       case LineType::CONST_X:
       case LineType::NORMAL:
-         partBegin = ls.getBegin()["y"] + n * partLength * partSign;
+         partBegin = ls.getBegin()["y"] + i * partLength * partSign;
          result.first = ls.getPointByY(partBegin);
          result.second =
            ls.getPointByY(partBegin + partLength * partSign);
@@ -689,7 +689,7 @@ std::unique_ptr<LineSegment> lineClippingSprouleSutherland(
         std::to_string(polygon.size()) + ")");
 
    size_t n = 2;
-   const float precision = 0.0001;
+   const float precision = 0.001;
    const double length = ls.length();
 
    while (length / n > precision) {
@@ -704,17 +704,21 @@ std::unique_ptr<LineSegment> lineClippingSprouleSutherland(
 
    SegmentPosition current = SegmentPosition::OUTSIDE, next;
    for (size_t i = 0; i < n; ++i) {
-      auto pair = getPartBeginEnd(type, n, length / n, partSign, ls);
+      auto pair = getPartBeginEnd(
+        type, i, length / static_cast<double>(n), partSign, ls);
       next = getSegmentPosition(LineEndCode(ret, pair.first),
                                 LineEndCode(ret, pair.second));
       if (next == SegmentPosition::INSIDE) {
          isPartSegmentInside = true;
-         if (current == SegmentPosition::OUTSIDE)
+         // May be UNKNOWN too because of border segment
+         if (current != SegmentPosition::INSIDE)
             lsBegin = pair.first;
       }
-      if (current == SegmentPosition::INSIDE &&
-          next == SegmentPosition::OUTSIDE)
+      if (isPartSegmentInside && next != SegmentPosition::INSIDE) {
          lsEnd = pair.second;
+         break;
+      }
+      current = next;
    }
    if (!isPartSegmentInside)
       return std::unique_ptr<LineSegment>(nullptr);

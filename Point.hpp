@@ -43,14 +43,17 @@ class Point
     * the cross product.
     */
    double operator|(const Point& a) const;
-   double operator[](int ind) const { return _coordinates.at(ind); }
-   double& operator[](int ind) { return _coordinates.at(ind); }
-   double operator[](const char* ch) const;
-   double& operator[](const char* ch);
+   double operator[](size_t index) const
+   {
+      return _coordinates.at(index);
+   }
+   double& operator[](size_t index) { return _coordinates.at(index); }
+   double operator[](const std::string& coordinate_name) const;
+   double& operator[](const std::string& coordinate_name);
 
-   const int size() const { return _coordinates.size(); }
-   const int dimension() const;
-   const double length() const { return distance(Point(), *this); }
+   size_t size() const { return _coordinates.size(); }
+   size_t dimension() const;
+   double length() const { return distance(Point(), *this); }
 
    void resize(size_t size);
    void zeroing();
@@ -70,10 +73,13 @@ class Point
    void toPolarCoord2();
    static double distance(const Point& a, const Point& b);
    double distance(const Point& other) const;
-   static int min_size(const Point* arr, int n);
-   static int max_size(const Point* arr, int n);
+   static size_t min_size(const Point* arr, int n);
+   static size_t max_size(const Point* arr, int n);
+   static size_t max_size(const std::vector<Point>& arr);
    static Point middle(const Point* arr, int n);
    static Point middle(const Point& a, const Point& b);
+   static Point middle(const std::vector<Point>& array);
+
    static double cos(const Point& a, const Point& b);
    static double cos(const Point& a, const Point& b, const Point& o);
    static double angle(const Point& a, const Point& b);

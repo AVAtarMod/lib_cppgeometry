@@ -765,8 +765,9 @@ std::unique_ptr<LineSegment> lineClippingCyrusBeck(
    double dx, dy;
    dx = ls.getEnd()["x"] - ls.getBegin()["x"];
    dy = ls.getEnd()["y"] - ls.getBegin()["y"];
-   return std::unique_ptr<LineSegment>(new LineSegment(
-     Point(dx * t0, dy * t0), Point(dx * t1, dy * t1)));
+   return std::unique_ptr<LineSegment>(
+     new LineSegment(Point(dx * t0, dy * t0) + ls.getBegin(),
+                     Point(dx * t1, dy * t1) + ls.getBegin()));
 }
 
 std::vector<Point> Polygon::get() const

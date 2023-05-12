@@ -4,8 +4,10 @@
 #include <cmath>
 
 LineSegment::LineSegment(const Point& a, const Point& b) :
-  _line(a, b), _endpoints { a, b }
+  _endpoints { a, b }
 {
+   if (_endpoints[0] != _endpoints[1])
+      _line = Line(a, b);
 }
 
 LineSegment::LineSegment(const Line& l, const Point endpoints[2]) :
@@ -30,7 +32,8 @@ Point LineSegment::getEnd() const
 {
    return _endpoints[1];
 }
-Line LineSegment::getLine() const {
+Line LineSegment::getLine() const
+{
    return _line;
 }
 double LineSegment::length() const

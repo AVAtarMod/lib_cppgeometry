@@ -1,6 +1,7 @@
 #include "Polygon.hpp"
 #include "Line.hpp"
 #include "functions.hpp"
+#include <string>
 
 #include <stdlib.h>
 std::unique_ptr<LineSegment> lineClippingCohenSutherland(

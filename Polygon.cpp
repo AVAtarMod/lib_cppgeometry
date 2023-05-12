@@ -11,6 +11,100 @@ std::unique_ptr<LineSegment> lineClippingSprouleSutherland(
 std::unique_ptr<LineSegment> lineClippingCyrusBeck(
   const LineSegment& ls, const Polygon& polygon);
 
+/**
+ * @brief Namespace with implementation of algorithm parts and service
+ * functions
+ */
+namespace impl {
+   struct Side
+   {
+     public:
+      enum type
+      {
+         Left,
+         Right
+      };
+      void operator=(const type& t);
+      Side(const type& t);
+      static const size_t size = 2;
+      type operator+(int shift) const;
+      Side operator=(const Side& s) = delete;
+      bool operator==(const type& t) const;
+
+     private:
+      type _value;
+   };
+   struct LineEndCode
+   {
+      uint8_t mask = 0b0000;
+
+      LineEndCode(
+        const std::pair<std::pair<double, double>,
+                        std::pair<double, double>>& xy_minmax,
+        const Point& p);
+      bool operator==(const LineEndCode& other);
+   };
+   /**
+    * @brief Get fair LineType.
+    *
+    * @param l line which type need to compute
+    * @return LineType If line slope (value in -90° < x < 90°) is
+    * - in 60° < x < 90°,-90 < x < -60 -> CONST_X
+    * - in -30° < x  < 30° -> CONST_Y
+    * - NORMAL, otherwise.
+    */
+   LineType getFairLineType(const Line& l);
+   LineType getFairLineType(const Line& l);
+   int8_t getPartSign(LineType fairLineType, const LineSegment& ls);
+   std::pair<Point, Point> getPartBeginEnd(LineType type, size_t i,
+                                           double offset,
+                                           const LineSegment& ls);
+   double getValidAngle(const Point& p, const Side& s);
+
+   std::vector<std::pair<Point, const size_t>> getPointBySide(
+     const Side& s, const std::vector<Point>& points);
+
+   /**
+    * @brief Computes minmax by polygon points
+    *
+    * @param polygon
+    * @return std::pair<std::pair<double, double>, std::pair<double,
+    * double>> pair(minmax by X, minmax by Y)
+    */
+   std::pair<std::pair<double, double>, std::pair<double, double>> xy_minmax(
+     const Polygon& polygon);
+
+   enum class SegmentPosition
+   {
+      UNKNOWN,
+      INSIDE,
+      OUTSIDE
+   };
+   SegmentPosition getSegmentPosition(const LineEndCode& begin,
+                                      const LineEndCode& end);
+   /**
+    * @brief Get the Point on border is point outside of an area
+    *
+    * @param currentPoint point to move. Resulted point stored in this
+    * parameter.
+    * @param x_minmax min and max values of X axis of area
+    * @param y_minmax min and max values of Y axis of area
+    * @param ls LineSegment on which move point. `currentPoint` must
+    * belongs to `ls`
+    * @return false if point belongs `ls` and intersects with border
+    * not exist, true otherwise.
+    */
+   bool getPointOnBorder(Point& currentPoint,
+                         const std::pair<double, double>& x_minmax,
+                         const std::pair<double, double>& y_minmax,
+                         const LineSegment& ls);
+   bool isOverlappedEnds(const Point& lsBeginCurrent,
+                         const Point& lsEndCurrent,
+                         const Point& lsBeginNext,
+                         const Point& lsEndNext);
+
+} // namespace impl
+
 Polygon::Polygon(const std::vector<Point>& points)
 {
    _points = points;
@@ -259,80 +353,6 @@ Polygon grahamConvexHull(const std::vector<Point>& points)
    return Polygon(ans);
 }
 
-struct Side
-{
-  public:
-   enum type
-   {
-      Left,
-      Right
-   };
-   void operator=(const type& t);
-   Side(const type& t);
-   static const size_t size = 2;
-   type operator+(int shift) const;
-   Side operator=(const Side& s) = delete;
-   bool operator==(const type& t) const;
-
-  private:
-   type _value;
-};
-
-Side::type Side::operator+(int shift) const
-{
-   return static_cast<type>(
-     std::abs(static_cast<int>(_value) + shift) % size);
-}
-void Side::operator=(const type& t)
-{
-   _value = t;
-}
-bool Side::operator==(const type& t) const
-{
-   return t == _value;
-}
-Side::Side(const type& t)
-{
-   _value = t;
-}
-
-double getValidAngle(const Point& p, const Side& s)
-{
-   // TODO: fix angle value check (by default angle between -360 and
-   // 360, but was between 0 and 360)
-   double angle = p.angle360() * (180 / M_PI);
-   if (s == Side::Left) {
-      if (angle < 0)
-         angle += 360;
-      angle = 180 - angle;
-   }
-   if (angle > 180)
-      angle = angle - 360;
-   // check degree value, throw exception if invalid
-   angle = Angle(-90, angle, 90).degrees();
-   return angle;
-}
-std::vector<std::pair<Point, const size_t>> getPointBySide(
-  const Side& s, const std::vector<Point>& points)
-{
-   std::vector<std::pair<Point, const size_t>> result;
-
-   const size_t& size = points.size();
-   if (s == Side::Right)
-      // Add points which to the right of current
-      for (size_t i = 0; i < size; ++i) {
-         if (isZero(points[i]["x"]) || points[i]["x"] > 0)
-            result.push_back({ points[i], i });
-      }
-   else if (s == Side::Left)
-      // Add points which to the left of current
-      for (size_t i = 0; i < size; ++i) {
-         if (isZero(points[i]["x"]) || points[i]["x"] < 0)
-            result.push_back({ points[i], i });
-      }
-   return result;
-}
-
 /**
  * @brief Get next point by gift wrapping algorithm (next point is
  * point from points vector)
@@ -344,7 +364,8 @@ std::vector<std::pair<Point, const size_t>> getPointBySide(
  * point)
  */
 std::pair<size_t, Point> jarvisGetNextPoint(
-  const Point& current, const std::vector<Point>& points, Side& side)
+  const Point& current, const std::vector<Point>& points,
+  impl::Side& side)
 {
    const size_t& size = points.size();
    std::vector<std::pair<Point, const size_t>> view_scope;
@@ -355,22 +376,23 @@ std::pair<size_t, Point> jarvisGetNextPoint(
       normalized[i] = points[i] - current;
    }
 
-   view_scope = getPointBySide(side, normalized);
+   view_scope = impl::getPointBySide(side, normalized);
    if (view_scope.size() == 0) {
       side = side + 1;
-      view_scope = getPointBySide(side, normalized);
+      view_scope = impl::getPointBySide(side, normalized);
    }
 
    std::pair<double, size_t> result_angle, cur_angle;
-   result_angle = { getValidAngle(view_scope[0].first, side),
+   result_angle = { impl::getValidAngle(view_scope[0].first, side),
                     view_scope[0].second };
 
    for (size_t i = 1; i < view_scope.size(); ++i) {
-      cur_angle.first = getValidAngle(view_scope[i].first, side);
+      cur_angle.first =
+        impl::getValidAngle(view_scope[i].first, side);
       cur_angle.second =
         view_scope[i].second; // Save index in points to pair
 
-      if (side == Side::Left) {
+      if (side == impl::Side::Left) {
          if (cur_angle.first > result_angle.first)
             result_angle = cur_angle;
       } else {
@@ -400,7 +422,7 @@ Polygon jarvisConvexHull(std::vector<Point> points)
    {
       Point current = min;
       size_t i = 0;
-      Side s = Side::Right;
+      impl::Side s = impl::Side::Right;
       points.erase(std::find(points.begin(), points.end(), current));
       do {
          auto pair = jarvisGetNextPoint(current, points, s);
@@ -446,120 +468,6 @@ std::unique_ptr<LineSegment> Polygon::segmentInsidePolygon(
    }
    return std::unique_ptr<LineSegment>();
 }
-
-struct LineEndCode
-{
-   uint8_t mask = 0b0000;
-
-   LineEndCode(const std::pair<std::pair<double, double>,
-                               std::pair<double, double>>& xy_minmax,
-               const Point& p)
-   {
-      const std::pair<double, double>& x = xy_minmax.first;
-      const std::pair<double, double>& y = xy_minmax.second;
-      if (p["x"] < x.first)
-         mask |= 0b0001;
-      if (p["x"] > x.second)
-         mask |= 0b0010;
-      if (p["y"] < y.first)
-         mask |= 0b0100;
-      if (p["y"] > y.second)
-         mask |= 0b1000;
-   }
-   bool operator==(const LineEndCode& other)
-   {
-      return mask == other.mask;
-   }
-};
-/**
- * @brief Computes minmax by polygon points
- *
- * @param polygon
- * @return std::pair<std::pair<double, double>, std::pair<double,
- * double>> pair(minmax by X, minmax by Y)
- */
-std::pair<std::pair<double, double>, std::pair<double, double>> xy_minmax(
-  const Polygon& polygon)
-{
-   std::pair<double, double> x = { polygon[0]["x"], polygon[0]["x"] },
-                             y = { polygon[0]["y"], polygon[0]["y"] };
-   for (size_t i = 0; i < polygon.size(); ++i) {
-      /**
-       * @brief Check current X is min/max
-       */
-      if (polygon[i]["x"] < x.first)
-         x.first = polygon[i]["x"];
-      else if (polygon[i]["x"] > x.second)
-         x.second = polygon[i]["x"];
-      /**
-       * @brief Check current Y is min/max
-       */
-      if (polygon[i]["y"] < y.first)
-         y.first = polygon[i]["y"];
-      else if (polygon[i]["y"] > y.second)
-         y.second = polygon[i]["y"];
-   }
-   return { x, y };
-}
-
-enum class SegmentPosition
-{
-   UNKNOWN,
-   INSIDE,
-   OUTSIDE
-};
-SegmentPosition getSegmentPosition(const LineEndCode& begin,
-                                   const LineEndCode& end)
-{
-   if (begin.mask == end.mask) {
-      if (begin.mask == 0)
-         return SegmentPosition::INSIDE;
-      if ((begin.mask ^ end.mask) == 0)
-         return SegmentPosition::OUTSIDE;
-   }
-   return SegmentPosition::UNKNOWN;
-}
-
-/**
- * @brief Get the Point on border is point outside of an area
- *
- * @param currentPoint point to move
- * @param x_minmax min and max values of X axis of area
- * @param y_minmax min and max values of Y axis of area
- * @param ls LineSegment on which move point. `currentPoint` must
- * belongs to `ls`
- * @return Point(0) if `currentPoint` already inside area, or
- * valid Point(x,y) if `currentPoint` outside
- */
-Point getPointOnBorder(const Point& currentPoint,
-                       const std::pair<double, double>& x_minmax,
-                       const std::pair<double, double>& y_minmax,
-                       const LineSegment& ls)
-{
-   Point result;
-   if (currentPoint["y"] < y_minmax.first) {
-      result = ls.getPointByY(y_minmax.first);
-   } else if (currentPoint["y"] > y_minmax.second) {
-      result = ls.getPointByY(y_minmax.second);
-   } else if (currentPoint["x"] < x_minmax.first) {
-      result = ls.getPointByX(x_minmax.first);
-   } else if (currentPoint["x"] > x_minmax.second) {
-      result = ls.getPointByX(x_minmax.second);
-   }
-   return result;
-}
-
-bool isOverlappedEnds(const Point& lsBeginCurrent,
-                      const Point& lsEndCurrent,
-                      const Point& lsBeginNext,
-                      const Point& lsEndNext)
-{
-   return (sign(lsBeginCurrent["x"] - lsEndCurrent["x"]) !=
-             sign(lsBeginNext["x"] - lsEndNext["x"]) ||
-           sign(lsBeginCurrent["y"] - lsEndCurrent["y"]) !=
-             sign(lsBeginNext["y"] - lsEndNext["y"])) &&
-          lsBeginNext != lsEndNext;
-}
 std::unique_ptr<LineSegment> lineClippingCohenSutherland(
   LineSegment ls, const Polygon& polygon)
 {
@@ -567,119 +475,46 @@ std::unique_ptr<LineSegment> lineClippingCohenSutherland(
       throw std::runtime_error(
         "Cannot use COHEN_SUTHERLAND method for polygon size != 4 (current size is " +
         std::to_string(polygon.size()) + ")");
-   auto ret = xy_minmax(polygon);
+   auto ret = impl::xy_minmax(polygon);
 
    Point lsBeginCurrent = ls.getBegin(), lsEndCurrent = ls.getEnd();
-   LineEndCode begin(ret, lsBeginCurrent), end(ret, lsEndCurrent);
+   impl::LineEndCode begin(ret, lsBeginCurrent),
+     end(ret, lsEndCurrent);
    const auto& x = ret.first;
    const auto& y = ret.second;
 
-   SegmentPosition pos = getSegmentPosition(begin, end);
+   impl::SegmentPosition pos = impl::getSegmentPosition(begin, end);
    Point lsBeginNext = lsBeginCurrent, lsEndNext = lsEndCurrent;
 
-   while (pos != SegmentPosition::INSIDE) {
-      if (pos == SegmentPosition::OUTSIDE) {
-         return std::unique_ptr<LineSegment>();
+   while (pos != impl::SegmentPosition::INSIDE) {
+      if (pos == impl::SegmentPosition::OUTSIDE) {
+         return std::unique_ptr<LineSegment>(nullptr);
       }
       /**
        * @brief Store previous value in old variables
        */
       lsBeginCurrent = lsBeginNext, lsEndCurrent = lsEndNext;
-      lsBeginNext = getPointOnBorder(lsBeginNext, x, y, ls);
-      lsEndNext = getPointOnBorder(lsEndNext, x, y, ls);
-#ifdef DEBUG
-      std::cout << "DEBUG: prevBegin=" << lsBeginCurrent
-                << " prevEnd=" << lsEndCurrent
-                << "; begin=" << lsBeginNext << " end=" << lsEndNext
-                << "\n";
-#endif // DEBUG
-      bool isBeginReverted = false, isEndReverted = false;
-      if (lsBeginNext == Point()) {
-         lsBeginNext = lsBeginCurrent;
-         isBeginReverted = true;
+      bool beginPointExist, endPointExist;
+      beginPointExist = impl::getPointOnBorder(lsBeginNext, x, y, ls);
+      endPointExist = impl::getPointOnBorder(lsEndNext, x, y, ls);
+      if (!beginPointExist || !endPointExist) {
+         pos = impl::SegmentPosition::OUTSIDE;
+         continue;
       }
-      if (lsEndNext == Point()) {
-         lsEndNext = lsEndCurrent;
-         isEndReverted = true;
-      }
-      if (!isBeginReverted &&
-          isOverlappedEnds(
+      if (impl::isOverlappedEnds(
             lsBeginCurrent, lsEndCurrent, lsBeginNext, lsEndNext)) {
          lsBeginNext = lsBeginCurrent;
       }
-      if (!isEndReverted &&
-          isOverlappedEnds(
+      if (impl::isOverlappedEnds(
             lsBeginCurrent, lsEndCurrent, lsBeginNext, lsEndNext)) {
          lsEndNext = lsEndCurrent;
       }
-      begin = LineEndCode(ret, lsBeginNext),
-      end = LineEndCode(ret, lsEndNext);
-      pos = getSegmentPosition(begin, end);
+      begin = impl::LineEndCode(ret, lsBeginNext),
+      end = impl::LineEndCode(ret, lsEndNext);
+      pos = impl::getSegmentPosition(begin, end);
    }
    ls = LineSegment(lsBeginNext, lsEndNext);
    return std::make_unique<LineSegment>(ls);
-}
-
-/**
- * @brief Get fair LineType.
- *
- * @param l line which type need to compute
- * @return LineType If line slope (value in -90° < x < 90°) is
- * - in 60° < x < 90°,-90 < x < -60 -> CONST_X
- * - in -30° < x  < 30° -> CONST_Y
- * - NORMAL, otherwise.
- */
-LineType getFairLineType(const Line& l)
-{
-   Angle slope = atan(l.K()) * (180 / M_PI);
-   if (60 < slope && slope < 90 || -90 < slope && slope < -60) {
-      return LineType::CONST_X;
-   } else if (-30 < slope && slope < 30) {
-      return LineType::CONST_Y;
-   }
-   return LineType::NORMAL;
-}
-
-int8_t getPartSign(LineType fairLineType, const LineSegment& ls)
-{
-   switch (fairLineType) {
-      case LineType::CONST_X:
-      case LineType::NORMAL:
-         return -sign(ls.getBegin()["y"] - ls.getEnd()["y"]);
-         break;
-      case LineType::CONST_Y:
-         return -sign(ls.getBegin()["x"] - ls.getEnd()["x"]);
-         break;
-      default:
-         break;
-   }
-   return 0;
-}
-std::pair<Point, Point> getPartBeginEnd(LineType type, size_t i,
-                                        double partLength,
-                                        int8_t partSign,
-                                        const LineSegment& ls)
-{
-   std::pair<Point, Point> result;
-   double partBegin;
-   switch (type) {
-      case LineType::CONST_Y:
-         partBegin = ls.getBegin()["x"] + i * partLength * partSign;
-         result.first = ls.getPointByX(partBegin);
-         result.second =
-           ls.getPointByX(partBegin + partLength * partSign);
-         break;
-      case LineType::CONST_X:
-      case LineType::NORMAL:
-         partBegin = ls.getBegin()["y"] + i * partLength * partSign;
-         result.first = ls.getPointByY(partBegin);
-         result.second =
-           ls.getPointByY(partBegin + partLength * partSign);
-         break;
-      default:
-         break;
-   }
-   return result;
 }
 std::unique_ptr<LineSegment> lineClippingSprouleSutherland(
   LineSegment ls, const Polygon& polygon)
@@ -689,7 +524,7 @@ std::unique_ptr<LineSegment> lineClippingSprouleSutherland(
         "Cannot use SPROULE_SUTHERLAND method for polygon size != 4 (current size is " +
         std::to_string(polygon.size()) + ")");
 
-   size_t n = 2;
+   size_t n = 1;
    const float precision = 0.001;
    const double length = ls.length();
 
@@ -698,31 +533,34 @@ std::unique_ptr<LineSegment> lineClippingSprouleSutherland(
    }
 
    Point lsBegin = ls.getBegin(), lsEnd = ls.getEnd();
-   LineType type = getFairLineType(ls.getLine());
-   auto ret = xy_minmax(polygon);
-   int8_t partSign = getPartSign(type, ls);
+   LineType type = impl::getFairLineType(ls.getLine());
+   auto offset =
+     length / static_cast<double>(n) * impl::getPartSign(type, ls);
+   auto ret = impl::xy_minmax(polygon);
    bool isPartSegmentInside = false;
-
-   SegmentPosition current = SegmentPosition::OUTSIDE, next;
+   impl::SegmentPosition current = impl::SegmentPosition::OUTSIDE,
+                         next;
    for (size_t i = 0; i < n; ++i) {
-      auto pair = getPartBeginEnd(
-        type, i, length / static_cast<double>(n), partSign, ls);
-      next = getSegmentPosition(LineEndCode(ret, pair.first),
-                                LineEndCode(ret, pair.second));
-      if (next == SegmentPosition::INSIDE) {
+      auto pair = impl::getPartBeginEnd(type, i, offset, ls);
+
+      next =
+        impl::getSegmentPosition(impl::LineEndCode(ret, pair.first),
+                                 impl::LineEndCode(ret, pair.second));
+      if (next == impl::SegmentPosition::INSIDE) {
          isPartSegmentInside = true;
          // May be UNKNOWN too because of border segment
-         if (current != SegmentPosition::INSIDE)
+         if (current != impl::SegmentPosition::INSIDE)
             lsBegin = pair.first;
       }
-      if (isPartSegmentInside && next != SegmentPosition::INSIDE) {
+      if (isPartSegmentInside &&
+          next != impl::SegmentPosition::INSIDE) {
          lsEnd = pair.second;
          break;
       }
       current = next;
    }
    if (!isPartSegmentInside)
-      return std::unique_ptr<LineSegment>(nullptr);
+      return std::move(std::unique_ptr<LineSegment>(nullptr));
 
    ls = LineSegment(lsBegin, lsEnd);
    return std::make_unique<LineSegment>(ls);
@@ -776,3 +614,199 @@ std::vector<Point> Polygon::get() const
 {
    return _points;
 }
+
+#pragma region Implementation
+namespace impl {
+   Side::type Side::operator+(int shift) const
+   {
+      return static_cast<type>(
+        std::abs(static_cast<int>(_value) + shift) % size);
+   }
+   void Side::operator=(const type& t)
+   {
+      _value = t;
+   }
+   bool Side::operator==(const type& t) const
+   {
+      return t == _value;
+   }
+   Side::Side(const type& t)
+   {
+      _value = t;
+   }
+
+   double getValidAngle(const Point& p, const Side& s)
+   {
+      // TODO: fix angle value check (by default angle between -360
+      // and 360, but was between 0 and 360)
+      double angle = p.angle360() * (180 / M_PI);
+      if (s == Side::Left) {
+         if (angle < 0)
+            angle += 360;
+         angle = 180 - angle;
+      }
+      if (angle > 180)
+         angle = angle - 360;
+      // check degree value, throw exception if invalid
+      angle = Angle(-90, angle, 90).degrees();
+      return angle;
+   }
+   std::vector<std::pair<Point, const size_t>> getPointBySide(
+     const Side& s, const std::vector<Point>& points)
+   {
+      std::vector<std::pair<Point, const size_t>> result;
+
+      const size_t& size = points.size();
+      if (s == Side::Right)
+         // Add points which to the right of current
+         for (size_t i = 0; i < size; ++i) {
+            if (isZero(points[i]["x"]) || points[i]["x"] > 0)
+               result.push_back({ points[i], i });
+         }
+      else if (s == Side::Left)
+         // Add points which to the left of current
+         for (size_t i = 0; i < size; ++i) {
+            if (isZero(points[i]["x"]) || points[i]["x"] < 0)
+               result.push_back({ points[i], i });
+         }
+      return result;
+   }
+   LineType getFairLineType(const Line& l)
+   {
+      Angle slope = atan(l.K()) * (180 / M_PI);
+      if (60 < slope && slope < 90 || -90 < slope && slope < -60) {
+         return LineType::CONST_X;
+      } else if (-30 < slope && slope < 30) {
+         return LineType::CONST_Y;
+      }
+      return LineType::NORMAL;
+   }
+
+   int8_t getPartSign(LineType fairLineType, const LineSegment& ls)
+   {
+      switch (fairLineType) {
+         case LineType::CONST_X:
+         case LineType::NORMAL:
+            return -sign(ls.getBegin()["y"] - ls.getEnd()["y"]);
+            break;
+         case LineType::CONST_Y:
+            return -sign(ls.getBegin()["x"] - ls.getEnd()["x"]);
+            break;
+         default:
+            break;
+      }
+      return 0;
+   }
+   std::pair<Point, Point> getPartBeginEnd(LineType type, size_t i,
+                                           double offset,
+                                           const LineSegment& ls)
+   {
+      std::pair<Point, Point> result;
+      double partBegin;
+      switch (type) {
+         case LineType::CONST_Y:
+            partBegin = ls.getBegin()["x"] + i * offset;
+            result.first = ls.getPointByX(partBegin);
+            result.second = ls.getPointByX(partBegin + offset);
+            break;
+         case LineType::CONST_X:
+         case LineType::NORMAL:
+            partBegin = ls.getBegin()["y"] + i * offset;
+            result.first = ls.getPointByY(partBegin);
+            result.second = ls.getPointByY(partBegin + offset);
+            break;
+         default:
+            break;
+      }
+      return result;
+   }
+   std::pair<std::pair<double, double>, std::pair<double, double>> xy_minmax(
+     const Polygon& polygon)
+   {
+      std::pair<double, double> x = { polygon[0]["x"],
+                                      polygon[0]["x"] },
+                                y = { polygon[0]["y"],
+                                      polygon[0]["y"] };
+      for (size_t i = 0; i < polygon.size(); ++i) {
+         /**
+          * @brief Check current X is min/max
+          */
+         if (polygon[i]["x"] < x.first)
+            x.first = polygon[i]["x"];
+         else if (polygon[i]["x"] > x.second)
+            x.second = polygon[i]["x"];
+         /**
+          * @brief Check current Y is min/max
+          */
+         if (polygon[i]["y"] < y.first)
+            y.first = polygon[i]["y"];
+         else if (polygon[i]["y"] > y.second)
+            y.second = polygon[i]["y"];
+      }
+      return { x, y };
+   }
+   SegmentPosition getSegmentPosition(const LineEndCode& begin,
+                                      const LineEndCode& end)
+   {
+      if (begin.mask == end.mask) {
+         if (begin.mask == 0)
+            return SegmentPosition::INSIDE;
+         if ((begin.mask ^ end.mask) == 0)
+            return SegmentPosition::OUTSIDE;
+      }
+      return SegmentPosition::UNKNOWN;
+   }
+   bool getPointOnBorder(Point& currentPoint,
+                         const std::pair<double, double>& x_minmax,
+                         const std::pair<double, double>& y_minmax,
+                         const LineSegment& ls)
+   {
+      try {
+         if (currentPoint["y"] < y_minmax.first) {
+            currentPoint = ls.getPointByY(y_minmax.first);
+         } else if (currentPoint["y"] > y_minmax.second) {
+            currentPoint = ls.getPointByY(y_minmax.second);
+         } else if (currentPoint["x"] < x_minmax.first) {
+            currentPoint = ls.getPointByX(x_minmax.first);
+         } else if (currentPoint["x"] > x_minmax.second) {
+            currentPoint = ls.getPointByX(x_minmax.second);
+         }
+      } catch (const std::invalid_argument& e) {
+         return false;
+      }
+      return true;
+   }
+
+   bool isOverlappedEnds(const Point& lsBeginCurrent,
+                         const Point& lsEndCurrent,
+                         const Point& lsBeginNext,
+                         const Point& lsEndNext)
+   {
+      return (sign(lsBeginCurrent["x"] - lsEndCurrent["x"]) !=
+                sign(lsBeginNext["x"] - lsEndNext["x"]) ||
+              sign(lsBeginCurrent["y"] - lsEndCurrent["y"]) !=
+                sign(lsBeginNext["y"] - lsEndNext["y"])) &&
+             lsBeginNext != lsEndNext;
+   }
+   LineEndCode::LineEndCode(
+     const std::pair<std::pair<double, double>,
+                     std::pair<double, double>>& xy_minmax,
+     const Point& p)
+   {
+      const std::pair<double, double>& x = xy_minmax.first;
+      const std::pair<double, double>& y = xy_minmax.second;
+      if (p["x"] < x.first)
+         mask |= 0b0001;
+      if (p["x"] > x.second)
+         mask |= 0b0010;
+      if (p["y"] < y.first)
+         mask |= 0b0100;
+      if (p["y"] > y.second)
+         mask |= 0b1000;
+   }
+   bool LineEndCode::operator==(const LineEndCode& other)
+   {
+      return mask == other.mask;
+   }
+} // namespace impl
+#pragma endregion Implementation

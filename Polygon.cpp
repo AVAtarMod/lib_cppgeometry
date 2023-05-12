@@ -54,7 +54,6 @@ namespace impl {
     * - NORMAL, otherwise.
     */
    LineType getFairLineType(const Line& l);
-   LineType getFairLineType(const Line& l);
    int8_t getPartSign(LineType fairLineType, const LineSegment& ls);
    std::pair<Point, Point> getPartBeginEnd(LineType type, size_t i,
                                            double offset,

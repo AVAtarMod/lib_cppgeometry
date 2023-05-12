@@ -521,7 +521,7 @@ SegmentPosition getSegmentPosition(const LineEndCode& begin,
 }
 
 /**
- * @brief Get the Point on border is point outise a area
+ * @brief Get the Point on border is point outside of an area
  *
  * @param currentPoint point to move
  * @param x_minmax min and max values of X axis of area

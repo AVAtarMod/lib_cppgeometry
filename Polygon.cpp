@@ -44,6 +44,13 @@ namespace impl {
         const Point& p);
       bool operator==(const LineEndCode& other);
    };
+   enum class SegmentPosition
+   {
+      UNKNOWN,
+      INSIDE,
+      OUTSIDE
+   };
+
    /**
     * @brief Get fair LineType.
     *
@@ -72,13 +79,6 @@ namespace impl {
     */
    std::pair<std::pair<double, double>, std::pair<double, double>> xy_minmax(
      const Polygon& polygon);
-
-   enum class SegmentPosition
-   {
-      UNKNOWN,
-      INSIDE,
-      OUTSIDE
-   };
    SegmentPosition getSegmentPosition(const LineEndCode& begin,
                                       const LineEndCode& end);
    /**
@@ -101,7 +101,7 @@ namespace impl {
                          const Point& lsEndCurrent,
                          const Point& lsBeginNext,
                          const Point& lsEndNext);
-
+   double getLengthByType(LineType type, const LineSegment& ls);
 } // namespace impl
 
 Polygon::Polygon(const std::vector<Point>& points)
@@ -525,14 +525,14 @@ std::unique_ptr<LineSegment> lineClippingSprouleSutherland(
 
    size_t n = 1;
    const float precision = 0.001;
-   const double length = ls.length();
+   LineType type = impl::getFairLineType(ls.getLine());
+   const double length = impl::getLengthByType(type, ls);
 
    while (length / n > precision) {
       ++n;
    }
 
    Point lsBegin = ls.getBegin(), lsEnd = ls.getEnd();
-   LineType type = impl::getFairLineType(ls.getLine());
    auto offset =
      length / static_cast<double>(n) * impl::getPartSign(type, ls);
    auto ret = impl::xy_minmax(polygon);
@@ -690,6 +690,21 @@ namespace impl {
             break;
          case LineType::CONST_Y:
             return -sign(ls.getBegin()["x"] - ls.getEnd()["x"]);
+            break;
+         default:
+            break;
+      }
+      return 0;
+   }
+   double getLengthByType(LineType type, const LineSegment& ls)
+   {
+      switch (type) {
+         case LineType::CONST_X:
+         case LineType::NORMAL:
+            return std::abs(ls.getBegin()["y"] - ls.getEnd()["y"]);
+            break;
+         case LineType::CONST_Y:
+            return std::abs(ls.getBegin()["x"] - ls.getEnd()["x"]);
             break;
          default:
             break;

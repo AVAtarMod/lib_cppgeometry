@@ -11,17 +11,6 @@
 #include "LineSegment.hpp"
 #include "Point.hpp"
 
-enum class ConvexHullMethod
-{
-   GRAHAM, // a.k.a Graham's scan
-   JARVIS  // a.k.a gift wrapping algorithm
-};
-enum class ClipSegmentMethod
-{
-   COHEN_SUTHERLAND,
-   SPROULE_SUTHERLAND,
-   CYRUS_BECK
-};
 class Polygon
 {
   private:
@@ -47,6 +36,22 @@ class Polygon
    int intersectionPointIsOnRight(const Point& p, int ind) const;
 
   public:
+   enum LocaliztionMethod
+   {
+      SIMPLE,
+      GRID
+   };
+   enum ConvexHullMethod
+   {
+      GRAHAM, // a.k.a Graham's scan
+      JARVIS  // a.k.a gift wrapping algorithm
+   };
+   enum ClipSegmentMethod
+   {
+      COHEN_SUTHERLAND,
+      SPROULE_SUTHERLAND,
+      CYRUS_BECK
+   };
    Polygon(const std::vector<Point>& points);
    Polygon(Point* points, size_t size);
    ~Polygon() {}
@@ -89,6 +94,8 @@ class Polygon
     */
    std::unique_ptr<LineSegment> segmentInsidePolygon(
      const LineSegment& ls, ClipSegmentMethod m) const;
+   std::vector<Point> pointsInsidePolygon(
+     const std::vector<Point>& input, LocaliztionMethod m) const;
 };
 
 #endif

@@ -34,15 +34,21 @@ namespace impl {
      private:
       type _value;
    };
-   struct LineEndCode
+   struct PointCode
    {
       uint8_t mask = 0b0000;
-
-      LineEndCode(
-        const std::pair<std::pair<double, double>,
-                        std::pair<double, double>>& xy_minmax,
-        const Point& p);
-      bool operator==(const LineEndCode& other);
+      /**
+       * @brief Construct a new PointCode object. mask = 0 if `p`
+       * inside area
+       *
+       * @param xy_minmax minmax of square area values
+       * @param p point which code need to get
+       */
+      PointCode(const std::pair<std::pair<double, double>,
+                                std::pair<double, double>>& xy_minmax,
+                const Point& p);
+      bool operator==(const PointCode& other);
+      bool operator==(size_t other);
    };
    enum class SegmentPosition
    {
@@ -79,8 +85,8 @@ namespace impl {
     */
    std::pair<std::pair<double, double>, std::pair<double, double>> xy_minmax(
      const Polygon& polygon);
-   SegmentPosition getSegmentPosition(const LineEndCode& begin,
-                                      const LineEndCode& end);
+   SegmentPosition getSegmentPosition(const PointCode& begin,
+                                      const PointCode& end);
    /**
     * @brief Get the Point on border is point outside of an area
     *
@@ -102,6 +108,13 @@ namespace impl {
                          const Point& lsBeginNext,
                          const Point& lsEndNext);
    double getLengthByType(LineType type, const LineSegment& ls);
+   std::vector<Point> pointsInsidePolygonSimple(
+     const Polygon& polygon, const std::vector<Point>& input);
+   std::vector<Point> pointsInsidePolygonGrid(
+     const Polygon& polygon, const std::vector<Point>& input);
+
+   void throwOnNonSquare(const Polygon& polygon,
+                         const std::string& str);
 } // namespace impl
 
 Polygon::Polygon(const std::vector<Point>& points)
@@ -470,15 +483,11 @@ std::unique_ptr<LineSegment> Polygon::segmentInsidePolygon(
 std::unique_ptr<LineSegment> lineClippingCohenSutherland(
   LineSegment ls, const Polygon& polygon)
 {
-   if (polygon.size() != 4)
-      throw std::runtime_error(
-        "Cannot use COHEN_SUTHERLAND method for polygon size != 4 (current size is " +
-        std::to_string(polygon.size()) + ")");
+   impl::throwOnNonSquare(polygon, "COHEN_SUTHERLAND");
    auto ret = impl::xy_minmax(polygon);
 
    Point lsBeginCurrent = ls.getBegin(), lsEndCurrent = ls.getEnd();
-   impl::LineEndCode begin(ret, lsBeginCurrent),
-     end(ret, lsEndCurrent);
+   impl::PointCode begin(ret, lsBeginCurrent), end(ret, lsEndCurrent);
    const auto& x = ret.first;
    const auto& y = ret.second;
 
@@ -508,8 +517,8 @@ std::unique_ptr<LineSegment> lineClippingCohenSutherland(
             lsBeginCurrent, lsEndCurrent, lsBeginNext, lsEndNext)) {
          lsEndNext = lsEndCurrent;
       }
-      begin = impl::LineEndCode(ret, lsBeginNext),
-      end = impl::LineEndCode(ret, lsEndNext);
+      begin = impl::PointCode(ret, lsBeginNext),
+      end = impl::PointCode(ret, lsEndNext);
       pos = impl::getSegmentPosition(begin, end);
    }
    ls = LineSegment(lsBeginNext, lsEndNext);
@@ -518,11 +527,7 @@ std::unique_ptr<LineSegment> lineClippingCohenSutherland(
 std::unique_ptr<LineSegment> lineClippingSprouleSutherland(
   LineSegment ls, const Polygon& polygon)
 {
-   if (polygon.size() != 4)
-      throw std::runtime_error(
-        "Cannot use SPROULE_SUTHERLAND method for polygon size != 4 (current size is " +
-        std::to_string(polygon.size()) + ")");
-
+   impl::throwOnNonSquare(polygon, "SPROULE_SUTHERLAND");
    size_t n = 1;
    const float precision = 0.001;
    LineType type = impl::getFairLineType(ls.getLine());
@@ -543,8 +548,8 @@ std::unique_ptr<LineSegment> lineClippingSprouleSutherland(
       auto pair = impl::getPartBeginEnd(type, i, offset, ls);
 
       next =
-        impl::getSegmentPosition(impl::LineEndCode(ret, pair.first),
-                                 impl::LineEndCode(ret, pair.second));
+        impl::getSegmentPosition(impl::PointCode(ret, pair.first),
+                                 impl::PointCode(ret, pair.second));
       if (next == impl::SegmentPosition::INSIDE) {
          isPartSegmentInside = true;
          // May be UNKNOWN too because of border segment
@@ -612,6 +617,21 @@ std::unique_ptr<LineSegment> lineClippingCyrusBeck(
 std::vector<Point> Polygon::get() const
 {
    return _points;
+}
+
+std::vector<Point> Polygon::pointsInsidePolygon(
+  const std::vector<Point>& input, LocaliztionMethod m) const
+{
+   switch (m) {
+      case LocaliztionMethod::SIMPLE:
+         impl::pointsInsidePolygonSimple(*this, input);
+         break;
+      case LocaliztionMethod::GRID:
+         impl::pointsInsidePolygonGrid(*this, input);
+
+         break;
+   }
+   return std::vector<Point>();
 }
 
 #pragma region Implementation
@@ -759,8 +779,8 @@ namespace impl {
       }
       return { x, y };
    }
-   SegmentPosition getSegmentPosition(const LineEndCode& begin,
-                                      const LineEndCode& end)
+   SegmentPosition getSegmentPosition(const PointCode& begin,
+                                      const PointCode& end)
    {
       if (begin.mask == end.mask) {
          if (begin.mask == 0)
@@ -802,7 +822,7 @@ namespace impl {
                 sign(lsBeginNext["y"] - lsEndNext["y"])) &&
              lsBeginNext != lsEndNext;
    }
-   LineEndCode::LineEndCode(
+   PointCode::PointCode(
      const std::pair<std::pair<double, double>,
                      std::pair<double, double>>& xy_minmax,
      const Point& p)
@@ -818,9 +838,47 @@ namespace impl {
       if (p["y"] > y.second)
          mask |= 0b1000;
    }
-   bool LineEndCode::operator==(const LineEndCode& other)
+   bool PointCode::operator==(const PointCode& other)
    {
       return mask == other.mask;
+   }
+   bool PointCode::operator==(size_t other)
+   {
+      return mask == other;
+   }
+   std::vector<Point> pointsInsidePolygonSimple(
+     const Polygon& polygon, const std::vector<Point>& input)
+   {
+      throwOnNonSquare(polygon, "SIMPLE");
+      const size_t size = input.size();
+      std::vector<Point> result(size);
+      auto minmax = xy_minmax(polygon);
+      size_t resultSize = 0;
+      for (size_t i = 0; i < size; ++i) {
+         if (PointCode(minmax, input[i]) == 0) {
+            ++resultSize;
+            result[i] = input[i];
+         }
+      }
+      result.resize(resultSize);
+      return result;
+   }
+   std::vector<Point> pointsInsidePolygonGrid(
+     const Polygon& polygon, const std::vector<Point>& input)
+   {
+      throwOnNonSquare(polygon, "GRID");
+      std::vector<Point> result;
+      
+      return result;
+   }
+   void throwOnNonSquare(const Polygon& polygon,
+                         const std::string& str)
+   {
+      if (polygon.size() != 4)
+         throw std::runtime_error(
+           "Cannot use " + str +
+           " method for polygon size != 4 (current size is " +
+           std::to_string(polygon.size()) + ")");
    }
 } // namespace impl
 #pragma endregion Implementation

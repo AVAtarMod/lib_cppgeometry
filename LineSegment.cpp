@@ -2,6 +2,7 @@
 
 #include "functions.hpp"
 #include <cmath>
+#include <cstdint>
 
 LineSegment::LineSegment(const Point& a, const Point& b) :
   _endpoints { a, b }
@@ -117,9 +118,17 @@ bool LineSegment::isBelongs(const Point& p) const
 
 Point LineSegment::getPointByX(double x) const
 {
+   auto minmax = std::minmax(_endpoints[0]["x"], _endpoints[1]["x"]);
+   if (x < minmax.first || x > minmax.second)
+      throw std::invalid_argument(
+        "parameter 'x' outside segment values range.");
    return Point(x, _line.y(x));
 }
 Point LineSegment::getPointByY(double y) const
 {
+   auto minmax = std::minmax(_endpoints[0]["y"], _endpoints[1]["y"]);
+   if (y < minmax.first || y > minmax.second)
+      throw std::invalid_argument(
+        "parameter 'y' outside segment values range.");
    return Point(_line.x(y), y);
 }

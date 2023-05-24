@@ -11,4 +11,4 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_library(shared STATIC
 Angle.cpp          CircleArc.cpp  Circle.cpp
 ComplexNumber.cpp  Line.cpp
-LineSegment.cpp    Point.cpp      Quadrilateral.cpp functions.cpp Polygon.cpp Graph.cpp)
+LineSegment.cpp    Point.cpp      Quadrilateral.cpp functions.cpp Polygon.cpp Graph.cpp Fractals.cpp)

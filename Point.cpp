@@ -318,11 +318,7 @@ bool Point::isAtInfinity(const Point& point)
 
 std::ostream& operator<<(std::ostream& out, const Point& p)
 {
-   size_t size = p.size();
-   for (size_t i = 0; i < size - 1; ++i) {
-      out << p[i] << " ";
-   }
-   out << p[size - 1];
+   out << p.to_string();
    return out;
 }
 
@@ -368,7 +364,7 @@ bool Point::isInsideAngle(const Point& p1, const Point& p2,
    return false;
 }
 
-std::string Point::to_string()
+std::string Point::to_string() const
 {
    std::stringstream result;
    result << "(";

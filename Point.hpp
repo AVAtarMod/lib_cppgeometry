@@ -156,7 +156,7 @@ class Point
     * @return Point
     */
    static Point getRandom(int min, int max, size_t size = 2);
-   std::string to_string();
+   std::string to_string() const;
 };
 
 std::ostream& operator<<(std::ostream& out, const Point& p);

@@ -25,7 +25,7 @@ class ComplexNumber
    ComplexNumber operator+(const ComplexNumber& b) const;
    ComplexNumber operator-(const ComplexNumber& b) const;
    ComplexNumber operator*(const ComplexNumber& b) const;
-   // ComplexNumber operator/(const ComplexNumber& b) const;
+   ComplexNumber operator/(const ComplexNumber& b) const;
 
    explicit operator Point() const { return Point(Re(), Im()); }
    Point toPoint() const { return static_cast< Point >(*this); }

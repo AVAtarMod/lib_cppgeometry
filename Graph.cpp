@@ -1,19 +1,21 @@
 #include "Graph.hpp"
 
-struct Graph::NumberedPoint {
-    unsigned int _numder;
-    Point _p;
+struct Graph::NumberedPoint
+{
+   unsigned int _numder;
+   Point _p;
 
-    NumberedPoint()
-    {
-       _numder = 0;
-       _p = Point();
-    }
+   NumberedPoint()
+   {
+      _numder = 0;
+      _p = Point();
+   }
 
-    NumberedPoint(Point p, unsigned int numder) {
-        _numder = numder;
-        _p = Point(p);
-    }
+   NumberedPoint(Point p, unsigned int numder)
+   {
+      _numder = numder;
+      _p = Point(p);
+   }
 };
 
 Graph::Graph(const matrix_t& adjacencyMatrix, std::vector<Point> points)
@@ -70,7 +72,7 @@ bool Graph::isOnLeft(const Point& p, const LineSegment& edge)
 std::unique_ptr<Polygon> Graph::localizationOfAPoint(
   const Point& p) const
 {
-    std::unique_ptr<Polygon> ans;
+    std::unique_ptr<Polygon> ans = std::unique_ptr<Polygon>(nullptr);
     std::vector<NumberedPoint> points(_points);
     std::sort(points.begin(),
               points.end(),
@@ -81,8 +83,8 @@ std::unique_ptr<Polygon> Graph::localizationOfAPoint(
     auto horizontal_range =
       binSearch(p, points, isLower);
 
-    // Finding edges that intersect the found area
     if (horizontal_range) {
+        // Finding edges that intersect the found area
         std::vector<LineSegment> edges;
         int i, j;
         Line l, l_horizontal[2] {
@@ -112,6 +114,21 @@ std::unique_ptr<Polygon> Graph::localizationOfAPoint(
 
         if (line_range) {
            std::vector<Point> polygon_points;
+
+           polygon_points.push_back(
+             edges[line_range->first].getBegin());
+           polygon_points.push_back(
+             edges[line_range->first].getEnd());
+
+           if (edges[line_range->second].getEnd() !=
+               polygon_points[1])
+              polygon_points.push_back(
+                edges[line_range->second].getEnd());
+           if (edges[line_range->second].getBegin() !=
+               polygon_points[0])
+              polygon_points.push_back(
+                edges[line_range->second].getBegin());
+           /*
            polygon_points.push_back(
              edges[line_range->first].getBegin());
            if (edges[line_range->second].getBegin() !=
@@ -123,7 +140,7 @@ std::unique_ptr<Polygon> Graph::localizationOfAPoint(
            if (edges[line_range->second].getBegin() !=
                polygon_points[polygon_points.size() - 1])
               polygon_points.push_back(
-                edges[line_range->second].getBegin());
+                edges[line_range->second].getBegin());*/
            ans = std::make_unique<Polygon>(polygon_points);
         }
     }

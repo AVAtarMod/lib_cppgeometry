@@ -2,6 +2,7 @@
 
 #include "functions.hpp"
 #include <cmath>
+#include <cstdint>
 
 LineSegment::LineSegment(const Point& a, const Point& b) :
   _endpoints { a, b }

@@ -50,7 +50,8 @@ ComplexNumber ComplexNumber::operator-(const ComplexNumber& b) const
 }
 ComplexNumber ComplexNumber::operator*(const ComplexNumber& b) const
 {
-   return ComplexNumber(this->Re() * b.Re(), this->Im() * b.Im());
+   return ComplexNumber(this->Re() * b.Re() - this->Im() * b.Im(),
+                        this->Re() * b.Im() + this->Im() * b.Re());
 }
 
 bool ComplexNumber::operator==(const ComplexNumber& b) const

@@ -61,12 +61,20 @@ static class Fractals
 {
   public:
    static RGB newColorMandelbrot(const ComplexNumber& cn,
-                                 int iterations, int max_iterations);
-   static int numIterations(ComplexNumber& z,
-                            int max_iterations);
+                                 int max_iterations);
+   static int numIterationsMandelbrot(ComplexNumber& z,
+                                      int max_iterations);
    static std::vector<std::vector<RGB>> mandelbrotSet(
      const Point& p, int width_px, int height_px, double width,
      double height, int max_iterations);
+
+   static RGB newColorNewton(const ComplexNumber& cn);
+   static int numIterationsNewton(ComplexNumber& z);
+   static std::vector<std::vector<RGB>> NewtonFractal(const Point& p,
+                                                      int width_px,
+                                                      int height_px,
+                                                      double width,
+                                                      double height);
 };
 
 #endif // GEOMETRY_LIB_FRACTALS_HPP

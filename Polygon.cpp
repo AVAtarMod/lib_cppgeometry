@@ -134,20 +134,24 @@ int Polygon::countIntersections(const Point& p,
                                 const std::vector<int>& signs)
 {
    int count = 0, dif = 0;
-   for (int i = 0; i < signs.size() - 1; i++)
-      if (signs[i] != signs[i + 1] ||
-          signs[i] == 0) // There is intersection?
-         if (signs[i] == signs[i + 1])
-            dif++; // signs[i] = 0 signs[i + 1] = 0
-         else if (abs(signs[i]) == abs(signs[i + 1]))
-            count++;             // signs[i] = +-1 signs[i + 1] = -+1
-         else if (signs[i] == 0) // signs[i] = 0 signs[i + 1] = -+1
-         {
-            if (signs[i - dif] != signs[i + 1])
-               count++; // signs[i - dif] = +-1 signs[i + 1] = -+1
-            dif = 0;
-         } else
-            dif++; // signs[i] = +-1 signs[i + 1] = 0
+   if (signs.size() != 0)
+   {
+       for (int i = 0; i < signs.size() - 1; i++)
+           if (signs[i] != signs[i + 1] ||
+               signs[i] == 0) // There is intersection?
+               if (signs[i] == signs[i + 1])
+                   dif++; // signs[i] = 0 signs[i + 1] = 0
+               else if (abs(signs[i]) == abs(signs[i + 1]))
+                   count++;             // signs[i] = +-1 signs[i + 1] = -+1
+               else if (signs[i] == 0) // signs[i] = 0 signs[i + 1] = -+1
+               {
+                   if (signs[i - dif] != signs[i + 1])
+                       count++; // signs[i - dif] = +-1 signs[i + 1] = -+1
+                   dif = 0;
+               }
+               else
+                   dif++; // signs[i] = +-1 signs[i + 1] = 0
+   }
    return count;
 }
 

@@ -1,19 +1,21 @@
 #include "Graph.hpp"
 
-struct Graph::NumberedPoint {
-    unsigned int _numder;
-    Point _p;
+struct Graph::NumberedPoint
+{
+   unsigned int _numder;
+   Point _p;
 
-    NumberedPoint()
-    {
-       _numder = 0;
-       _p = Point();
-    }
+   NumberedPoint()
+   {
+      _numder = 0;
+      _p = Point();
+   }
 
-    NumberedPoint(Point p, unsigned int numder) {
-        _numder = numder;
-        _p = Point(p);
-    }
+   NumberedPoint(Point p, unsigned int numder)
+   {
+      _numder = numder;
+      _p = Point(p);
+   }
 };
 
 Graph::Graph(const matrix_t& adjacencyMatrix, std::vector<Point> points)

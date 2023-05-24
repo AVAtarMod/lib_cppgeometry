@@ -1,9 +1,11 @@
 #include "Polygon.hpp"
 #include "Line.hpp"
 #include "functions.hpp"
+
+#include <stack>
+#include <stdlib.h>
 #include <string>
 
-#include <stdlib.h>
 std::unique_ptr<LineSegment> lineClippingCohenSutherland(
   LineSegment ls, const Polygon& polygon);
 std::unique_ptr<LineSegment> lineClippingSprouleSutherland(
@@ -50,6 +52,24 @@ namespace impl {
       bool operator==(const PointCode& other);
       bool operator==(size_t other);
    };
+   struct GridMatrixIndices
+   {
+      /**
+       * @brief Indices by X of cells inside query area
+       */
+      size_t i_min, i_max;
+      /**
+       * @brief Indices by Y of cells inside query area
+       */
+      size_t j_min, j_max;
+   };
+   GridMatrixIndices mapInputAreaToGridMatrix(
+     const std::pair<std::pair<double, double>,
+                     std::pair<double, double>>& input_xy_minmax,
+     const std::pair<std::pair<double, double>,
+                     std::pair<double, double>>& query_xy_minmax,
+     const std::vector<std::vector<std::stack<Point>>> gridMatrix);
+
    enum class SegmentPosition
    {
       UNKNOWN,
@@ -115,6 +135,12 @@ namespace impl {
 
    void throwOnNonSquare(const Polygon& polygon,
                          const std::string& str);
+   std::vector<std::vector<std::stack<Point>>> fillGridMatrix(
+     const std::pair<std::pair<double, double>,
+                     std::pair<double, double>>& area_xy_minmax,
+     const size_t rows_count, const size_t cols_count,
+     const std::vector<Point>& input);
+   Polygon getInpueDataArea(const std::vector<Point>& input);
 } // namespace impl
 
 Polygon::Polygon(const std::vector<Point>& points)
@@ -628,14 +654,21 @@ std::vector<Point> Polygon::pointsInsidePolygon(
 {
    switch (m) {
       case LocaliztionMethod::SIMPLE:
-         impl::pointsInsidePolygonSimple(*this, input);
-         break;
+         return impl::pointsInsidePolygonSimple(*this, input);
       case LocaliztionMethod::GRID:
-         impl::pointsInsidePolygonGrid(*this, input);
-
-         break;
+         return impl::pointsInsidePolygonGrid(*this, input);
    }
    return std::vector<Point>();
+}
+
+Polygon Polygon::makeByArea(const std::pair<double, double>& x_minmax,
+                            const std::pair<double, double>& y_minmax)
+{
+   const Point a(x_minmax.first, y_minmax.first),
+     b(x_minmax.second, y_minmax.first),
+     c(x_minmax.second, y_minmax.second),
+     d(x_minmax.first, y_minmax.second);
+   return Polygon(std::vector<Point> { a, b, c, d });
 }
 
 #pragma region Implementation
@@ -854,14 +887,14 @@ namespace impl {
      const Polygon& polygon, const std::vector<Point>& input)
    {
       throwOnNonSquare(polygon, "SIMPLE");
-      const size_t size = input.size();
-      std::vector<Point> result(size);
       auto minmax = xy_minmax(polygon);
       size_t resultSize = 0;
+      const size_t size = input.size();
+      std::vector<Point> result(size);
       for (size_t i = 0; i < size; ++i) {
          if (PointCode(minmax, input[i]) == 0) {
+            result[resultSize] = input[i];
             ++resultSize;
-            result[i] = input[i];
          }
       }
       result.resize(resultSize);
@@ -872,8 +905,128 @@ namespace impl {
    {
       throwOnNonSquare(polygon, "GRID");
       std::vector<Point> result;
-      
+      std::stack<Point> result_stack;
+      /**
+       * @brief Amount of a points per cell of matrix
+       */
+      const size_t expected_density = 3;
+      auto input_area = xy_minmax(Polygon(input));
+      auto query_area = xy_minmax(polygon);
+      const size_t rows_count =
+        sqrt(input.size() / expected_density) + 1;
+      const size_t cols_count = rows_count;
+      std::vector<std::vector<std::stack<Point>>> matrix =
+        fillGridMatrix(input_area, rows_count, cols_count, input);
+      GridMatrixIndices indices =
+        mapInputAreaToGridMatrix(input_area, query_area, matrix);
+      for (size_t row = indices.j_min; row < indices.j_max; ++row) {
+         for (size_t col = indices.i_min; col < indices.i_max;
+              ++col) {
+            std::stack<Point>& stack = matrix[row][col];
+            if (row > indices.j_min && row < indices.j_max - 1 &&
+                col > indices.i_min && indices.i_max - 1) {
+               while (!stack.empty()) {
+                  result_stack.push(stack.top());
+                  stack.pop();
+               }
+            } else {
+               while (!stack.empty()) {
+                  Point current = stack.top();
+                  if (PointCode(query_area, current) == 0) {
+                     result_stack.push(current);
+                  }
+                  stack.pop();
+               }
+            }
+         }
+      }
+      result.resize(result_stack.size());
+      for (size_t i = 0; !result_stack.empty(); ++i) {
+         result[i] = result_stack.top();
+         result_stack.pop();
+      }
+
       return result;
+   }
+
+   GridMatrixIndices mapInputAreaToGridMatrix(
+     const std::pair<std::pair<double, double>,
+                     std::pair<double, double>>& input_xy_minmax,
+     const std::pair<std::pair<double, double>,
+                     std::pair<double, double>>& query_xy_minmax,
+     const std::vector<std::vector<std::stack<Point>>> gridMatrix)
+   {
+      GridMatrixIndices result;
+      const size_t rows_count = gridMatrix.size();
+      const size_t cols_count = gridMatrix.at(0).size();
+
+      const double& input_x_min = input_xy_minmax.first.first;
+      const double& input_x_max = input_xy_minmax.first.second;
+      const double& input_y_min = input_xy_minmax.second.first;
+      const double& input_y_max = input_xy_minmax.second.second;
+
+      const double& query_x_min = query_xy_minmax.first.first;
+      const double& query_x_max = query_xy_minmax.first.second;
+      const double& query_y_min = query_xy_minmax.second.first;
+      const double& query_y_max = query_xy_minmax.second.second;
+
+      const double cell_width =
+        (input_x_max - input_x_min) / cols_count;
+      const double cell_height =
+        (input_y_max - input_y_min) / rows_count;
+
+      const long i_min = (query_x_min - input_x_min) / cell_width,
+                 i_max = (query_x_max - input_x_min) / cell_width,
+                 j_min = (query_y_min - input_y_min) / cell_height,
+                 j_max = (query_y_max - input_y_min) / cell_height;
+      result.i_min = (i_min < 0) ? 0 : i_min;
+      result.i_max = (i_max < 0) ? 0 : i_max;
+      result.j_min = (j_min < 0) ? 0 : j_min;
+      result.j_max = (j_max < 0) ? 0 : j_max;
+      return result;
+   }
+   std::vector<std::vector<std::stack<Point>>> fillGridMatrix(
+     const std::pair<std::pair<double, double>,
+                     std::pair<double, double>>& area_xy_minmax,
+     const size_t rows_count, const size_t cols_count,
+     const std::vector<Point>& input)
+   {
+      const double& x_min = area_xy_minmax.first.first;
+      const double& x_max = area_xy_minmax.first.second;
+      const double& y_min = area_xy_minmax.second.first;
+      const double& y_max = area_xy_minmax.second.second;
+      std::vector<bool> isUsed(input.size(), false);
+
+      const double cell_width = (x_max - x_min) / cols_count;
+      const double cell_height = (y_max - y_min) / rows_count;
+
+      /**
+       * @brief Initialize matrix
+       */
+      std::vector<std::vector<std::stack<Point>>> matrix;
+      matrix.resize(rows_count);
+      for (size_t row = 0; row < rows_count; ++row) {
+         matrix[row].resize(cols_count);
+         for (size_t col = 0; col < cols_count; ++col) {
+            std::pair<double, double> cell_x_minmax = {
+               x_min + cell_width * col,
+               x_min + cell_width * (col + 1)
+            };
+            std::pair<double, double> cell_y_minmax = {
+               y_min + cell_height * row,
+               y_min + cell_height * (row + 1)
+            };
+            for (size_t i = 0; i < input.size(); ++i) {
+               if (PointCode({ cell_x_minmax, cell_y_minmax },
+                             input[i]) == 0 &&
+                   !isUsed[i]) {
+                  isUsed[i] = true;
+                  matrix[row][col].push(input[i]);
+               }
+            }
+         }
+      }
+      return matrix;
    }
    void throwOnNonSquare(const Polygon& polygon,
                          const std::string& str)

@@ -53,6 +53,13 @@ ComplexNumber ComplexNumber::operator*(const ComplexNumber& b) const
    return ComplexNumber(this->Re() * b.Re() - this->Im() * b.Im(),
                         this->Re() * b.Im() + this->Im() * b.Re());
 }
+ComplexNumber ComplexNumber::operator/(const ComplexNumber& b) const
+{
+   double mod2 = b.Mod2();
+   return ComplexNumber(
+     (this->Re() * b.Re() + this->Im() * b.Im()) / mod2,
+     (this->Im() * b.Re() - this->Re() * b.Im()) / mod2);
+}
 
 bool ComplexNumber::operator==(const ComplexNumber& b) const
 {

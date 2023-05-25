@@ -303,7 +303,7 @@ void Fractals::brokenDiamond(
      (heights[i][j] + heights[i][j + width] + heights[i + width][j] +
       heights[i + width][j + width]) /
        4 +
-     (double)(rand()) / RAND_MAX / 10;
+     (double)(rand()) / RAND_MAX / 5.0 - 0.05;
 }
 
 void Fractals::brokenSquare(std::vector<std::vector<double>>& heights,
@@ -324,7 +324,7 @@ void Fractals::brokenSquare(std::vector<std::vector<double>>& heights,
    if (insideSquare(ii, jj, heights.size()))
       sum += heights[ii][jj];
    heights[i][j + width2] =
-     sum / 4 + (double)(rand()) / RAND_MAX / 10;
+     sum / 4 + (double)(rand()) / RAND_MAX / 5.0 - 0.05;
 }
 
 RGB Fractals::brokenHeightToRGB(double height)

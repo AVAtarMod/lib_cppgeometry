@@ -10,6 +10,7 @@ class LineSegment
    Point _endpoints[2];
 
   public:
+   LineSegment();
    LineSegment(const Point& a, const Point& b);
    LineSegment(const Line& l, const Point endpoints[2]);
 

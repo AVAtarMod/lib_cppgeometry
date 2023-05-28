@@ -6,6 +6,13 @@
 
 #include <set>
 
+LineSegment::LineSegment()
+{
+   _line = Line();
+   _endpoints[0] = Point();
+   _endpoints[1] = Point();
+}
+
 LineSegment::LineSegment(const Point& a, const Point& b) :
   _endpoints { a, b }
 {
@@ -122,7 +129,12 @@ struct event
    }
 };
 
-std::set<LineSegment> s;
+bool operator<(const LineSegment& a, const LineSegment& b)
+{
+   double x = std::max(std::min(a.getBegin()["x"], a.getEnd()["x"]),
+                       std::min(b.getBegin()["x"], b.getEnd()["x"]));
+   return a.getLine().y(x) < b.getLine().y(x) - eps;
+}
 
 bool LineSegment::isIntersection(const std::vector<LineSegment>& vec)
 {
@@ -138,7 +150,7 @@ bool LineSegment::isIntersection(const std::vector<LineSegment>& vec)
               -1,
               i));
    }
-   sort(e.begin(), e.end());
+   std::sort(e.begin(), e.end());
 
    std::set<LineSegment> s = std::set<LineSegment>();
    std::vector<std::set<LineSegment>::iterator> iters(n);

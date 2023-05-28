@@ -1,6 +1,6 @@
 #include "Fractals.hpp"
 
-//https://www.codespeedy.com/hsv-to-rgb-in-cpp/
+// https://www.codespeedy.com/hsv-to-rgb-in-cpp/
 RGB HSVtoRGB(const HSV& c)
 {
    RGB ans;
@@ -29,7 +29,8 @@ RGB HSVtoRGB(const HSV& c)
    return ans;
 }
 
-RGB Fractals::newColorMandelbrot(const ComplexNumber& cn, int max_iterations)
+RGB Fractals::newColorMandelbrot(const ComplexNumber& cn,
+                                 int max_iterations)
 {
    ComplexNumber z = cn;
    int iterations = numIterationsMandelbrot(z, max_iterations);
@@ -37,7 +38,7 @@ RGB Fractals::newColorMandelbrot(const ComplexNumber& cn, int max_iterations)
    if (iterations == -1)
       return RGB(0, 0, 0);
    float a = (max_iterations - iterations) / (float)max_iterations;
-   //a *= cn.Mod2();
+   // a *= cn.Mod2();
    double t = 240 * a;
    const float n = -100, c = 0.97;
    return HSVtoRGB(
@@ -45,7 +46,7 @@ RGB Fractals::newColorMandelbrot(const ComplexNumber& cn, int max_iterations)
 }
 
 int Fractals::numIterationsMandelbrot(ComplexNumber& z,
-                            int max_iterations)
+                                      int max_iterations)
 {
    double mod2;
    const double barrier = 4;
@@ -129,9 +130,11 @@ int Fractals::numIterationsNewton(ComplexNumber& z)
    return i;
 }
 
-std::vector<std::vector<RGB>> Fractals::NewtonFractal(
-  const Point& p, int width_px, int height_px, double width,
-  double height)
+std::vector<std::vector<RGB>> Fractals::NewtonFractal(const Point& p,
+                                                      int width_px,
+                                                      int height_px,
+                                                      double width,
+                                                      double height)
 {
    int i, j;
    std::vector<std::vector<RGB>> ans(height_px);
@@ -159,11 +162,11 @@ std::vector<std::vector<RGB>> Fractals::plasmaFractal(int n)
    std::vector<std::vector<double>> heights(size);
    for (i = 0; i < size; i++)
       heights[i] = std::vector<double>(size);
-   heights[0][0] =               getRandNum(1);
-   heights[0][size - 1] =        getRandNum(1);
-   heights[size - 1][0] =        getRandNum(1);
+   heights[0][0] = getRandNum(1);
+   heights[0][size - 1] = getRandNum(1);
+   heights[size - 1][0] = getRandNum(1);
    heights[size - 1][size - 1] = getRandNum(1);
-   
+
    heightsPlasma(heights);
    for (i = 0; i < size; i++)
       std::transform(heights[i].begin(),
@@ -214,6 +217,36 @@ void Fractals::diamond(std::vector<std::vector<double>>& heights,
      getRandNum(iter);
 }
 
+std::vector<Point> fractalCochSnowflake(
+  const Point& p, const Fractals::Area& area)
+{
+   
+}
+
+std::vector<Point> fractalPythagorasTree(
+  const Point& p, const Fractals::Area& area)
+{
+}
+
+std::vector<Point> fractalPythagorasTreeNaked(
+  const Point& p, const Fractals::Area& area)
+{
+}
+
+std::vector<Point> Fractals::geometricFractal(
+  const Point& p, const Area& area, GeometricFractalType t)
+{
+   switch (t) {
+      case GeometricFractalType::KOCH_SNOWFLAKE:
+         return fractalCochSnowflake(p, area);
+      case GeometricFractalType::PYTHAGORAS_TREE_CLASSIC:
+         return fractalPythagorasTree(p, area);
+      case GeometricFractalType::PYTHAGORAS_TREE_NAKED:
+         return fractalPythagorasTreeNaked(p, area);
+   }
+   return std::vector<Point>();
+}
+
 void Fractals::square(std::vector<std::vector<double>>& heights,
                       const int& iter, const int& i, const int& j,
                       const int& width, const int& width2)
@@ -231,8 +264,7 @@ void Fractals::square(std::vector<std::vector<double>>& heights,
    ii = i + width2, jj = j + width2;
    if (insideSquare(ii, jj, heights.size()))
       sum += heights[ii][jj];
-   heights[i][j + width2] =
-     sum / 4 + getRandNum(iter);
+   heights[i][j + width2] = sum / 4 + getRandNum(iter);
 }
 
 bool Fractals::insideSquare(const int& i, const int& j,
@@ -283,7 +315,8 @@ void Fractals::brokenHeightsPlasma(
             brokenSquare(heights, i, j, width, width2);
          }
          ii = i + width2;
-         for (j = -width2; j < heights.size(); j += width) // Never works. Maybe.
+         for (j = -width2; j < heights.size();
+              j += width) // Never works. Maybe.
             brokenSquare(heights, ii, j, width, width2);
       }
       for (j = 0; j < heights.size() - 1; j += width)
@@ -295,9 +328,8 @@ void Fractals::brokenHeightsPlasma(
 }
 
 void Fractals::brokenDiamond(
-  std::vector<std::vector<double>>& heights,
-                       const int& i, const int& j, const int& width,
-                       const int& width2)
+  std::vector<std::vector<double>>& heights, const int& i,
+  const int& j, const int& width, const int& width2)
 {
    heights[i + width2][j + width2] =
      (heights[i][j] + heights[i][j + width] + heights[i + width][j] +
@@ -307,8 +339,8 @@ void Fractals::brokenDiamond(
 }
 
 void Fractals::brokenSquare(std::vector<std::vector<double>>& heights,
-                      const int& i, const int& j, const int& width,
-                      const int& width2)
+                            const int& i, const int& j,
+                            const int& width, const int& width2)
 {
    double sum = 0;
    int ii = i, jj = j;

@@ -1,7 +1,6 @@
 #ifndef GEOMETRY_LIB_FRACTALS_HPP
 #define GEOMETRY_LIB_FRACTALS_HPP
 
-
 #include <algorithm>
 #include <cmath>
 #include <ctype.h>
@@ -9,8 +8,8 @@
 #include <vector>
 
 #include "ComplexNumber.hpp"
-#include "functions.hpp"
 #include "Point.hpp"
+#include "functions.hpp"
 
 struct RGB
 {
@@ -97,6 +96,22 @@ class Fractals
    static std::vector<std::vector<RGB>> mandelbrotSet(
      const Point& p, int width_px, int height_px, double width,
      double height, int max_iterations = 1000);
+
+   struct Area
+   {
+      size_t width_px;
+      size_t height_px;
+      double height;
+      double width;
+   };
+   enum class GeometricFractalType
+   {
+      KOCH_SNOWFLAKE,
+      PYTHAGORAS_TREE_CLASSIC,
+      PYTHAGORAS_TREE_NAKED
+   };
+   static std::vector<Point> geometricFractal(
+     const Point& p, const Area& area, GeometricFractalType t);
    static std::vector<std::vector<RGB>> NewtonFractal(const Point& p,
                                                       int width_px,
                                                       int height_px,

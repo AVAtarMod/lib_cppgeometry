@@ -15,7 +15,10 @@ class Curve
    ~Curve();
 
    size_t size() { return _points.size(); }
-   Point operator[](size_t index) const { return _points.at(index); }
+   const Point& operator[](size_t index) const
+   {
+      return _points.at(index);
+   }
 
    /**
     * @brief Make quadratic bézier curve

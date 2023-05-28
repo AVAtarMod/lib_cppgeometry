@@ -26,7 +26,7 @@ Curve Curve::makeBezierCurve(const Point& P0, const Point& P1,
       /**
        * @brief Q0 is on P0P1, Q1 is on P1P2
        */
-      Point Q0, Q1, P;
+      Point Q0, Q1;
       Q0 = P0 + multiple(dP1, i);
       Q1 = P1 + multiple(dP2, i);
       result[index] = Q0 + multiple(Q1 - Q0, i);
@@ -45,13 +45,13 @@ Curve Curve::makeBezierCurve(const Point& P0, const Point& P1,
       /**
        * @brief Q0 is on P0P1, Q1 is on P1P2, Q2 is on P2P3
        */
-      Point Q0, Q1, Q2, P;
+      Point Q0, Q1, Q2;
       // Q0 represents P0 for quadratic curve
       Q0 = P0 + multiple(dP1, i);
       // Q1 represents P1 for quadratic curve
       Q1 = P1 + multiple(dP2, i);
       // Q2 represents P2 for quadratic curve
-      Q2 = P1 + multiple(dP3, i);
+      Q2 = P2 + multiple(dP3, i);
 
       // Store final result in Q0, Q1
       Q0 = Q0 + multiple(Q1 - Q0, i);

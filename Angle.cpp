@@ -70,16 +70,22 @@ bool Angle::operator>=(const Angle& other) const
 
 Angle Angle::operator+(const Angle& other) const
 {
-   double result = _degrees + other._degrees;
+   double result = std::fabs(_degrees + other._degrees);
    if (result > 360.0) {
       result = std::fmod(result, fullAngle()._degrees);
    }
+   if (_degrees + other._degrees)
+      result = result * -1;
    return Angle(result);
 }
 
 Angle Angle::operator-(const Angle& other) const
 {
-   return Angle(_degrees - other._degrees);
+   double value = std::fmod(std::fabs(_degrees - other._degrees),
+                            fullAngle().degrees());
+   if (_degrees - other._degrees < 0)
+      value = value * -1;
+   return Angle(value);
 }
 Angle Angle::operator/(const double& number) const
 {

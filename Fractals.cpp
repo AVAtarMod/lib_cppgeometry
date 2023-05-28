@@ -247,10 +247,12 @@ std::list<Point> equaliteralTriangleByCenter(const Point& center,
 std::vector<Point> fractalCochSnowflake(const Point& p,
                                         const Fractals::Area& area)
 {
-   Polygon area = Polygon::makeByArea({ area.min_x, area.max_x },
+   Polygon p_area = Polygon::makeByArea({ area.min_x, area.max_x },
                                       { area.min_y, area.max_y });
    std::list<Point> result = equaliteralTriangleByCenter(p, 1);
    
+
+   result.push_back(*result.begin());
    return vector_from(result);
 }
 

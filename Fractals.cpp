@@ -149,3 +149,185 @@ std::vector<std::vector<RGB>> Fractals::NewtonFractal(
    }
    return ans;
 }
+
+std::vector<std::vector<RGB>> Fractals::plasmaFractal(int n)
+{
+   int i, size = (int)(pow(2, n) + 0.1) + 1;
+   std::vector<std::vector<RGB>> ans(size);
+   for (i = 0; i < size; i++)
+      ans[i] = std::vector<RGB>(size);
+   std::vector<std::vector<double>> heights(size);
+   for (i = 0; i < size; i++)
+      heights[i] = std::vector<double>(size);
+   heights[0][0] =               getRandNum(1);
+   heights[0][size - 1] =        getRandNum(1);
+   heights[size - 1][0] =        getRandNum(1);
+   heights[size - 1][size - 1] = getRandNum(1);
+   
+   heightsPlasma(heights);
+   for (i = 0; i < size; i++)
+      std::transform(heights[i].begin(),
+                     heights[i].end(),
+                     ans[i].begin(),
+                     [](double a) { return heightToRGB(a); });
+   return ans;
+}
+
+void Fractals::heightsPlasma(
+  std::vector<std::vector<double>>& heights)
+{
+   int i, j, ii;
+   int size = heights.size(), iter = 1, width = size - 1,
+       width2 = width / 2;
+   while (width != 1) {
+      for (i = 0; i < size - 1; i += width) {
+         for (j = 0; j < size - 1; j += width) {
+            diamond(heights, iter, i, j, width, width2);
+            square(heights, iter, i, j, width, width2);
+         }
+         ii = i + width2;
+         for (j = -width2; j < size; j += width)
+            square(heights, iter, ii, j, width, width2);
+      }
+      for (j = 0; j < size - 1; j += width)
+         square(heights, iter, i, j, width, width2);
+
+      width = width / 2;
+      width2 = width / 2;
+      iter++;
+   }
+}
+
+RGB Fractals::heightToRGB(double height)
+{
+   return HSVtoRGB(HSV(0, 0, (height + 1) * 50));
+}
+
+void Fractals::diamond(std::vector<std::vector<double>>& heights,
+                       const int& iter, const int& i, const int& j,
+                       const int& width, const int& width2)
+{
+   heights[i + width2][j + width2] =
+     (heights[i][j] + heights[i][j + width] + heights[i + width][j] +
+      heights[i + width][j + width]) /
+       4 +
+     getRandNum(iter);
+}
+
+void Fractals::square(std::vector<std::vector<double>>& heights,
+                      const int& iter, const int& i, const int& j,
+                      const int& width, const int& width2)
+{
+   double sum = 0;
+   int ii = i, jj = j;
+   if (insideSquare(ii, jj, heights.size()))
+      sum += heights[ii][jj];
+   ii = i - width2, jj = j + width2;
+   if (insideSquare(ii, jj, heights.size()))
+      sum += heights[ii][jj];
+   ii = i, jj = j + width;
+   if (insideSquare(ii, jj, heights.size()))
+      sum += heights[ii][jj];
+   ii = i + width2, jj = j + width2;
+   if (insideSquare(ii, jj, heights.size()))
+      sum += heights[ii][jj];
+   heights[i][j + width2] =
+     sum / 4 + getRandNum(iter);
+}
+
+bool Fractals::insideSquare(const int& i, const int& j,
+                            const int& size)
+{
+   return i >= 0 && i < size && j >= 0 && j < size;
+}
+
+double Fractals::getRandNum(int iter)
+{
+   double rn = (double)(rand()) * 2 / RAND_MAX - 1;
+   int s = sign(rn);
+   return s * pow(abs(rn), 1.0 / iter);
+}
+
+std::vector<std::vector<RGB>> Fractals::brokenPlasmaFractal(int n)
+{
+   int i, size = (int)(pow(2, n) + 0.1) + 1;
+   std::vector<std::vector<RGB>> ans(size);
+   for (i = 0; i < size; i++)
+      ans[i] = std::vector<RGB>(size);
+   std::vector<std::vector<double>> heights(size);
+   for (i = 0; i < size; i++)
+      heights[i] = std::vector<double>(size);
+   heights[0][0] = (double)(rand()) / RAND_MAX;
+   heights[0][size - 1] = (double)(rand()) / RAND_MAX;
+   heights[size - 1][0] = (double)(rand()) / RAND_MAX;
+   heights[size - 1][size - 1] = (double)(rand()) / RAND_MAX;
+
+   brokenHeightsPlasma(heights);
+   for (i = 0; i < size; i++)
+      std::transform(heights[i].begin(),
+                     heights[i].end(),
+                     ans[i].begin(),
+                     [](double a) { return brokenHeightToRGB(a); });
+   return ans;
+}
+
+void Fractals::brokenHeightsPlasma(
+  std::vector<std::vector<double>>& heights)
+{
+   int i, j, ii;
+   int width = heights.size() - 1, width2 = width / 2;
+   while (width != 1) {
+      for (i = 0; i < heights.size() - 1; i += width) {
+         for (j = 0; j < heights.size() - 1; j += width) {
+            brokenDiamond(heights, i, j, width, width2);
+            brokenSquare(heights, i, j, width, width2);
+         }
+         ii = i + width2;
+         for (j = -width2; j < heights.size(); j += width) // Never works. Maybe.
+            brokenSquare(heights, ii, j, width, width2);
+      }
+      for (j = 0; j < heights.size() - 1; j += width)
+         brokenSquare(heights, i, j, width, width2);
+
+      width = width / 2;
+      width2 = width / 2;
+   }
+}
+
+void Fractals::brokenDiamond(
+  std::vector<std::vector<double>>& heights,
+                       const int& i, const int& j, const int& width,
+                       const int& width2)
+{
+   heights[i + width2][j + width2] =
+     (heights[i][j] + heights[i][j + width] + heights[i + width][j] +
+      heights[i + width][j + width]) /
+       4 +
+     (double)(rand()) / RAND_MAX / 5.0 - 0.05;
+}
+
+void Fractals::brokenSquare(std::vector<std::vector<double>>& heights,
+                      const int& i, const int& j, const int& width,
+                      const int& width2)
+{
+   double sum = 0;
+   int ii = i, jj = j;
+   if (insideSquare(ii, jj, heights.size()))
+      sum += heights[ii][jj];
+   ii = i - width2, jj = j + width2;
+   if (insideSquare(ii, jj, heights.size()))
+      sum += heights[ii][jj];
+   ii = i, jj = j + width;
+   if (insideSquare(ii, jj, heights.size()))
+      sum += heights[ii][jj];
+   ii = i + width2, jj = j + width2;
+   if (insideSquare(ii, jj, heights.size()))
+      sum += heights[ii][jj];
+   heights[i][j + width2] =
+     sum / 4 + (double)(rand()) / RAND_MAX / 5.0 - 0.05;
+}
+
+RGB Fractals::brokenHeightToRGB(double height)
+{
+   return HSVtoRGB(HSV(0, 0, height * 100));
+}

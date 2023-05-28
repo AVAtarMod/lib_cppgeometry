@@ -57,8 +57,28 @@ struct HSV
 
 RGB HSVtoRGB(const HSV& c);
 
+const double _persistence = 1.5;
+
 class Fractals
 {
+  private:
+   static void diamond(std::vector<std::vector<double>>& heights,
+                       const int& iter, const int& i, const int& j,
+                       const int& width, const int& width2);
+   static void square(std::vector<std::vector<double>>& heights,
+                      const int& iter, const int& i, const int& j,
+                      const int& width, const int& width2);
+   static bool insideSquare(const int& i, const int& j,
+                            const int& size);
+   static double getRandNum(int iter);
+
+   static void brokenDiamond(
+     std::vector<std::vector<double>>& heights, const int& i,
+     const int& j, const int& width, const int& width2);
+   static void brokenSquare(std::vector<std::vector<double>>& heights,
+                            const int& i, const int& j,
+                            const int& width, const int& width2);
+
   public:
    static RGB newColorMandelbrot(const ComplexNumber& cn,
                                  int max_iterations);
@@ -75,6 +95,16 @@ class Fractals
                                                       int height_px,
                                                       double width,
                                                       double height);
+
+   static std::vector<std::vector<RGB>> plasmaFractal(int n);
+   static void heightsPlasma(
+     std::vector<std::vector<double>>& heights);
+   static RGB heightToRGB(double height);
+
+   static std::vector<std::vector<RGB>> brokenPlasmaFractal(int n);
+   static void brokenHeightsPlasma(
+     std::vector<std::vector<double>>& heights);
+   static RGB brokenHeightToRGB(double height);
 };
 
 #endif // GEOMETRY_LIB_FRACTALS_HPP

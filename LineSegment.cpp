@@ -136,6 +136,18 @@ bool operator<(const LineSegment& a, const LineSegment& b)
    return a.getLine().y(x) < b.getLine().y(x) - eps;
 }
 
+inline std::set<LineSegment>::iterator prev(
+  std::set<LineSegment>::iterator it, const std::set<LineSegment>& s)
+{
+   return it == s.begin() ? s.end() : --it;
+}
+
+inline std::set<LineSegment>::iterator next(
+  std::set<LineSegment>::iterator it)
+{
+   return ++it;
+}
+
 bool LineSegment::isIntersection(const std::vector<LineSegment>& vec)
 {
    int n = vec.size();
@@ -159,7 +171,7 @@ bool LineSegment::isIntersection(const std::vector<LineSegment>& vec)
       int id = e[i].id;
       if (e[i].tp == +1) {
          std::set<LineSegment>::iterator nxt = s.lower_bound(vec[id]),
-                            prv = prev(nxt);
+                                         prv = prev(nxt, s);
          if (nxt != s.end() && (*nxt).isIntersection(vec[id]))
             return true;
          if (prv != s.end() && (*prv).isIntersection(vec[id]))
@@ -167,7 +179,7 @@ bool LineSegment::isIntersection(const std::vector<LineSegment>& vec)
          iters[id] = s.insert(nxt, vec[id]);
       } else {
          std::set<LineSegment>::iterator nxt = next(iters[id]),
-                            prv = prev(iters[id]);
+                                         prv = prev(iters[id], s);
          if (nxt != s.end() && prv != s.end() &&
              (*nxt).isIntersection(*prv))
             return true;

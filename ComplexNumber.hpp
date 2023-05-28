@@ -45,9 +45,9 @@ class ComplexNumber
 
    const double& Re() const { return _real; }
    const double& Im() const { return _imaginary; }
-   const double& Arg() const { return atan2(_imaginary, _real); }
-   const double& Mod() const { return sqrt(Mod2()); }
-   const double& Mod2() const { return _real * _real + _imaginary * _imaginary; }
+   const double Arg() const { return atan2(_imaginary, _real); }
+   const double Mod() const { return sqrt(Mod2()); }
+   const double Mod2() const { return _real * _real + _imaginary * _imaginary; }
 
    static ComplexNumber zero() { return ComplexNumber(0, 0); }
 };

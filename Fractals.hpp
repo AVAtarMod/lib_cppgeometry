@@ -59,7 +59,7 @@ RGB HSVtoRGB(const HSV& c);
 
 const double _persistence = 1.5;
 
-static class Fractals
+class Fractals
 {
   private:
    static void diamond(std::vector<std::vector<double>>& heights,

@@ -86,7 +86,7 @@ class Fractals
                                       int max_iterations);
    static std::vector<std::vector<RGB>> mandelbrotSet(
      const Point& p, int width_px, int height_px, double width,
-     double height, int max_iterations);
+     double height, int max_iterations = 1000);
 
    static RGB newColorNewton(const ComplexNumber& cn);
    static int numIterationsNewton(ComplexNumber& z);

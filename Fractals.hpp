@@ -97,8 +97,8 @@ class Fractals
    {
       size_t width_px;
       size_t height_px;
-      double height;
-      double width;
+      double min_x, max_x;
+      double min_y, max_y;
    };
    enum class GeometricFractalType
    {

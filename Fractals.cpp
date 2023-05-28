@@ -1,4 +1,18 @@
 #include "Fractals.hpp"
+#include "Circle.hpp"
+#include "Polygon.hpp"
+#include <list>
+
+template<class T>
+std::vector<T> vector_from(const std::list<T>& source)
+{
+   auto current = source.cbegin(), end = source.cend();
+   std::vector<Point> v_result(source.size());
+   for (size_t i = 0; current != end; ++i, ++current) {
+      v_result[i] = *current;
+   }
+   return v_result;
+}
 
 // https://www.codespeedy.com/hsv-to-rgb-in-cpp/
 RGB HSVtoRGB(const HSV& c)
@@ -217,14 +231,31 @@ void Fractals::diamond(std::vector<std::vector<double>>& heights,
      getRandNum(iter);
 }
 
-std::vector<Point> fractalCochSnowflake(
-  const Point& p, const Fractals::Area& area)
+std::list<Point> equaliteralTriangleByCenter(const Point& center,
+                                             double side)
 {
-   
+   std::list<Point> result;
+   const double radius = (sqrt(3) / 3) * side;
+   Circle circle(center, radius);
+   const Angle start(90);
+   result.push_back(circle.getPoint(start));
+   result.insert(result.begin(), circle.getPoint(start + 120));
+   result.push_back(circle.getPoint(Angle(start - 120)));
+   return result;
 }
 
-std::vector<Point> fractalPythagorasTree(
-  const Point& p, const Fractals::Area& area)
+std::vector<Point> fractalCochSnowflake(const Point& p,
+                                        const Fractals::Area& area)
+{
+   Polygon area = Polygon::makeByArea({ area.min_x, area.max_x },
+                                      { area.min_y, area.max_y });
+   std::list<Point> result = equaliteralTriangleByCenter(p, 1);
+   
+   return vector_from(result);
+}
+
+std::vector<Point> fractalPythagorasTree(const Point& p,
+                                         const Fractals::Area& area)
 {
 }
 
@@ -233,8 +264,9 @@ std::vector<Point> fractalPythagorasTreeNaked(
 {
 }
 
-std::vector<Point> Fractals::geometricFractal(
-  const Point& p, const Area& area, GeometricFractalType t)
+std::vector<Point> Fractals::geometricFractal(const Point& p,
+                                              const Area& area,
+                                              GeometricFractalType t)
 {
    switch (t) {
       case GeometricFractalType::KOCH_SNOWFLAKE:

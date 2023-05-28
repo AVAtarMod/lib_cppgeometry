@@ -1,6 +1,7 @@
 #include "Fractals.hpp"
 #include "Circle.hpp"
 #include "Polygon.hpp"
+#include <array>
 #include <list>
 
 template<class T>
@@ -244,15 +245,95 @@ std::list<Point> equaliteralTriangleByCenter(const Point& center,
    return result;
 }
 
+std::array<Point, 2> divideLineOn3Part(const LineSegment& source)
+{
+   std::array<Point, 2> result;
+   bool divideByX = true;
+   const Point &begin = source.getBegin(), &end = source.getEnd();
+   const double dx = begin["x"] - end["x"],
+                dy = begin["y"] - end["y"];
+   if (std::fabs(dx) < std::fabs(dy))
+      divideByX = false;
+   if (divideByX) {
+      const double part_length = (dx / 3);
+      result[0] = source.getPointByX(begin["x"] + part_length);
+      result[1] = source.getPointByX(begin["x"] + 2 * part_length);
+   } else {
+      const double part_length = (dy / 3);
+      result[0] = source.getPointByY(begin["y"] + part_length);
+      result[1] = source.getPointByY(begin["y"] + 2 * part_length);
+   }
+   return result;
+}
+
+LineSegment getMidlleSegment(const Line& line,
+                             const double shift_length,
+                             const Point& midlle)
+{
+   static Point endpoints[2];
+   switch (line.getType()) {
+      case LineType::CONST_X:
+         endpoints[0] =
+           Point(midlle["x"], midlle["y"] - shift_length);
+         endpoints[1] =
+           Point(midlle["x"], midlle["y"] + shift_length);
+         break;
+      case LineType::CONST_Y:
+         endpoints[0] =
+           Point(midlle["x"] - shift_length, midlle["y"]);
+         endpoints[1] =
+           Point(midlle["x"] + shift_length, midlle["y"]);
+         break;
+      case LineType::NORMAL:
+         endpoints[0] =
+           Point(midlle["x"] - shift_length, midlle["y"]);
+         endpoints[1] =
+           Point(midlle["x"] + shift_length, midlle["y"]);
+         break;
+      default:
+         break;
+   }
+   return LineSegment(line, endpoints);
+}
+
+void makeFractalCochSnowflakePart(std::list<Point>::iterator& begin,
+                                  std::list<Point>::iterator& end)
+{
+   LineSegment base(*begin, *end);
+   auto ends = divideLineOn3Part(base);
+   LineSegment m_base(ends[0], ends[1]);
+   static double shift_length = (sqrt(3) / 2) * m_base.length();
+   static Point middle = Point::middle(ends[0], ends[1]);
+   auto line = Line::makePerpendicular(m_base.getLine(), middle);
+
+   LineSegment pair = getMidlleSegment(line, shift_length, middle);
+}
+
+void makeFractalCochSnowflake(std::list<Point>& out,
+                              const size_t& iterations)
+{
+   if (iterations > 1) {
+      static size_t size = out.size();
+      size_t begin = 0, end = 1;
+      for (size_t i = 0; i < size; ++i) {
+         // makeFractalCochSnowflakePart(out, begin, end);
+      }
+      makeFractalCochSnowflake(out, iterations - 1);
+   }
+}
+
 std::vector<Point> fractalCochSnowflake(const Point& p,
                                         const Fractals::Area& area)
 {
    Polygon p_area = Polygon::makeByArea({ area.min_x, area.max_x },
-                                      { area.min_y, area.max_y });
+                                        { area.min_y, area.max_y });
    std::list<Point> result = equaliteralTriangleByCenter(p, 1);
-   
-
    result.push_back(*result.begin());
+   size_t iterations_count =
+     area.width_px / (area.max_x - area.min_x);
+   if (iterations_count < 3)
+      iterations_count = 3;
+
    return vector_from(result);
 }
 
@@ -313,7 +394,7 @@ double Fractals::getRandNum(int iter)
 {
    double rn = (double)(rand()) * 2 / RAND_MAX - 1;
    int s = sign(rn);
-   return s * pow(abs(rn), 1.0 / iter);
+   return s * pow(fabs(rn), 1.0 / iter);
 }
 
 std::vector<std::vector<RGB>> Fractals::brokenPlasmaFractal(int n)

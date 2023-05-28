@@ -93,6 +93,22 @@ class Fractals
                             const int& width, const int& width2);
 
   public:
+   struct Area
+   {
+      size_t width_px;
+      size_t height_px;
+      double height;
+      double width;
+   };
+   enum class GeometricFractalType
+   {
+      KOCH_SNOWFLAKE,
+      PYTHAGORAS_TREE_CLASSIC,
+      PYTHAGORAS_TREE_NAKED
+   };
+   static std::vector<Point> geometricFractal(const Point& p,
+                                              const Area& area,
+                                              GeometricFractalType t);
    /**
     * @brief Creates a Newton Fractal
     *
@@ -108,22 +124,6 @@ class Fractals
    static std::vector<std::vector<RGB>> mandelbrotSet(
      const Point& p, int width_px, int height_px, double width,
      double height, int max_iterations = 1000);
-
-   struct Area
-   {
-      size_t width_px;
-      size_t height_px;
-      double height;
-      double width;
-   };
-   enum class GeometricFractalType
-   {
-      KOCH_SNOWFLAKE,
-      PYTHAGORAS_TREE_CLASSIC,
-      PYTHAGORAS_TREE_NAKED
-   };
-   static std::vector<Point> geometricFractal(
-     const Point& p, const Area& area, GeometricFractalType t);
    /**
     * @brief Creates a Newton Fractal
     *
@@ -141,7 +141,7 @@ class Fractals
                                                       double height);
    static std::vector<std::vector<RGB>> plasmaFractal(int n);
    /**
-    * @brief Creates a Newton Fractal
+    * @brief Creates a Plasma Fractal
     *
     * @param n: determines the size of the image
     * 2^n + 1 = size

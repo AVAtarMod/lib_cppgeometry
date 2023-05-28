@@ -4,6 +4,8 @@
 #include <cmath>
 #include <cstdint>
 
+#include <set>
+
 LineSegment::LineSegment(const Point& a, const Point& b) :
   _endpoints { a, b }
 {
@@ -102,6 +104,65 @@ bool LineSegment::isIntersection(const LineSegment& ls) const
    std::pair<Point, Point> p2 { ls._endpoints[0], ls._endpoints[1] };
    return LineSegment::isIntersection(
      p1.first, p1.second, p2.first, p2.second);
+}
+
+struct event
+{
+   double x;
+   int tp, id;
+
+   event() {}
+   event(double x, int tp, int id) : x(x), tp(tp), id(id) {}
+
+   bool operator<(const event& e) const
+   {
+      if (abs(x - e.x) > eps)
+         return x < e.x;
+      return tp > e.tp;
+   }
+};
+
+std::set<LineSegment> s;
+
+bool LineSegment::isIntersection(const std::vector<LineSegment>& vec)
+{
+   int n = vec.size();
+   std::vector<event> e;
+   for (int i = 0; i < n; ++i) {
+      e.push_back(
+        event(std::min(vec[i].getBegin()["x"], vec[i].getEnd()["x"]),
+              +1,
+              i));
+      e.push_back(
+        event(std::max(vec[i].getBegin()["x"], vec[i].getEnd()["x"]),
+              -1,
+              i));
+   }
+   sort(e.begin(), e.end());
+
+   std::set<LineSegment> s = std::set<LineSegment>();
+   std::vector<std::set<LineSegment>::iterator> iters(n);
+
+   for (size_t i = 0; i < e.size(); ++i) {
+      int id = e[i].id;
+      if (e[i].tp == +1) {
+         std::set<LineSegment>::iterator nxt = s.lower_bound(vec[id]),
+                            prv = prev(nxt);
+         if (nxt != s.end() && (*nxt).isIntersection(vec[id]))
+            return true;
+         if (prv != s.end() && (*prv).isIntersection(vec[id]))
+            return true;
+         iters[id] = s.insert(nxt, vec[id]);
+      } else {
+         std::set<LineSegment>::iterator nxt = next(iters[id]),
+                            prv = prev(iters[id]);
+         if (nxt != s.end() && prv != s.end() &&
+             (*nxt).isIntersection(*prv))
+            return true;
+         s.erase(iters[id]);
+      }
+   }
+   return false;
 }
 
 bool LineSegment::isBelongs(const Point& p1, const Point& p2,

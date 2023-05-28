@@ -52,6 +52,11 @@ class LineSegment
     */
    bool isIntersection(const LineSegment& ls) const;
    /**
+    * @brief Checks if there are at least two intersecting segments.
+    *
+    */
+   bool static isIntersection(const std::vector<LineSegment>& vec);
+   /**
     * @brief Checks if point p belongs to segment p1p2
     *
     */

@@ -259,11 +259,13 @@ std::vector<Point> fractalCochSnowflake(const Point& p,
 std::vector<Point> fractalPythagorasTree(const Point& p,
                                          const Fractals::Area& area)
 {
+   return std::vector<Point>();
 }
 
 std::vector<Point> fractalPythagorasTreeNaked(
   const Point& p, const Fractals::Area& area)
 {
+   return std::vector<Point>();
 }
 
 std::vector<Point> Fractals::geometricFractal(const Point& p,

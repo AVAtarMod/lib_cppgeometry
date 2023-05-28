@@ -93,6 +93,18 @@ class Fractals
                             const int& width, const int& width2);
 
   public:
+   /**
+    * @brief Creates a Newton Fractal
+    *
+    * @param p: the point of the upper left corner of the area in
+    * local coordinates
+    * @param width_px: area width in pixels
+    * @param height_px: area height in pixels
+    * @param width: area width in local coordinates
+    * @param height: area height in local coordinates
+    * @param max_iterations: the maximum number of checks for a point
+    * belonging to the set
+    */
    static std::vector<std::vector<RGB>> mandelbrotSet(
      const Point& p, int width_px, int height_px, double width,
      double height, int max_iterations = 1000);
@@ -112,12 +124,28 @@ class Fractals
    };
    static std::vector<Point> geometricFractal(
      const Point& p, const Area& area, GeometricFractalType t);
+   /**
+    * @brief Creates a Newton Fractal
+    *
+    * @param p: the point of the upper left corner of the area in
+    * local coordinates
+    * @param width_px: area width in pixels
+    * @param height_px: area height in pixels
+    * @param width: area width in local coordinates
+    * @param height: area height in local coordinates
+    */
    static std::vector<std::vector<RGB>> NewtonFractal(const Point& p,
                                                       int width_px,
                                                       int height_px,
                                                       double width,
                                                       double height);
    static std::vector<std::vector<RGB>> plasmaFractal(int n);
+   /**
+    * @brief Creates a Newton Fractal
+    *
+    * @param n: determines the size of the image
+    * 2^n + 1 = size
+    */
    static std::vector<std::vector<RGB>> brokenPlasmaFractal(int n);
 };
 

@@ -23,7 +23,7 @@ class Angle
       /**
        * @brief Value between -90 and 90
        */
-      Default
+      RightArea
    };
    /**
     * @brief Construct a new Angle object by degrees

@@ -160,23 +160,21 @@ int Polygon::countIntersections(const Point& p,
                                 const std::vector<int>& signs)
 {
    int count = 0, dif = 0;
-   if (signs.size() != 0)
-   {
-       for (int i = 0; i < signs.size() - 1; i++)
-           if (signs[i] != signs[i + 1] ||
-               signs[i] == 0) // There is intersection?
-               if (signs[i] == signs[i + 1])
-                   dif++; // signs[i] = 0 signs[i + 1] = 0
-               else if (abs(signs[i]) == abs(signs[i + 1]))
-                   count++;             // signs[i] = +-1 signs[i + 1] = -+1
-               else if (signs[i] == 0) // signs[i] = 0 signs[i + 1] = -+1
-               {
-                   if (signs[i - dif] != signs[i + 1])
-                       count++; // signs[i - dif] = +-1 signs[i + 1] = -+1
-                   dif = 0;
-               }
-               else
-                   dif++; // signs[i] = +-1 signs[i + 1] = 0
+   if (signs.size() != 0) {
+      for (int i = 0; i < signs.size() - 1; i++)
+         if (signs[i] != signs[i + 1] ||
+             signs[i] == 0) // There is intersection?
+            if (signs[i] == signs[i + 1])
+               dif++; // signs[i] = 0 signs[i + 1] = 0
+            else if (abs(signs[i]) == abs(signs[i + 1]))
+               count++; // signs[i] = +-1 signs[i + 1] = -+1
+            else if (signs[i] == 0) // signs[i] = 0 signs[i + 1] = -+1
+            {
+               if (signs[i - dif] != signs[i + 1])
+                  count++; // signs[i - dif] = +-1 signs[i + 1] = -+1
+               dif = 0;
+            } else
+               dif++; // signs[i] = +-1 signs[i + 1] = 0
    }
    return count;
 }
@@ -194,6 +192,19 @@ int Polygon::intersectionPointIsOnRight(const Point& p, int ind) const
       return 1;
    else
       return -1;
+}
+
+bool Polygon::isInsideOrthogonalRectanlge(const Point& p) const
+{
+   if (size() != 4 &&
+         LineSegment(_points[0], _points[1])
+           .isIntersection(LineSegment(_points[2], _points[3])) &&
+         _points[0]["x"] == _points[1]["x"] ||
+       _points[0]["y"] == _points[1]["y"])
+      throw std::invalid_argument(
+        "This Polygon is not orthogonal rectangle.");
+
+   return impl::PointCode(impl::xy_minmax(*this), p) == 0;
 }
 
 bool Polygon::isInside(const Point& p) const

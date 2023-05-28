@@ -61,6 +61,7 @@ class Polygon
 
    const int size() const { return _points.size(); }
    bool isInside(const Point& p) const;
+   bool isInsideOrthogonalRectanlge(const Point& p) const;
    std::pair<double, const Point*>* anglesForConvexPolygon() const;
    bool isInsideConvexPolygon(
      const Point& p, std::pair<double, const Point*>* angles) const;

@@ -110,7 +110,7 @@ class Fractals
                                               const Area& area,
                                               GeometricFractalType t);
    /**
-    * @brief Creates a Newton Fractal
+    * @brief Creates a Mandelbrot set
     *
     * @param p: the point of the upper left corner of the area in
     * local coordinates

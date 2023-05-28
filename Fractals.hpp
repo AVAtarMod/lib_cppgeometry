@@ -139,9 +139,15 @@ class Fractals
                                                       int height_px,
                                                       double width,
                                                       double height);
-   static std::vector<std::vector<RGB>> plasmaFractal(int n);
    /**
     * @brief Creates a Plasma Fractal
+    *
+    * @param n: determines the size of the image
+    * 2^n + 1 = size
+    */
+   static std::vector<std::vector<RGB>> plasmaFractal(int n);
+   /**
+    * @brief Creates a broken Plasma Fractal
     *
     * @param n: determines the size of the image
     * 2^n + 1 = size

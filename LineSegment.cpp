@@ -34,11 +34,11 @@ std::pair<Point, Point> LineSegment::getEndpoints() const
 {
    return std::pair<Point, Point> { _endpoints[0], _endpoints[1] };
 }
-Point LineSegment::getBegin() const
+const Point& LineSegment::getBegin() const
 {
    return _endpoints[0];
 }
-Point LineSegment::getEnd() const
+const Point& LineSegment::getEnd() const
 {
    return _endpoints[1];
 }

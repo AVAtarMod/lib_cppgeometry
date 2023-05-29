@@ -99,6 +99,17 @@ class Fractals
       size_t height_px;
       double min_x, max_x;
       double min_y, max_y;
+      Area(size_t width_px, size_t height_px,
+           std::pair<double, double> x_minmax,
+           std::pair<double, double> y_minmax)
+      {
+         this->width_px = width_px;
+         this->height_px = height_px;
+         min_x = x_minmax.first;
+         max_x = x_minmax.second;
+         min_y = y_minmax.first;
+         max_y = y_minmax.second;
+      }
    };
    enum class GeometricFractalType
    {

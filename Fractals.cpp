@@ -2,6 +2,7 @@
 #include "Circle.hpp"
 #include "Polygon.hpp"
 #include <array>
+#include <cmath>
 #include <list>
 
 template<class T>
@@ -250,25 +251,32 @@ std::array<Point, 2> divideLineOn3Part(const LineSegment& source)
    std::array<Point, 2> result;
    bool divideByX = true;
    const Point &begin = source.getBegin(), &end = source.getEnd();
+   char ls_sign;
    const double dx = begin["x"] - end["x"],
                 dy = begin["y"] - end["y"];
    if (std::fabs(dx) < std::fabs(dy))
       divideByX = false;
    if (divideByX) {
-      const double part_length = (dx / 3);
-      result[0] = source.getPointByX(begin["x"] + part_length);
-      result[1] = source.getPointByX(begin["x"] + 2 * part_length);
+      ls_sign = -sign(begin["x"] - end["x"]);
+      const double part_length = std::fabs(dx / 3);
+      result[0] =
+        source.getPointByX(begin["x"] + ls_sign * part_length);
+      result[1] =
+        source.getPointByX(begin["x"] + ls_sign * 2 * part_length);
    } else {
-      const double part_length = (dy / 3);
-      result[0] = source.getPointByY(begin["y"] + part_length);
-      result[1] = source.getPointByY(begin["y"] + 2 * part_length);
+      ls_sign = -sign(begin["y"] - end["y"]);
+      const double part_length = std::fabs(dy / 3);
+      result[0] =
+        source.getPointByY(begin["y"] + ls_sign * part_length);
+      result[1] =
+        source.getPointByY(begin["y"] + ls_sign * 2 * part_length);
    }
    return result;
 }
 
-LineSegment getMidlleSegment(const Line& line,
-                             const double shift_length,
-                             const Point& midlle)
+std::array<Point, 2> getMidlleSegment(const Line& line,
+                                      const double shift_length,
+                                      const Point& midlle)
 {
    static Point endpoints[2];
    switch (line.getType()) {
@@ -284,41 +292,122 @@ LineSegment getMidlleSegment(const Line& line,
          endpoints[1] =
            Point(midlle["x"] + shift_length, midlle["y"]);
          break;
-      case LineType::NORMAL:
+      case LineType::NORMAL: {
+         double degree = std::atan(line.K());
+         double dx = std::sin(degree) * shift_length;
          endpoints[0] =
-           Point(midlle["x"] - shift_length, midlle["y"]);
+           Point(midlle["x"] - dx, line.y(midlle["x"] - dx));
          endpoints[1] =
-           Point(midlle["x"] + shift_length, midlle["y"]);
+           Point(midlle["x"] + dx, line.y(midlle["x"] + dx));
          break;
+      }
       default:
          break;
    }
-   return LineSegment(line, endpoints);
+   auto ls = LineSegment(line, endpoints);
+   auto result = ls.getEndpoints();
+   return { result.first, result.second };
 }
 
-void makeFractalCochSnowflakePart(std::list<Point>::iterator& begin,
-                                  std::list<Point>::iterator& end)
+double totalDistance(const std::vector<Point>& array,
+                     const Point& source)
+{
+   double result = 0;
+   for (auto&& i : array) {
+      result += i.distance(source);
+   }
+
+   return result;
+}
+
+void makeFractalCochSnowflakePart(
+  std::list<Point>::const_iterator& begin,
+  std::list<Point>::const_iterator& end, std::list<Point>& list,
+  const size_t iteration, const size_t total_iterations,
+  const size_t part_number)
 {
    LineSegment base(*begin, *end);
    auto ends = divideLineOn3Part(base);
    LineSegment m_base(ends[0], ends[1]);
-   static double shift_length = (sqrt(3) / 2) * m_base.length();
-   static Point middle = Point::middle(ends[0], ends[1]);
-   auto line = Line::makePerpendicular(m_base.getLine(), middle);
+   double shift_length = (sqrt(3) / 2) * m_base.length();
+   Point middle = Point::middle(ends[0], ends[1]);
+   Line line = Line::makePerpendicular(m_base.getLine(), middle);
+   auto pair = getMidlleSegment(line, shift_length, middle);
 
-   LineSegment pair = getMidlleSegment(line, shift_length, middle);
+   size_t next_scope_size =
+     (total_iterations - iteration + 1) * 2 - 1;
+   size_t prev_scope_size = next_scope_size;
+   for (size_t i = 0, pn = part_number; i < 3 && pn > 0; ++i) {
+      --pn;
+      prev_scope_size += 3;
+   }
+
+   auto prev_it = begin, next_it = end;
+   for (size_t i = 0; i < prev_scope_size; ++i) {
+      if (prev_it == list.begin()) {
+         prev_it = list.end();
+         --prev_it;
+      } else {
+         --prev_it;
+      }
+   }
+   for (size_t i = 0; i < next_scope_size; ++i) {
+      if (next_it == list.end()) {
+         next_it = list.begin();
+      }
+      ++next_it;
+      if (next_it == prev_it) {
+         --next_it;
+         break;
+      }
+   }
+   std::vector<Point> polygon;
+   polygon.reserve(next_scope_size + prev_scope_size);
+   while (prev_it != next_it && polygon.size() < list.size()) {
+      if (prev_it == list.end()) {
+         prev_it = list.begin();
+      }
+      polygon.push_back(*prev_it);
+      ++prev_it;
+   }
+   if (list.size() != polygon.size() && next_it != list.end())
+      polygon.push_back(*next_it);
+
+   Polygon check_area(polygon);
+   bool check_result =
+     (check_area.size() == 3)
+       ? check_area.isInsideTriangle(
+           polygon[0], polygon[1], polygon[2], pair[0])
+       : check_area.isInside(pair[0]);
+   check_result = check_result || totalDistance(polygon, pair[0]) <
+                                    totalDistance(polygon, pair[1]);
+   if (check_result)
+      middle = pair[1];
+   else {
+      middle = pair[0];
+   }
+   list.insert(end, { ends[1], middle, ends[0] });
+
+   begin = end;
+   ++end;
+   if (end == list.end())
+      end = list.begin();
 }
 
 void makeFractalCochSnowflake(std::list<Point>& out,
-                              const size_t& iterations)
+                              const size_t& iteration,
+                              const size_t& total_iter)
 {
-   if (iterations > 1) {
+   if (iteration > 1) {
       static size_t size = out.size();
-      size_t begin = 0, end = 1;
+      auto begin = out.cbegin();
+      auto end = ++begin;
+      --begin;
       for (size_t i = 0; i < size; ++i) {
-         // makeFractalCochSnowflakePart(out, begin, end);
+         makeFractalCochSnowflakePart(
+           begin, end, out, iteration, total_iter, i);
       }
-      makeFractalCochSnowflake(out, iterations - 1);
+      makeFractalCochSnowflake(out, iteration - 1, total_iter);
    }
 }
 
@@ -328,11 +417,13 @@ std::vector<Point> fractalCochSnowflake(const Point& p,
    Polygon p_area = Polygon::makeByArea({ area.min_x, area.max_x },
                                         { area.min_y, area.max_y });
    std::list<Point> result = equaliteralTriangleByCenter(p, 1);
-   result.push_back(*result.begin());
    size_t iterations_count =
      area.width_px / (area.max_x - area.min_x);
    if (iterations_count < 3)
       iterations_count = 3;
+   makeFractalCochSnowflake(
+     result, iterations_count, iterations_count);
+   result.push_back(*result.begin());
 
    return vector_from(result);
 }

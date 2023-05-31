@@ -215,7 +215,7 @@ bool Polygon::isInside(const Point& p) const
    std::vector<int> signs_part2 = std::vector<int>();
 
    cond_i_1 = (*this)[0]["x"] >= p["x"];
-   for (i = 0; i < size() - 1; i++) {
+   for (i = 0; i < size(); i++) {
       cond_i = cond_i_1;
       cond_i_1 = (*this)[i + 1]["x"] >= p["x"];
       if ((cond_i && cond_i_1) ||

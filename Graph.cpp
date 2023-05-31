@@ -149,6 +149,4 @@ std::unique_ptr<Polygon> Graph::localizationOfAPoint(
 
 Graph::~Graph()
 {
-    _adjacencyMatrix.~vector();
-    _points.~vector();
 }

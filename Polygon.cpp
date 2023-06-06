@@ -988,12 +988,16 @@ namespace impl {
 
       const long i_min = std::fabs(query_x_min - input_x_min + 1) /
                          cell_width,
-                 i_max = std::fabs(query_x_max - input_x_min + 1) /
-                         cell_width,
+                 i_max =
+                   std::fmod(query_x_max - input_x_min, cell_width) +
+                   static_cast<long>((query_x_max - input_x_min) /
+                                     cell_width),
                  j_min = std::fabs(query_y_min - input_y_min + 1) /
                          cell_height,
-                 j_max = std::fabs(query_y_max - input_y_min + 1) /
-                         cell_height;
+                 j_max =
+                   std::fmod(query_y_max - input_x_min, cell_width) +
+                   static_cast<long>((query_y_max - input_x_min) /
+                                     cell_width);
       result.i_min = (i_min > cols_count) ? cols_count : i_min;
       result.i_max = (i_max > cols_count) ? cols_count : i_max;
       result.j_min = (j_min > rows_count) ? rows_count : j_min;
